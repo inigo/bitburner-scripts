@@ -21,7 +21,7 @@ async function buyServerWithAttack(ns: NS, ignoreLimit: boolean) {
 	const ramSize = (existingCount < 3 || hackLevel < 1000) ? 16384 :
 						(existingCount < 6 || hackLevel < 1500) ? 65536 :
 						524288;
-	const viableTargets = listBestTargets(ns, 60, ramSize);
+	const viableTargets = listBestTargets(ns, 60, ramSize).filter(t => t.isAttacked == false);
 
 	if (viableTargets.length==0) {
 		ns.print("No suitable targets to attack");
