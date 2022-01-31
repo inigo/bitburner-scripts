@@ -1,7 +1,17 @@
 
 Scripts for playing Bitburner - https://danielyxie.github.io/bitburner/
 
-This is based on the VS Code template project at https://github.com/bitburner-official/bitburner-vscode.
+This is based on the VS Code template project at https://github.com/bitburner-official/vscode-template
+
+## Usage
+
+```
+npm install
+npm run defs
+npm run watch
+```
+
+Read the fuller documentation in the template project repo for more information.
 
 ## License
 
