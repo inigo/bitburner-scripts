@@ -24,4 +24,5 @@
             "snippet": "ns-template"
         },
     ],
+    "bitburner.fileWatcher.enable": true,
 }
