@@ -2,18 +2,21 @@ import { fmt } from "libFormat";
 import * as dom from "casino/libDom";
 import { NS } from '@ns';
 
-
 export async function main(ns: NS): Promise<void> {
-	const doc = dom.getDocument();
-	let played = 0;
-	const gamesToPlay = 1000;
 	const moneyBefore = ns.getServerMoneyAvailable("home");
-	while (played < gamesToPlay) {
-		const additionalPlayed = playGames(ns, gamesToPlay-played);
-		played += additionalPlayed;
+	if (moneyBefore < 100000000) {
+		ns.tprint("Insufficient funds - need a safe margin to bet with");
+		ns.exit();
+	}
+
+	let played = 0;
+	for (let i=0; i<5; i++) {
+		played += playGames(ns, 9999); // Will reset when decks shuffled
 	}
 	const moneyAfter = ns.getServerMoneyAvailable("home");
-	ns.tprint(fmt(ns)`Done - played ${played} games and gained £${moneyAfter - moneyBefore}`);
+	ns.tprint(fmt(ns)`Done - played ${played} games and gained £${moneyAfter - moneyBefore} (note incorrect if other scripts running)`);
+
+	const doc = dom.getDocument();	
 	dom.selectSidebarOption(doc, "Terminal");	
 }
 
@@ -67,7 +70,14 @@ function playGames(ns: NS, gamesToPlay: number): number {
 		played++;
 
 		const trueScore = getScore(ns, decks);
-		if (trueScore < -3) return played;
+		// if (trueScore < -4) {
+		// 	ns.tprint("Aborting game, since odds have got too bad");
+		// 	return played;
+		// }
+		if (decks.hasShuffled) {
+			ns.tprint("Restarting, since deck has reset");
+			return played;
+		}
 		const betSize = chooseBet(ns, trueScore);
 		setBet(doc, betSize);
 	}
@@ -91,8 +101,11 @@ function chooseBet(ns: NS, trueScore: number) {
 
 	const betModifier = (trueScore <= 1) ? 1 :
 						(trueScore <= 2) ? 2 :
-						(trueScore <= 3) ? 6 :
-						(trueScore <= 4) ? 8 : 12;
+						(trueScore <= 3) ? 4 :
+						(trueScore <= 4) ? 6 : 
+						(trueScore <= 5) ? 10 : 
+						(trueScore <= 8) ? 20 : 
+						40;
 	ns.tprint("Bet modifier is "+betModifier);
 	const bet = minBet * betModifier;
 	ns.tprint("Bet is "+bet);
@@ -122,17 +135,15 @@ type Hand = { value: number, isHard: boolean, isSoft: boolean };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function shouldPlayerHit(ns: NS, playerCards: Card[], dealerCards: Card[], deck: Decks) {
-	// https://wizardofodds.com/games/blackjack/strategy/4-decks/
+    // A dealer must hit if they have 16 or lower.
+    // If the dealer has a Soft 17 (Ace + 6), then they stand.
 
-    // Determine if Dealer needs to hit. A dealer must hit if they have 16 or lower.
-    // If the dealer has a Soft 17 (Ace + 6), then they stay.
-
-	// @todo If there's an A in the hand with three cards, it should be treated as less
 	const playerHand = toHand(ns, playerCards);
 	const dealerHand = toHand(ns, dealerCards);
 
 	ns.print("Player hand value "+playerHand.value+" from '"+playerCards+"' and dealer hand value "+dealerHand.value+" from '"+dealerCards+"'");
 
+	// https://wizardofodds.com/games/blackjack/strategy/4-decks/
 	// Always hit hard 11 or less.
 	if (playerHand.value <= 11 && playerHand.isHard) { return true; }
 	// Stand on hard 12 against a dealer 4-6, otherwise hit.
@@ -178,6 +189,7 @@ class Decks {
 	numDecks = 5;
 	sleeveSize = 52 * this.numDecks;
 	ns: NS;
+	hasShuffled = false;
 	constructor(ns: NS) {
 		this.ns = ns;
 	}
@@ -187,6 +199,7 @@ class Decks {
 		const existingCount = this.cardLookup.get(cardString) ?? 0;
 		if (existingCount==5) {
 			this.ns.print("All decks in shoe used - resetting stats");
+			this.hasShuffled = true;
 			this.reset();
 			this.cardLookup.set(cardString, 1);
 		} else {
