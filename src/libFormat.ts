@@ -77,7 +77,7 @@ export class PrettyTable {
 		const fillerRow: string = "|"+"-".repeat(totalWidth)+"|\n";
 		const bodyRows = this.rows.map(row => this.displayRow(row)).join("");
 
-		return "\n"+fillerRow+headerRow+fillerRow+bodyRows+fillerRow;
+		return fillerRow+headerRow+fillerRow+bodyRows+fillerRow;
 	}
 
 	/** Display each cell in a row. */

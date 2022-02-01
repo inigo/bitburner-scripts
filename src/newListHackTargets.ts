@@ -15,5 +15,5 @@ export async function main(ns: NS): Promise<void> {
 	for (const t of targets.slice(0,20)) {
 		table.addRow([t.name, (t.isAttacked ? "Yes" : " "), t.incomeWithinPeriodPerSecond, t.incomePerSecond, t.maxMoney, t.time, t.totalMemory, t.threads, t.initialPrimeTime ]);
 	}
-	ns.tprint(table.display());
+	ns.tprintf("%s", table.display());
 }
