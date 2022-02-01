@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-
+import * as ports from "libPorts.js";
 
 export async function doAttack(ns: NS, filename: string, attackFn: ((serverName: string) => Promise<void>)): Promise<void> {
     const target = (ns.args[0] as string);
@@ -30,17 +30,14 @@ export async function doAttack(ns: NS, filename: string, attackFn: ((serverName:
  * Comms functions to send and receive targets to the nodes.
  */
 
-const LOGGING_PORT = 2;
-
 /** Set whether logging is enabled for a particular server. */
 export async function setLogging(ns: NS, logStatus: string): Promise<void> {
-	ns.clearPort(LOGGING_PORT);
-	await ns.writePort(LOGGING_PORT, logStatus);
+    await ports.setPortValue(ns, ports.LOGGING_PORT, logStatus);
 }
  
 /** Check whether this particular server should do logging */
 export function shouldLog(ns: NS): boolean {
-	const cmdString = ns.peek(LOGGING_PORT);
+	const cmdString = ports.checkPort(ns, ports.LOGGING_PORT);
     return cmdString=="all" || (ns.getHostname()==cmdString);
 }
 
@@ -54,9 +51,9 @@ export function log(ns: NS, message: string): void {
 /** 
  * Process control.
  */
-export function killMatchingScripts(ns: NS, host: string, filenames: string[], target: string): void {
+export function killMatchingScripts(ns: NS, host: string, filenames: string[], target: string): number {
 	const matchesTargetFn = (args: string[]) => (target=="all") ? true : args.includes(target);
 	return ns.ps(host).filter(p => filenames.includes(p.filename))
             .filter(p => matchesTargetFn(p.args))
-            .forEach(p => ns.kill(p.pid));
+            .map(p => ns.kill(p.pid)).length;
 }
