@@ -9,22 +9,19 @@ export async function main(ns: NS): Promise<void> {
 	if (! ns.gang.inGang()) {
 		ns.print("Not in gang - nothing to do");
 		ns.exit();
-	}
-	
-	if (ns.gang.getGangInformation().territory > 0.995) {
+	} else if (ns.gang.getGangInformation().territory > 0.995) {
 		ns.print("Gang already controls all territory - nothing to do");
 		ns.exit();
+	} else {
+		while (true) {
+			const powerInterval = await findPowerInterval(ns);
+			if (powerInterval.interval < 50) {
+				ns.tprint("Error finding power interval - aborting to avoid loop");
+				ns.exit();
+			}		
+			await intermittentlyToggleWarfare(ns, powerInterval);
+		}
 	}
-
-	while (true) {
-		const powerInterval = await findPowerInterval(ns);
-		if (powerInterval.interval < 50) {
-			ns.tprint("Error finding power interval - aborting to avoid loop");
-			ns.exit();
-		}		
-		await intermittentlyToggleWarfare(ns, powerInterval);
-	}
-
 }
 
 async function findPowerInterval(ns: NS): Promise<PowerInterval> {	

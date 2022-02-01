@@ -8,6 +8,7 @@ export async function main(ns: NS): Promise<void> {
 		if (wasCreated) {
 			ns.tprint("Started gang");
 			ns.run("/crime/manageGang.js");
+			ns.run("/crime/intermittentWarfare.js");
 		}
 	}
 }
