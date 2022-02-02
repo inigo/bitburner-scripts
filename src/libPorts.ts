@@ -9,6 +9,7 @@ export const SLEEVE_REPORTS_PORT = 5; // What are the sleeves working on?
 export const GANG_CONTROL_PORT = 6; // What action should the gang be doing?
 export const GANG_REPORTS_PORT = 7; // How is the gang?
 export const ACTIVE_FRAGMENTS_PORT = 8; // A list of the active fragments in Stanek's Gift
+export const PAUSE_SHARE_TRADING = 9; // Temporarily pause share trading if there is a message present
 
 /**
  * Set a single value on the specified port.
@@ -24,10 +25,16 @@ export async function setPortValue(ns: NS, portNumber: number, value: any = null
  * Peek at the latest value on the specified port - optionally transforming it e.g. via parseInt or JSON.parse
  * 
  * @param {NS} ns
- * @param {int} portNumber
+ * @param {number} portNumber
  * @param {fn} transformFn
  */
 export function checkPort(ns: NS, portNumber: number, transformFn = (x: any) => x): any {
     const portValue = ns.peek(portNumber);
+	return (portValue=="NULL PORT DATA") ? null : transformFn(portValue);
+}
+
+/** Pop the latest value from a port */
+export function popPort(ns: NS, portNumber: number, transformFn = (x: any) => x): any {
+    const portValue = ns.readPort(portNumber);
 	return (portValue=="NULL PORT DATA") ? null : transformFn(portValue);
 }
