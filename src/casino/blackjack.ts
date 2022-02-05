@@ -100,7 +100,7 @@ function playGames(ns: NS, gamesToPlay: number, strategies: IBetStrategy[]): num
 			return played;
 		}
 
-		const chosenStrategy = new WongHalvesBetStrategy();
+		const chosenStrategy = new WongHalvesBetStrategy("chosen-wong-halves");
 		const maxBet = 100_000_000;
 		const desiredBet = chosenStrategy.chooseBet(decks); 
 		const betSize = Math.min(maxBet, desiredBet);
