@@ -423,10 +423,13 @@ export async function reportGangInfo(ns: NS): Promise<void> {
 	const memberInfos = gangMembers
 							.map(ns.gang.getMemberInformation)
 							.map(m => { return { name: m.name, task: m.task }; } );
-	const combinedInfo = {
+	const combinedInfo: GangReport = {
 		gangInfo: info,
 		members: memberInfos 
 	}
 
 	await ports.setPortValue(ns, ports.GANG_REPORTS_PORT, JSON.stringify(combinedInfo));
 }
+
+export type GangMemberReport = { name: string, task: string}
+export type GangReport = { gangInfo: GangGenInfo, members: GangMemberReport[]  }
