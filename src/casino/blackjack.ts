@@ -95,17 +95,18 @@ function setBet(doc: Document, amount: number): void {
 }
 
 function chooseBet(ns: NS, trueScore: number) {
-	const minBet = 1000000;
-	// const maxBet = 100000000;
+	const minBet = 1;
+	// const maxBet = 100_000_000;
 	// const availableMoney = ns.getServerMoneyAvailable("home");
 
 	const betModifier = (trueScore <= 1) ? 1 :
-						(trueScore <= 2) ? 2 :
-						(trueScore <= 3) ? 4 :
-						(trueScore <= 4) ? 6 : 
-						(trueScore <= 5) ? 10 : 
-						(trueScore <= 8) ? 20 : 
-						40;
+						(trueScore <= 2) ? 2_000_000 :
+						(trueScore <= 3) ? 4_000_000 :
+						(trueScore <= 4) ? 6_000_000 : 
+						(trueScore <= 5) ? 10_000_000 : 
+						(trueScore <= 8) ? 20_000_000 : 
+						(trueScore <= 12) ? 30_000_000 : 
+						50_000_000;
 	ns.tprint("Bet modifier is "+betModifier);
 	const bet = minBet * betModifier;
 	ns.tprint("Bet is "+bet);
