@@ -21,8 +21,8 @@ export async function main(ns: NS): Promise<void> {
 	const spareRamBuffer = host=="home" ? 100 : 0;
 	const moneyToTakePercent: number = (ns.args[1] as number) ?? 0.5;
 	
-	const minAttacksBeforeReset = 100;
-	const minWaitBeforeResetMs = 300000;
+	const minAttacksBeforeReset = 500;
+	const minWaitBeforeResetMs = 600000;
 	const resetBufferMs = 5000;
 
 	const availableRam = ns.getServerMaxRam(host) - spareRamBuffer;	
@@ -32,19 +32,23 @@ export async function main(ns: NS): Promise<void> {
 		ns.toast(`Priming ${host} for attack on ${hackTarget}`, "info");
 
 		const cores = ns.getServer(host).cpuCores;
-		const attack = new AttackController(ns, hackTarget, availableRam, cores, moneyToTakePercent);
-		const timing = attack.timingInfo();
+		const primingAttack = new AttackController(ns, hackTarget, availableRam, cores, moneyToTakePercent);
+		const primingTiming = primingAttack.timingInfo();
 		
-		log(ns, fmt(ns)`INFO Planning ${timing.simultaneousAttacks} simultaneous attacks`);		
+		log(ns, fmt(ns)`INFO Planning ${primingTiming.simultaneousAttacks} simultaneous attacks`);		
 
-		const attackInfo = attack.infoPerCycle();
-		const memoryNeeded = attackInfo.memory;
+		const primingAttackInfo = primingAttack.infoPerCycle();
+		const memoryNeeded = primingAttackInfo.memory;
 		if (memoryNeeded > availableRam) {
 			ns.tprint(fmt(ns)`ERROR Unable to run hack on ${hackTarget} from ${host} - insufficient memory. Currently have ${availableRam}GB but need ${memoryNeeded}GB`);
 			ns.exit();
 		}
 
-		await attack.primeServer();		
+		await primingAttack.primeServer();	
+		
+		// The priming often takes a while, and this sometimes means a significant change in hacking before the real attack starts
+		const attack = new AttackController(ns, hackTarget, availableRam, cores, moneyToTakePercent);
+		const timing = attack.timingInfo();
 		
 		ns.toast(fmt(ns)`Launching ${timing.simultaneousAttacks} simultaneous attacks on ${hackTarget} from ${host} with a pause of ${timing.pauseBetweenAttacks}s between each`, "info");
 		
