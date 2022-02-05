@@ -25,7 +25,7 @@ export async function main(ns: NS): Promise<void> {
 
 	const startTime = new Date().getTime();
 
-	for (let i=0; i<501024; i++) {
+	for (let i=0; i<101024; i++) {
 		if (prediction!=null && noBetSet) {
 			setBet(doc, maxBet);
 			noBetSet = false;
@@ -41,14 +41,15 @@ export async function main(ns: NS): Promise<void> {
 		} catch (err) {
 			ns.print("Coinflipping interrupted - ending");
 			ns.exit();
+			return;
 		}
 
 		if (results.length>1028) {
 			const cyclePlace = results.length - 1024 - 1;
 			prediction = results.at(cyclePlace+1);
 		}
-		if (i % 2000 == 0) { await ns.sleep(1); }
-
+		// Allow some ticks for the normal game functions, so the game doesn't lock up
+		if (i % 1000 == 0) { await ns.sleep(2); }
 	}
 
 	const gain = correctPrediction*maxBet;
