@@ -1,0 +1,44 @@
+[
+  {
+    "name": "reputation",
+    "id": 25,
+    "x": 2,
+    "y": 1,
+    "rotation": 2
+  },
+  {
+    "name": "boost",
+    "id": 101,
+    "x": 0,
+    "y": 0,
+    "rotation": 0
+  },
+  {
+    "name": "boost",
+    "id": 101,
+    "x": 4,
+    "y": 0,
+    "rotation": 1
+  },
+  {
+    "name": "boost",
+    "id": 103,
+    "x": 0,
+    "y": 1,
+    "rotation": 3
+  },
+  {
+    "name": "boost",
+    "id": 105,
+    "x": 3,
+    "y": 2,
+    "rotation": 1
+  },
+  {
+    "name": "hackGrowWeakenSpeed",
+    "id": 5,
+    "x": 1,
+    "y": 2,
+    "rotation": 1
+  }
+]

@@ -1,0 +1,36 @@
+[
+  {
+    "name": "boost",
+    "id": 102,
+    "x": 0,
+    "y": 3,
+    "rotation": 0
+  },
+  {
+    "name": "boost",
+    "id": 105,
+    "x": 3,
+    "y": 2,
+    "rotation": 0
+  },
+  {
+    "id": 20,
+    "x": 1,
+    "y": 2,
+    "rotation": 0
+  },
+  {
+    "name": "boost",
+    "id": 106,
+    "x": 0,
+    "y": 0,
+    "rotation": 0
+  },
+  {
+    "name": "boost",
+    "id": 103,
+    "x": 1,
+    "y": 0,
+    "rotation": 0
+  }
+]
