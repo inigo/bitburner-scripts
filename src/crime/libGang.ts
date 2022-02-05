@@ -115,22 +115,24 @@ export function buyAffordableEquipmentForIndividual(ns: NS, name: string): void 
 		.forEach(e => ns.gang.purchaseEquipment(name, e));
 }
 
-function buyAugmentations(ns: NS): void {
-	const hasMoney = () => ns.getServerMoneyAvailable("home") > 120000000000;
-	if (!hasMoney()) return;
+export function buyAugmentations(ns: NS, minimumMoney = 120_000_000_000): boolean {
+	const hasMoney = () => ns.getServerMoneyAvailable("home") > minimumMoney;
+	if (!hasMoney()) return false;
 
 	const gangMembers = ns.gang.getMemberNames();
 	const augmentations = ns.gang.getEquipmentNames()
 					.filter(eq => ns.gang.getEquipmentType(eq)=="Augmentation" ) 
 					.filter(eq => isRelevantEquipment(ns, eq))
 					.sort((a,b) => ns.gang.getEquipmentCost(a) - ns.gang.getEquipmentCost(b));
+	let madePurchase = false;					
 	for (const aug of augmentations) {
 		for (const name of gangMembers) {
 			ns.print("Buying augmentation for "+name+" - "+aug);
-			ns.gang.purchaseEquipment(name, aug);
-			if (!hasMoney()) return;
+			madePurchase = madePurchase || ns.gang.purchaseEquipment(name, aug);
+			if (!hasMoney()) break;
 		}
 	}
+	return madePurchase;
 }
 
 function startWarfare(ns: NS, stage: string): void {
