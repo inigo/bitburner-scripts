@@ -1,18 +1,36 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { fmt } from "libFormat";
 import * as dom from "casino/libDom";
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {
 	const moneyBefore = ns.getServerMoneyAvailable("home");
-	if (moneyBefore < 100000000) {
+	if (moneyBefore < 100_000_000) {
 		ns.tprint("Insufficient funds - need a safe margin to bet with");
 		ns.exit();
 	}
 
+	const decksToPlay = 1;
+
+	const strategies: IBetStrategy[] = [
+		new HiLoBetStrategy("hilo"),
+		new WongHalvesBetStrategy("wongHalves"),
+		new YetAnotherWongHalvesBetStrategy("yetAnotherWongHalves"),
+		new WongHalvesVariantBetStrategy("wongHalvesVariant_1_25", 1.25),
+		new WongHalvesVariantBetStrategy("wongHalvesVariant_1_5", 1.5),
+		new WongHalvesVariantBetStrategy("wongHalvesVariant_2", 2),
+		new WongHalvesAnotherVariantBetStrategy("wongHalvesAnotherVariant"),
+		new WizardOfOddsStrategy("woo_2", 2, 1_000_000),
+		new WizardOfOddsStrategy("woo_3", 3, 1_000_000)
+	]	
 	let played = 0;
-	for (let i=0; i<5; i++) {
-		played += playGames(ns, 9999); // Will reset when decks shuffled
+	for (let i=0; i<decksToPlay; i++) {
+		played += playGames(ns, 9999, strategies); // Will reset when decks shuffled
 	}
+
+	ns.tprint("-----");
+	strategies.forEach(s => ns.tprint(fmt(ns)`INFO Strategy ${s.name} won £${s.getTotalWinnings()} (biggest win £${s.getBiggestWin()} and biggest loss £${s.getBiggestLoss()})`));
+
 	const moneyAfter = ns.getServerMoneyAvailable("home");
 	ns.tprint(fmt(ns)`Done - played ${played} games and gained £${moneyAfter - moneyBefore} (note incorrect if other scripts running)`);
 
@@ -20,15 +38,19 @@ export async function main(ns: NS): Promise<void> {
 	dom.selectSidebarOption(doc, "Terminal");	
 }
 
-function playGames(ns: NS, gamesToPlay: number): number {
+function playGames(ns: NS, gamesToPlay: number, strategies: IBetStrategy[]): number {
 	const doc = dom.getDocument();
 	dom.selectSidebarOption(doc, "City");
+	dom.goToLocationInCity(doc, "Summit University");
+	dom.selectSidebarOption(doc, "City");	
 	dom.goToLocationInCity(doc, "Iker Molina Casino");
 	dom.clickButton(doc, "Play blackjack");
 	setBet(doc, 1000000);
 
 	const decks = new Decks(ns);
 	let played = 0;
+
+	const basicGameplay = new BasicGameplay();
 
 	for (let i = 0; i < gamesToPlay; i++) {
 		ns.print("Starting new game");
@@ -46,7 +68,7 @@ function playGames(ns: NS, gamesToPlay: number): number {
 		
 		let currentCards = startingPlayerCards;
 		for (let j = 0; j < 10; j++) {
-			const shouldHit = shouldPlayerHit(ns, currentCards, startingDealerCards, decks);
+			const shouldHit = basicGameplay.shouldPlayerHit(ns, currentCards, startingDealerCards);
 			const buttonToPress = shouldHit ? "Hit" : "Stay";
 			ns.print("Player action is:  "+buttonToPress);
 			dom.clickButton(doc, buttonToPress); // Button may not exist if blackjack
@@ -65,28 +87,183 @@ function playGames(ns: NS, gamesToPlay: number): number {
 		ns.print("Final dealer cards are:  "+finalDealerCards);
 		const newDealerCards = finalDealerCards.slice(startingDealerCards.length);
 		newDealerCards.forEach(c => decks.recordCard(c));
-		const winnings = getWinnings(doc);
-		ns.tprint("Winnings: "+winnings);
+		const gameResult = getGameResult(doc);
+		strategies.forEach(s => s.recordResult(gameResult));
 		played++;
 
-		const trueScore = getScore(ns, decks);
-		// if (trueScore < -4) {
-		// 	ns.tprint("Aborting game, since odds have got too bad");
-		// 	return played;
-		// }
+		strategies.forEach(s => s.chooseBet(decks));
+
 		if (decks.hasShuffled) {
-			ns.tprint("Restarting, since deck has reset");
+			ns.tprint("INFO Restarting, since deck has reset");
+			strategies.forEach(s => ns.tprint(fmt(ns)`Strategy ${s.name} won £${s.getSessionWinnings()}`));
+			strategies.forEach(s => s.newSession());
 			return played;
 		}
-		const betSize = chooseBet(ns, trueScore);
+
+		const chosenStrategy = new WongHalvesBetStrategy();
+		const maxBet = 100_000_000;
+		const desiredBet = chosenStrategy.chooseBet(decks); 
+		const betSize = Math.min(maxBet, desiredBet);
 		setBet(doc, betSize);
 	}
 	return played;
 }
 
-function getWinnings(doc: Document): string {
-	return [... doc.querySelectorAll("p.MuiTypography-body1.MuiTypography-root span")].at(-1)?.textContent as string;
+class IBetStrategy {
+	lastBetSize = 0;
+	winningsInThisSession = 0;
+	totalWinnings = 0;
+	eachSessionWinnings: number[] = [];
+	name: string;
+	constructor(name: string) {
+		this.name = name;
+	}
+	recordResult(r: GameResult): void {
+		if (r===GameResult.Win) { 
+			this.winningsInThisSession += this.lastBetSize;
+			this.totalWinnings += this.lastBetSize;
+		} else if (r===GameResult.Loss) {
+			this.winningsInThisSession -= this.lastBetSize;
+			this.totalWinnings -= this.lastBetSize;
+		}
+	}
+	getTotalWinnings(): number { return this.totalWinnings; }
+	getSessionWinnings(): number { return this.winningsInThisSession; }
+	getAverageSessionWinnings(): number { return this.totalWinnings / this.eachSessionWinnings.length; }
+	getBiggestLoss(): number { return Math.min(... this.eachSessionWinnings);  }
+	getBiggestWin(): number { return Math.max(... this.eachSessionWinnings);  }
+	getAverageSessionStdDeviation(): number { 
+		if (this.eachSessionWinnings.length == 0) { return 0; }
+		const mean = this.getAverageSessionWinnings();
+		return Math.sqrt(this.eachSessionWinnings.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / this.eachSessionWinnings.length);
+	}
+	weightScoreByRemainingDecks(decks: Decks, score: number): number {
+		const unplayedDecks = Math.max(decks.getUnplayedDecks(), 0.5);
+		const trueScore = score / unplayedDecks;
+		return trueScore;
+	}
+	recordBet(bet: number) {
+		const maxBet = 100_000_000;
+		this.lastBetSize = Math.min(maxBet, bet);
+	}
+	newSession(): void { 
+		this.eachSessionWinnings.push(this.winningsInThisSession);
+		this.lastBetSize = 0; 
+		this.winningsInThisSession = 0;
+	}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	chooseBet(decks: Decks): number { return 1; }
 }
+
+class HiLoBetStrategy extends IBetStrategy {
+	constructor(name: string) {
+		super(name);
+	}
+	chooseBet(decks: Decks): number {
+		const score = decks.calculateHiLoScore();
+		const trueScore = this.weightScoreByRemainingDecks(decks, score);
+		const bet = (trueScore <= 1) ? 1 :
+			(trueScore <= 2) ? 2_000_000 :
+			(trueScore <= 3) ? 4_000_000 :
+			(trueScore <= 4) ? 6_000_000 : 
+			(trueScore <= 5) ? 10_000_000 : 
+			(trueScore <= 8) ? 20_000_000 : 
+			(trueScore <= 12) ? 30_000_000 : 
+			50_000_000;		
+		this.recordBet(bet);
+		return bet;
+	}
+}
+
+class WongHalvesBetStrategy extends IBetStrategy {
+	constructor(name: string) {
+		super(name);
+	}
+	chooseBet(decks: Decks): number {
+		const score = decks.calculateWongHalvesScore();
+		const trueScore = this.weightScoreByRemainingDecks(decks, score);
+		const bet = (trueScore <= 1) ? 1 :
+			(trueScore <= 2) ? 2_000_000 :
+			(trueScore <= 3) ? 4_000_000 :
+			(trueScore <= 4) ? 6_000_000 : 
+			(trueScore <= 5) ? 10_000_000 : 
+			(trueScore <= 8) ? 20_000_000 : 
+			(trueScore <= 12) ? 30_000_000 : 
+			50_000_000;		
+		this.recordBet(bet);
+		return bet;
+	}
+}
+
+
+class YetAnotherWongHalvesBetStrategy extends IBetStrategy {
+	constructor(name: string) {
+		super(name);
+	}
+	chooseBet(decks: Decks): number {
+		const score = decks.calculateWongHalvesScore();
+		const trueScore = this.weightScoreByRemainingDecks(decks, score);
+		const bet = (trueScore <= 1) ? 1 :
+			(trueScore <= 2) ? 1_000_000 :
+			(trueScore <= 3) ? 2_000_000 :
+			(trueScore <= 4) ? 4_000_000 : 
+			6_000_000;		
+		this.recordBet(bet);
+		return bet;
+	}
+}
+
+
+class WongHalvesVariantBetStrategy extends IBetStrategy {
+	powerToRaise: number;
+	constructor(name: string, powerToRaise: number) {
+		super(name);
+		this.powerToRaise = powerToRaise;
+	}
+	chooseBet(decks: Decks): number {
+		const score = decks.calculateWongHalvesScore();
+		const trueScore = this.weightScoreByRemainingDecks(decks, score);
+		const bet = (trueScore <= 1.5) ? 1 : ((trueScore-0.5) ** this.powerToRaise) * 2_000_000;
+		this.recordBet(bet);
+		return bet;
+	}
+}
+
+class WongHalvesAnotherVariantBetStrategy extends IBetStrategy {
+	constructor(name: string) {
+		super(name);
+	}
+	chooseBet(decks: Decks): number {
+		const score = decks.calculateWongHalvesScore();
+		const trueScore = this.weightScoreByRemainingDecks(decks, score);
+		const bet = (trueScore <= 1.2) ? 1 : (2 ** trueScore) * 100_000;
+		this.recordBet(bet);
+		return bet;
+	}
+}
+
+class WizardOfOddsStrategy extends IBetStrategy {
+	powerToRaise: number;
+	baseBet: number;
+	constructor(name: string, powerToRaise = 3, baseBet = 1_000_000) {
+		super(name);
+		this.powerToRaise = powerToRaise;
+		this.baseBet = baseBet;
+	}
+	chooseBet(decks: Decks): number {
+		const score = decks.calculateScore();
+		const bet = (score <= 1.05) ? 1 : (score**this.powerToRaise) * this.baseBet;
+		this.recordBet(bet);
+		return bet;
+	}
+}
+
+function getGameResult(doc: Document): GameResult {
+	const winString = [... doc.querySelectorAll("p.MuiTypography-body1.MuiTypography-root span")].at(-1)?.textContent as string;
+	return (! winString.includes("$")) ? GameResult.Tie : 
+		(winString.includes("-")) ? GameResult.Loss : GameResult.Win;
+}
+enum GameResult { Win = 1, Loss = -1, Tie = 0 }
 
 function setBet(doc: Document, amount: number): void {
 	const input = doc.querySelector("input");
@@ -94,78 +271,49 @@ function setBet(doc: Document, amount: number): void {
 	dom.setValue(input!, ""+amount);
 }
 
-function chooseBet(ns: NS, trueScore: number) {
-	const minBet = 1;
-	// const maxBet = 100_000_000;
-	// const availableMoney = ns.getServerMoneyAvailable("home");
-
-	const betModifier = (trueScore <= 1) ? 1 :
-						(trueScore <= 2) ? 2_000_000 :
-						(trueScore <= 3) ? 4_000_000 :
-						(trueScore <= 4) ? 6_000_000 : 
-						(trueScore <= 5) ? 10_000_000 : 
-						(trueScore <= 8) ? 20_000_000 : 
-						(trueScore <= 12) ? 30_000_000 : 
-						50_000_000;
-	ns.tprint("Bet modifier is "+betModifier);
-	const bet = minBet * betModifier;
-	ns.tprint("Bet is "+bet);
-	return bet;
-	// Card counting
-// https://www.onlinegamblingsites.com/casino/blackjack/strategy/
-// https://www.888casino.com/blog/blackjack-strategy-guide/blackjack-card-counting
-}
-
-function getScore(ns: NS, decks: Decks) {
-	// Exact percentages - see https://www.888casino.com/blog/blackjack-strategy-guide/blackjack-card-counting
-	// const score = decks.calculateHiLoScore();
-	const score = decks.calculateWongHalvesScore();
-	const unplayedDecks = Math.max(decks.getUnplayedDecks(), 0.5);
-	const trueScore = score / unplayedDecks;
-	return trueScore;
-}
-
-function toHand(ns: NS, cards: Card[]): Hand {
-	let value = cards.map(c => c.getNumber()).reduce((a, b) => a+b, 0);
-	const isSoft = cards.some(c => c.isAce());
-	const isHard = ! isSoft;
-	if (value > 21 && isSoft) value = value - 10;
-	return { value : value, isHard: isHard, isSoft: isSoft  };
+class BasicGameplay {
+	shouldPlayerHit(ns: NS, playerCards: Card[], dealerCards: Card[]) {
+		// A dealer must hit if they have 16 or lower.
+		// If the dealer has a Soft 17 (Ace + 6), then they stand.
+	
+		const playerHand = this.toHand(ns, playerCards);
+		const dealerHand = this.toHand(ns, dealerCards);
+	
+		ns.print("Player hand value "+playerHand.value+" from '"+playerCards+"' and dealer hand value "+dealerHand.value+" from '"+dealerCards+"'");
+	
+		// https://wizardofodds.com/games/blackjack/strategy/4-decks/
+		// Always hit hard 11 or less.
+		if (playerHand.value <= 11 && playerHand.isHard) { return true; }
+		// Stand on hard 12 against a dealer 4-6, otherwise hit.
+		if (playerHand.value == 12) {
+			if (dealerHand.value >=4 && dealerHand.value <= 6) { return false; } else { return true; }
+		}
+		// Stand on hard 13-16 against a dealer 2-6, otherwise hit.
+		if (playerHand.value >= 13 && playerHand.value <= 16) {
+			if (dealerHand.value >=2 && dealerHand.value <= 6) { return false; } else { return true; }
+		}
+		// Always stand on hard 17 or more.
+		if (playerHand.value >= 17 && playerHand.isHard) { return false; }
+		// Always hit soft 17 or less.
+		if (playerHand.value <= 17 && ! playerHand.isHard) { return true; }
+		// Stand on soft 18 except hit against a dealer 9, 10, or A.
+		if (playerHand.value == 18 && ! playerHand.isHard) {
+			if (dealerHand.value >= 9 || ! dealerHand.isHard) { return true; } else { return false; }
+		}
+		// Always stand on soft 19 or more.
+		return false;
+	}
+	toHand(ns: NS, cards: Card[]): Hand {
+		let value = cards.map(c => c.getNumber()).reduce((a, b) => a+b, 0);
+		const isSoft = cards.some(c => c.isAce());
+		const isHard = ! isSoft;
+		if (value > 21 && isSoft) value = value - 10;
+		return { value : value, isHard: isHard, isSoft: isSoft  };
+	}	
 }
 type Hand = { value: number, isHard: boolean, isSoft: boolean };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function shouldPlayerHit(ns: NS, playerCards: Card[], dealerCards: Card[], deck: Decks) {
-    // A dealer must hit if they have 16 or lower.
-    // If the dealer has a Soft 17 (Ace + 6), then they stand.
 
-	const playerHand = toHand(ns, playerCards);
-	const dealerHand = toHand(ns, dealerCards);
-
-	ns.print("Player hand value "+playerHand.value+" from '"+playerCards+"' and dealer hand value "+dealerHand.value+" from '"+dealerCards+"'");
-
-	// https://wizardofodds.com/games/blackjack/strategy/4-decks/
-	// Always hit hard 11 or less.
-	if (playerHand.value <= 11 && playerHand.isHard) { return true; }
-	// Stand on hard 12 against a dealer 4-6, otherwise hit.
-	if (playerHand.value == 12) {
-		if (dealerHand.value >=4 && dealerHand.value <= 6) { return false; } else { return true; }
-	}
-	// Stand on hard 13-16 against a dealer 2-6, otherwise hit.
-	if (playerHand.value >= 13 && playerHand.value <= 16) {
-		if (dealerHand.value >=2 && dealerHand.value <= 6) { return false; } else { return true; }
-	}
-	// Always stand on hard 17 or more.
-	if (playerHand.value >= 17 && playerHand.isHard) { return false; }
-	// Always hit soft 17 or less.
-	if (playerHand.value <= 17 && ! playerHand.isHard) { return true; }
-	// Stand on soft 18 except hit against a dealer 9, 10, or A.
-	if (playerHand.value == 18 && ! playerHand.isHard) {
-		if (dealerHand.value >= 9 || ! dealerHand.isHard) { return true; } else { return false; }
-	}
-	// Always stand on soft 19 or more.
-	return false;
-}
 
 function getPlayerCards(doc: Document): Card[] {
 	const playerCardHolder = getCardHolders(doc)[0];
@@ -196,7 +344,7 @@ class Decks {
 	}
 	recordCard(c: Card): void {
 		const cardString = c.getCardString();
-		this.ns.print("Recording "+cardString);
+		// this.ns.print("Recording "+cardString);
 		const existingCount = this.cardLookup.get(cardString) ?? 0;
 		if (existingCount==5) {
 			this.ns.print("All decks in shoe used - resetting stats");
@@ -214,6 +362,25 @@ class Decks {
 	}
 	cardsPlayed(): number {
 		return this.allCards.length;
+	}
+	calculateScore() {
+		// From https://wizardofodds.com/games/blackjack/effect-of-removal/
+		// See also http://www.bjstrat.net/cgi-bin/cdca.cgi
+		const modifiers = [
+			[2,0.069],
+			[3,0.082],
+			[4,0.110],
+			[5,0.141],
+			[6,0.079],
+			[7,0.041],
+			[8,-0.008],
+			[9,-0.040],
+			[10,-0.091],
+			[11,-0.094],			
+		];
+		const findModifier = (v: number): number => modifiers.filter(m => m[0]==v).map(m => 0 + m[1]).at(0) ?? 0;
+		const score =  this.allCards.map(c => findModifier(c.getNumber())).reduce((a, b) => a + b, 1);
+		return score;
 	}
 	calculateHiLoScore(): number {
 		const hilo = (v: number): number => (v>=10) ? -1 : (v>=2 && v<=6) ? 1 : 0;
