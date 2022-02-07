@@ -52,11 +52,16 @@ export async function main(ns : NS) : Promise<void> {
             ns.print("Setting first sleeve to recover shock, so it can install augments eventually");
             recoverShock(ns, nextAvailableSleeve); nextAvailableSleeve++; 
         }
+
         
         const currentFaction = ns.getPlayer().currentWorkFactionName;
         if (currentFaction!=null) {
             ns.print("Setting sleeve to work for faction "+currentFaction+" to match what the player is doing");
-            workForFaction(ns, nextAvailableSleeve, currentFaction);
+            try {
+                workForFaction(ns, nextAvailableSleeve, currentFaction);
+            } catch (err) {
+                ns.print("Working for faction failed - probably an existing sleeve doing the same");
+            }
             nextAvailableSleeve++;
         }
 
