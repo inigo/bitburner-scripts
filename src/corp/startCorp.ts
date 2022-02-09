@@ -20,7 +20,7 @@ async function startCorporation(ns: NS): Promise<void> {
     ns.corporation.unlockUpgrade("Smart Supply");
 
     // Set up each office to produce and sell output
-    const offices = listCities().map(city => new OfficeControl(ns, division, city, industry));    
+    const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
     for (const o of offices) {
         if (o.city!="Sector-12") { o.setupOffice(); }
         o.setWarehouseSize(300);
