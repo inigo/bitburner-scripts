@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns'
-import { findDivisionName, listCities, OfficeControl, OfficeRole, listEmployeeUpgrades } from 'corp/libCorporation'
+import { findDivisionName, listCities, listEmployeeUpgrades, OfficeRole } from 'corp/libCorporation'
+import { OfficeControl } from 'corp/libOffice'
 
 /**
  * Buy the best improvements for a division, based on their current weighted cost.
@@ -97,7 +98,7 @@ class ProjectInsightImprovement extends UpgradeImprovement implements Improvemen
 }
 
 class SmartFactoriesImprovement extends UpgradeImprovement implements Improvement {
-    constructor(ns: NS) { super(ns, ["Smart Factories", "ABC SalesBots"])}
+    constructor(ns: NS) { super(ns, ["Smart Factories", "ABC SalesBots", "Smart Storage"])}
 }
 
 class AdVertImprovement implements Improvement {

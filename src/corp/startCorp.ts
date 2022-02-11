@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns';
-import { OfficeControl, listCities, JobPosition } from 'corp/libCorporation'
+import { listCities, JobPosition, OfficeRole } from 'corp/libCorporation'
+import { OfficeControl } from 'corp/libOffice'
 
 export async function main(ns : NS) : Promise<void> {
     await startCorporation(ns);
+    await initialUpgradeOffices(ns, "Tobacco")
 }
 
 /**
@@ -58,4 +60,31 @@ async function startCorporation(ns: NS): Promise<void> {
         await ns.sleep(50);
     }
     ns.corporation.acceptInvestmentOffer();
+}
+
+
+/**
+ * Initial office setup, after expanding into a new industry (assuming reasonably well funded - several $100b )
+ */
+ async function initialUpgradeOffices(ns: NS, industry: string): Promise<void> {
+    const o = new OfficeControl(ns, "Sector-12", industry);
+    ns.print("Expanding head office for "+industry);
+    o.setOfficeSize(63);
+    o.setWarehouseSize(200);
+    o.fillOffice();    
+    o.enableSmartSupply();
+    ns.print("Assigning employees to roles in head office");
+    await o.assignEmployeesByRole(OfficeRole.Product);
+
+    for (const city of listCities().filter(s => s!="Sector-12")) {
+        ns.print("Expanding branch office in "+city+" for "+industry);
+        const o = new OfficeControl(ns, city, industry);
+        o.setupOffice();        
+        o.setOfficeSize(20);
+        o.fillOffice();
+        o.setWarehouseSize(200);
+        o.enableSmartSupply();
+        ns.print("Assigning employees to roles in "+city);
+        await o.assignEmployeesByRole(OfficeRole.Manufacturing);
+    }
 }
