@@ -64,7 +64,10 @@ export class OfficeControl {
     setOfficeSize(newSize: number): number {
         const existingSize = this.getInfo().size;
         const expansion = newSize - existingSize;
-        if (expansion<=0) { return existingSize; }
+        if (expansion<=0) { 
+            this.fillOffice();
+            return existingSize; 
+        }
         this.ns.print("Upgrading office size for division "+this.division+" in "+this.city+" by "+expansion);
         this.ns.corporation.upgradeOfficeSize(this.division, this.city, expansion);
 
@@ -89,6 +92,7 @@ export class OfficeControl {
         doCount(employeesNeeded).forEach(() =>  this.ns.corporation.hireEmployee(this.division, this.city) );
     }
 
+
     async assignEmployees(weights: JWeight[]): Promise<void> {
         const getJob = (name: string) => this.ns.corporation.getEmployee(this.division, this.city, name);
 
@@ -110,52 +114,27 @@ export class OfficeControl {
         // There may be unassigned employees due to rounding errors - put all of these in R&D
         const totalAssignedEmployees = counts.map(j => j.desiredCount).reduce((a, b) => a+b);
         const unassignedEmployeeCount = employeeCount - totalAssignedEmployees;
-        counts.find(j => j.position == JobPosition.RandD)!.desiredCount += unassignedEmployeeCount;
+        const anyIntentionallyUnassigned = (weights.find(w => w.position=="Unassigned")?.weight ?? 0) > 0;
+        if (!anyIntentionallyUnassigned) {
+            counts.find(j => j.position == JobPosition.RandD)!.desiredCount += unassignedEmployeeCount;
+        }
 
         for (const count of counts) {
             if (count.currentCount!=count.desiredCount) {
+                this.ns.print("Setting position "+count.position+" to have "+count.desiredCount+" employees");
                 await this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
+                const afterAssignmentJobs = employees.map(name => getJob(name));
+                const jobCount = afterAssignmentJobs.filter(j => j.pos == count.position).length;
+                if (jobCount != count.desiredCount) {
+                    this.ns.print("Employees not successfully assigned to "+count.position);
+                    await this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
+                }
             }
         }
-
-        // This is all done via setAutoJobAssignment, without the 1s delay each time, so no need to do it manually
-
-        // // Unassign employees
-        // // This is slow, because we can only unassign one at a time, one per second
-        // for (const count of counts) {
-        //     const numberToRemove = Math.max(count.currentCount - count.desiredCount, 0);
-        //     const toRemove = jobs.filter(j => j.pos == count.position)
-        //             .slice(0, numberToRemove);
-        //     if (numberToRemove>0) { this.ns.print(fmt(this.ns)`Removing ${toRemove.length} employees from role ${count.position} in ${this.city}`); }
-        //     for (const j of toRemove) {
-        //         await this.ns.corporation.assignJob(this.division, this.city, j.name, "Unassigned");
-        //     }
-        // }
-
-        // // Reassign employees
-        // const unassignedEmployees = this.getInfo().employees.map(name => getJob(name)).filter(j => j.pos=="Unassigned");
-        // for (const count of counts) {
-        //     const numberToAdd = Math.max(count.desiredCount - count.currentCount, 0);
-        //     if (numberToAdd>0) { this.ns.print(fmt(this.ns)`Assigning ${numberToAdd} new employees to role ${count.position} in ${this.city}`); }
-
-        //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        //     // for (const _ of doCount(numberToAdd)) {
-        //     //     const e = unassignedEmployees.pop() !;
-        //     //     await this.ns.corporation.assignJob(this.division, this.city, e.name, count.position);    
-        //     // }
-        //     await this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
-        // }
-
-        // // Assign anyone spare to R&D - at this point, there should be no-one spare, though
-        // while (unassignedEmployees.length > 0) {
-        //     const e = unassignedEmployees.pop() !;
-        //     await this.ns.corporation.assignJob(this.division, this.city, e.name, JobPosition.RandD);    
-        // }
     }
 
     async assignEmployeesByRole(officeRole: OfficeRole): Promise<void> {
         const weights = this.industryInfo.getWeights(officeRole);
-        // this.ns.print(fmt(this.ns)`Weights are: ${weights} `);
         await this.assignEmployees(weights);
     }
 
