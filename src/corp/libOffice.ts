@@ -51,14 +51,17 @@ export class OfficeControl {
         return (warehouse.sizeUsed / warehouse.size) > 0.98;
     }
 
-    /** Sell a material, at a price equal to Market Price (MP) * multiplier. */
-    sellMaterial(material: string, multiplier = 1): void {
-        this.ns.corporation.sellMaterial(this.division, this.city, material, "MAX", "MP*"+multiplier)
-    }
     /** Sell all materials that this industry produces, at a price equal to Market Price (MP) * multiplier. */
-    sellAllMaterials(multiplier = 1): void {
-        this.industryInfo.listMaterials().forEach(m => this.sellMaterial(m, multiplier));
+    sellAllMaterials(multiplier = 1, amount = "MAX"): void {
+        this.industryInfo.listMaterials().forEach(m => this.sellMaterial(m, multiplier, amount));
     }    
+    stopSellingAllMaterials(): void {
+        this.industryInfo.listMaterials().forEach(m => this.sellMaterial(m, 1, "0"));
+    }    
+    /** Sell a material, at a price equal to Market Price (MP) * multiplier. */
+    private sellMaterial(material: string, multiplier = 1, amount = "MAX"): void {
+        this.ns.corporation.sellMaterial(this.division, this.city, material, amount, "MP*"+multiplier)
+    }
 
     /** Set the office size to the specified size, and hire employees. */
     setOfficeSize(newSize: number): number {
@@ -118,6 +121,8 @@ export class OfficeControl {
         if (!anyIntentionallyUnassigned) {
             counts.find(j => j.position == JobPosition.RandD)!.desiredCount += unassignedEmployeeCount;
         }
+
+        // @todo This is wrong - is not unassigning things
 
         for (const count of counts) {
             if (count.currentCount!=count.desiredCount) {

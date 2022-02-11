@@ -9,7 +9,7 @@ export async function main(ns : NS) : Promise<void> {
     await manageCorporation(ns, "Tobacco");
 }
 
-async function manageCorporation(ns: NS, industry: string) {
+export async function manageCorporation(ns: NS, industry: string): Promise<void> {
     const improvementManager = new ImprovementManager(ns, industry);
     const productLauncher = new ProductLauncher(ns, industry);
     const priceManager = new ProductPriceManager(ns, industry);

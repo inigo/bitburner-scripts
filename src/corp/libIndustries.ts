@@ -56,6 +56,8 @@ export class IndustryInfo {
     listMaterials(): string[] {
         if (this.industry=="Agriculture") {
             return ["Food", "Plants"];
+        } else if (this.industry=="Software") {
+            return ["AI Cores"];
         } else {
             return [];
         }
