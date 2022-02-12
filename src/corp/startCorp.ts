@@ -186,7 +186,7 @@ class AgricultureStrategy implements StartupStrategy {
             o.setOfficeSize(3);
             // Being profitable means that employees are happier, which increases investment
             // Although selling means that the warehouse fills up much more slowly
-            o.sellAllMaterials(1, "PROD*0.6");            
+            o.sellAllMaterials(1, "PROD*0.4");            
         }
 
         if (ns.corporation.getDivision(division).research < 3) {

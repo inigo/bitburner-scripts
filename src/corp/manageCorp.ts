@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns';
-import { waitForNextCorporationTick } from 'corp/libCorporation';
+import { waitForNextCorporationTick, retrieveCorporationInstructions } from 'corp/libCorporation';
 import { ImprovementManager } from 'corp/libImprovements';
 import { ProductPriceManager, ProductLauncher } from '/corp/libProducts';
 
@@ -15,8 +15,13 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
     const priceManager = new ProductPriceManager(ns, industry);
     const ticks = waitForNextCorporationTick(ns);
     while (await ticks.next()) {
+        const prepareForInvestment = (retrieveCorporationInstructions(ns)?.prepareForInvestment ?? false);
+
         await improvementManager.buyNextImprovement();
-        await productLauncher.launchProducts();
+        // If trying to get investment, we want all products being sold, rather than cycling through them
+        if (!prepareForInvestment) {
+            await productLauncher.launchProducts();
+        }
         await priceManager.updateProductPrices();
     }
 }

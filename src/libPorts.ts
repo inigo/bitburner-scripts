@@ -11,6 +11,7 @@ export const GANG_REPORTS_PORT = 7; // How is the gang?
 export const ACTIVE_FRAGMENTS_PORT = 8; // A list of the active fragments in Stanek's Gift
 export const PAUSE_SHARE_TRADING = 9; // Temporarily pause share trading if there is a message present
 export const CRACKS_BOUGHT_COUNT = 10; // Record whether all crack programs (e.g. BruteSSH) have been bought
+export const CORP_CONTROL_PORT = 11; // Send instructions and priorities to the corporation control script
 
 export const AUGMENT_AND_RESTART = 20; // Install all augmentations and restart
 

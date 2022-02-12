@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { NS } from '@ns'
+import {  NS } from '@ns'
+import * as ports from 'libPorts';
 
 export async function* waitForNextCorporationTick(ns: NS): AsyncGenerator<undefined, void, unknown> {
     const getState = () => ns.corporation.getCorporation().state;
@@ -59,3 +60,12 @@ export enum OfficeRole {
     Manufacturing // Manufacturing and selling products
 }
 
+export async function setCorporationInstructions(ns: NS, instructions: CorporationInstructions): Promise<void> {
+    await ports.setPortValue(ns, ports.CORP_CONTROL_PORT, instructions);
+}
+
+export function retrieveCorporationInstructions(ns: NS): (CorporationInstructions | null) {
+    return ports.checkPort(ns, ports.CORP_CONTROL_PORT, JSON.parse);
+}
+
+export type CorporationInstructions = { prepareForInvestment: boolean };
