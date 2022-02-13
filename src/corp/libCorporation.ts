@@ -61,7 +61,7 @@ export enum OfficeRole {
 }
 
 export async function setCorporationInstructions(ns: NS, instructions: CorporationInstructions): Promise<void> {
-    await ports.setPortValue(ns, ports.CORP_CONTROL_PORT, instructions);
+    await ports.setPortValue(ns, ports.CORP_CONTROL_PORT,  JSON.stringify(instructions) );
 }
 
 export function retrieveCorporationInstructions(ns: NS): (CorporationInstructions | null) {

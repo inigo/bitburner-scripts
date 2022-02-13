@@ -6,7 +6,7 @@ import { ProductPriceManager, ProductLauncher } from '/corp/libProducts';
 
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");
-    await manageCorporation(ns, "Tobacco");
+    await manageCorporation(ns, "Software");
 }
 
 export async function manageCorporation(ns: NS, industry: string): Promise<void> {
