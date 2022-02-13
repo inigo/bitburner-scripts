@@ -24,7 +24,7 @@ export async function main(ns: NS): Promise<void> {
 						"basicUpgradeMemory.js"
 						, "basicBuyCracks.js"
 						, "basicCrackAll.js" 
-						, "spreadAttackController.js"
+						, "/spread/spreadAttackController.js"
 						, "basicBuyStockmarket.js"
 						, "basicWriteSsh.js"
 						, "purchaseAndHack.js"
