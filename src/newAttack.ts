@@ -2,6 +2,8 @@ import { findAllHackableServers } from "libServers";
 import { fmt } from "libFormat";
 import { log } from "libAttack";
 import { HackingFormulas, NS, Player, Server } from '@ns';
+import { receiveAttackTarget } from "spread/libSpread";
+
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function autocomplete(data : AutocompleteData, args : string[]) : string[] {
@@ -101,7 +103,7 @@ export async function main(ns: NS): Promise<void> {
 
 export function listBestTargets(ns: NS, paybackPeriodInMinutes = 60, serverRam: number = ns.getServerMaxRam("home"), serverCores = 1, moneyToTakePercent = 0.5): TargetInfo[] {
 	const targets = findAllHackableServers(ns);
-	const attacks = listRunningAttacks(ns);
+	const attacks = [ ...listRunningAttacks(ns), receiveAttackTarget(ns)?.targetServer ];
 	const player = ns.getPlayer();
 	const targetDetails = targets.map(t => {
 		const attack = new AttackController(ns, t, serverRam, serverCores, moneyToTakePercent);
