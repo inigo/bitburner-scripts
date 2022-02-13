@@ -296,7 +296,7 @@ function isUntrainedForCombat(ns: NS, name: string): boolean {
 function isUnlikeable(ns: NS, name: string): boolean {
 	const stats = ns.gang.getMemberInformation(name);
 	const charismaStat = stats.cha;
-	const base = stats.cha_asc_mult==1 ? 95 : 100;
+	const base = stats.cha_asc_mult==1 ? 95 : 90;
 	const minCharismaStat = base * stats.cha_asc_mult; 
 	return charismaStat < minCharismaStat;
 }
