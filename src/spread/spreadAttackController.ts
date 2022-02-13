@@ -1,11 +1,15 @@
 import { findCrackedServers }  from "libServers";
 import { NS } from '@ns'
-import { receiveAttackTarget, sendAttackTarget } from "spread/libSpread";
-
-/// Spread hack, grow and weaken scripts across all servers. Pass "weaken" as an argument to only set weaken scripts.
+import { receiveAttackTarget, sendAttackTarget, refreshAttackTarget } from "spread/libSpread";
 
 const pauseBetweenLaunches = 1000;
 
+/**
+ * Spread hack, grow and weaken scripts across all cracked servers, attacking a single target.
+ * 
+ * Pass "weaken" as an argument to only set weaken scripts. 
+ * Pass "kill" to kill and recreate all scripts.
+ */
 export async function main(ns : NS) : Promise<void> {
 	ns.disableLog("ALL");
 	const isWeakenOnly = ns.args[0]=="weaken";
@@ -14,6 +18,8 @@ export async function main(ns : NS) : Promise<void> {
 	if (receiveAttackTarget(ns)==null) {
 		ns.print("No attack target already set, so defaulting to joesguns");
 		await sendAttackTarget(ns, "joesguns");
+	} else {
+		await refreshAttackTarget(ns);
 	}
 
 	await copyFiles(ns, findCrackedServers(ns));
@@ -35,14 +41,15 @@ async function launchAttacks(ns: NS, isWeakenOnly: boolean): Promise<void> {
 	const weakenRam = ns.getScriptRam("/spread/simpleWeaken.js");
 	const smallestScriptMem = Math.min(hackRam, growRam, weakenRam);
 
-	if (getServersWithFreeMemory(ns, smallestScriptMem) > 3) {
+	if (getServersWithFreeMemory(ns, smallestScriptMem).length > 3) {
 		ns.print("Killing existing attacks because number of available servers changed significantly - probably acquired a new crack");
 		killExistingAttacks(ns);
 	}
 
 	const startHackCount = serversHacking(ns);
 	const targetHackCount = 1;
-	const weakenGrowRatio = 4 / 3.2; // Need more weaken threads than grow threads
+	// Need more weaken threads than grow threads, since weaken is slower
+	const weakenGrowRatio = 4 / 3.2; 
 
 	let hackCount = startHackCount;
 	let growThreads = 0;
@@ -53,7 +60,7 @@ async function launchAttacks(ns: NS, isWeakenOnly: boolean): Promise<void> {
 		await ns.sleep(pauseBetweenLaunches);
 
 		const freeMemory = ns.getServerMaxRam(s) - ns.getServerUsedRam(s);
-		if (hackCount < targetHackCount) {
+		if (hackCount < targetHackCount && !isWeakenOnly) {
 			ns.print("Launching hack on "+s);
 			const threadsToLaunch = Math.floor(freeMemory / hackRam);
 			ns.exec("/spread/simpleHack.js", s, threadsToLaunch, uniqueId());

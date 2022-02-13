@@ -7,14 +7,14 @@ import { NS, Server } from '@ns'
 
 /** Broadcast a new attack target to every node listening. */
 export async function sendAttackTarget(ns: NS, targetServer: string): Promise<void> {
-	const server: Server = ns.getServer(targetServer);
+	const targetServerInfo: Server = ns.getServer(targetServer);
 	const maxMoney = ns.getServerMaxMoney(targetServer);
 	const minSecurity = ns.getServerMinSecurityLevel(targetServer);
 
 	const player = ns.getPlayer();
-	const hackPercent = ns.formulas.hacking.hackPercent(server, player);
+	const hackPercent = ns.formulas.hacking.hackPercent(targetServerInfo, player);
 
-	const cmd: SpreadAttackInstructions = { targetServer: targetServer, maxMoney, minSecurity, hackPercent, server };
+	const cmd: SpreadAttackInstructions = { targetServer: targetServer, maxMoney, minSecurity, hackPercent, targetServerInfo };
 	await ports.setPortValue(ns, ports.HACKING_PORT, JSON.stringify(cmd));
 }
  
@@ -23,7 +23,15 @@ export function receiveAttackTarget(ns: NS): (SpreadAttackInstructions  | null) 
 	return ports.checkPort(ns, ports.HACKING_PORT, JSON.parse);
 }
 
-type SpreadAttackInstructions = { targetServer: string, maxMoney: number, minSecurity: number, hackPercent: number, server: Server };
+/** Refresh the info stored for the attack target, because things like the player hack level may have changed. */
+export async function refreshAttackTarget(ns: NS): Promise<void> {
+	const currentAttackTarget = receiveAttackTarget(ns)?.targetServer;
+	if (currentAttackTarget!=null) {
+		await sendAttackTarget(ns, currentAttackTarget);
+	}
+}
+
+export type SpreadAttackInstructions = { targetServer: string, maxMoney: number, minSecurity: number, hackPercent: number, targetServerInfo: Server };
 
 /**
  * Basic attack functions - run a single command in a loop. Imported by the various simple attack scripts.
@@ -45,16 +53,19 @@ export async function hackLoop(ns: NS): Promise<void> {
 	await attackLoop(ns, async s => {
 		const targetInfo = receiveAttackTarget(ns) as SpreadAttackInstructions;
 		
+		// Don't take more than half the money while hacking, to reduce time to grow it back
 		const availableThreads = ns.getRunningScript().threads;
 		const maxHackThreads = 0.5 / targetInfo.hackPercent;
 		const threadsToUse = Math.min(maxHackThreads, availableThreads);
 
+		// Only hack when the server is almost full of money
 		if (ns.getServerMoneyAvailable(s) < targetInfo.maxMoney*0.95) {
 			// This is more efficient than attempting to grow the server in this thread, because
 			// the other servers get the target to a hackable state faster than it takes to run grow
-			
+
 			// @todo Not necessarily true on tougher targets... maybe record timings to decide?
-			return await ns.sleep(300);
+			await ns.sleep(300);
+			return Promise.resolve(0);
 		} else {
 			return await ns.hack(s, { threads: threadsToUse  });
 		}

@@ -5,6 +5,7 @@ import { lookupHashIcons, HashUpgrade } from "hacknet/libHashes";
 import { lookupSleeveIcon } from "sleeve/libSleeve";
 import { lookupGangTaskIcon, GangReport } from "crime/libGang";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
+import { receiveAttackTarget, SpreadAttackInstructions } from "spread/libSpread";
 
 import { NS, SleeveTask } from '@ns'
 
@@ -47,6 +48,12 @@ export async function main(ns: NS): Promise<void> {
                 const totalMoney = formatMoney(ns, ns.getServerMoneyAvailable("home") + ownedShareValue);
                 headers.push("Total money: ");
                 values.push(totalMoney);
+            }
+
+            const spreadAttackTarget = getSpreadAttackTarget(ns);
+            if (spreadAttackTarget!=null) {
+                headers.push("Spread target: ");
+                values.push(spreadAttackTarget);
             }
 
             const hashnetExchange = getHashnetExchangeIcons(ns);
@@ -129,4 +136,9 @@ function getStanekIcons(ns: NS): (string | null) {
 
     const stanekTasks = (report as CombinedFragment[]).map(f => f.type).map(lookupFragmentTypeIcon).join("");
     return stanekTasks;
+}
+
+function getSpreadAttackTarget(ns: NS): (string | null) {
+    const instructions = receiveAttackTarget(ns);
+    return instructions?.targetServer ?? null;
 }
