@@ -5,7 +5,7 @@ import { lookupHashIcons, HashUpgrade } from "hacknet/libHashes";
 import { lookupSleeveIcon } from "sleeve/libSleeve";
 import { lookupGangTaskIcon, GangReport } from "crime/libGang";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
-import { receiveAttackTarget, SpreadAttackInstructions } from "spread/libSpread";
+import { receiveAttackTarget } from "spread/libSpread";
 
 import { NS, SleeveTask } from '@ns'
 
