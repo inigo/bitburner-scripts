@@ -12,6 +12,7 @@ export const ACTIVE_FRAGMENTS_PORT = 8; // A list of the active fragments in Sta
 export const PAUSE_SHARE_TRADING = 9; // Temporarily pause share trading if there is a message present
 export const CRACKS_BOUGHT_COUNT = 10; // Record whether all crack programs (e.g. BruteSSH) have been bought
 export const CORP_CONTROL_PORT = 11; // Send instructions and priorities to the corporation control script
+export const SLEEVE_CONTROL_PORT = 12; // Send instructions to sleeves
 
 export const AUGMENT_AND_RESTART = 20; // Install all augmentations and restart
 

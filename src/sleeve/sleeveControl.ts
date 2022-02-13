@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { studyCs, listSleeves, workout, studyCharisma, travelTo, reportSleeveTasks, recoverShock, commitCrime, SleeveNo } from "sleeve/libSleeve";
+import { studyCs, listSleeves, workout, studyCharisma, travelTo, reportSleeveTasks, recoverShock, commitCrime, SleeveNo
+		, setSleeveInstructions, SleeveInstructions } from "sleeve/libSleeve";
 import { NS } from '@ns'
 
 /// Set all sleeves to be working on a particular task - typically "spread", "crime" or "study"
@@ -7,7 +8,7 @@ import { NS } from '@ns'
 export function autocomplete(): string[] {
     return ["spread", "strength", "agility", "dexterity", 
 			"charisma", "defense", "study", "crime", "shock", 
-			"home", "volhaven"];
+			"home", "volhaven", "clear"];
 }
 
 export async function main(ns: NS): Promise<void> {
@@ -32,5 +33,9 @@ export async function main(ns: NS): Promise<void> {
 		taskFn(i);
 	}
 
+	const useManualControl: boolean = (selectedTask!=null || goal=="spread");
+	const instructions: SleeveInstructions = { useManualControl };
+
 	await reportSleeveTasks(ns);
+	await setSleeveInstructions(ns, instructions);
 }

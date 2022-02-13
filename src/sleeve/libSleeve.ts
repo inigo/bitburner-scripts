@@ -142,3 +142,13 @@ function listSleeveTasks(): SleeveTaskInfo[] {
 		, { name: "Idle", emoji: "🛏️" }
 	];
 }
+
+export async function setSleeveInstructions(ns: NS, instructions: SleeveInstructions): Promise<void> {
+	await ports.setPortValue(ns, ports.SLEEVE_CONTROL_PORT, JSON.stringify(instructions));
+}
+
+export function retrieveSleeveInstructions(ns: NS): (SleeveInstructions | null) {
+    return ports.checkPort(ns, ports.SLEEVE_CONTROL_PORT, JSON.parse);
+}
+
+export type SleeveInstructions = { useManualControl: boolean };

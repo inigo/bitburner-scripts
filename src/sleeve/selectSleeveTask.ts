@@ -2,6 +2,7 @@
 import { NS } from '@ns'
 import { listSleeves, getMeanCombatStat, getLowestPlayerCombatStat, getOrderedCombatStats,
         workout, travelTo,  commitCrime, recoverShock, studyCs,
+        retrieveSleeveInstructions, 
         reportSleeveTasks, SleeveNo, CombatStats } from "sleeve/libSleeve";
 
 /**
@@ -16,10 +17,15 @@ export async function main(ns : NS) : Promise<void> {
         ns.print("No sleeves!");
         return;
     }
+    const useManualControl = (retrieveSleeveInstructions(ns)?.useManualControl) ?? false;
+    if (useManualControl) {
+        ns.print("Manual control for sleeves - doing nothing automatically");
+        return;
+    }
 
     const sleeveStats = sleeves.map(i => ns.sleeve.getSleeveStats(i));
 
-    const anyVeryShocked = sleeveStats.some(ss => ss.shock > 95);
+    const anyVeryShocked = sleeveStats.some(ss => ss.shock > 97);
     const playerHackTooLow = ns.getPlayer().hacking < 10;
     const sleevesUntrained = sleeves.map(s => getMeanCombatStat(ns, s)).some(combat => combat < 75);
     const tooMuchKarma = ns.heart.break() > -54000;
