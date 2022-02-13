@@ -26,6 +26,11 @@ export async function main(ns: NS): Promise<void> {
 		await ns.sleep(1000);
 	}
 
+	ns.run("/sleeve/sleeveControl.js", 1, "clear");
+	await ns.sleep(1000);
+
+	ns.run("/corp/manageCorp.js");
+	await ns.sleep(200);
 	// This will abort if not in a gang
 	ns.run("/crime/manageGang.js");
 	await ns.sleep(200);
@@ -56,7 +61,7 @@ export async function main(ns: NS): Promise<void> {
 							, "basicWriteSsh.js"
 							, "basicCrackAll.js" 
 							, "installBackdoors.js" 
-							, "spreadAttackController.js"
+							, "/spread/spreadAttackController.js"
 							, "/hacknet/manageHashSales.js"
 							, "/hacknet/upgradeNodes.js"
 							, "/contracts/solveContracts.js"
