@@ -16,6 +16,11 @@ export const SLEEVE_CONTROL_PORT = 12; // Send instructions to sleeves
 
 export const AUGMENT_AND_RESTART = 20; // Install all augmentations and restart
 
+/* If run directly, dump the values of all ports to the terminal. */
+export async function main(ns: NS): Promise<void> {
+	dumpPorts(ns);
+}
+
 /**
  * Set a single value on the specified port.
  */
@@ -42,4 +47,11 @@ export function checkPort(ns: NS, portNumber: number, transformFn = (x: any) => 
 export function popPort(ns: NS, portNumber: number, transformFn = (x: any) => x): any {
     const portValue = ns.readPort(portNumber);
 	return (portValue=="NULL PORT DATA") ? null : transformFn(portValue);
+}
+
+export function dumpPorts(ns: NS): void {
+	for (let i = 1; i <= 20; i++) {
+		const value = checkPort(ns, i);
+		ns.tprint("Port "+i+" has value "+value);
+	}
 }
