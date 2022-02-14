@@ -27,7 +27,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/spread/spreadAttackController.js"
 						, "/basic/buyStockmarket.js"
 						, "/basic/installBackdoors.js"
-						// , "joinFaction.js"  
+						, "joinFaction.js"  
 						// , "buyAugmentations.js"
 						, "/hacknet/upgradeNodes.js"
 						, "/hacknet/manageHashSales.js"

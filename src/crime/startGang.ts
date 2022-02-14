@@ -4,7 +4,12 @@ export async function main(ns: NS): Promise<void> {
 	if (ns.gang.inGang()) {
 		return;
 	} else {
-		const wasCreated = ns.gang.createGang("Tetrads");
+		const gangFactions = [ "Tetrads", "Slum Snakes" ];
+		gangFactions.filter(g => !ns.getPlayer().factions.includes(g))
+					.forEach(g => ns.joinFaction(g));
+
+		const gangName = (ns.getPlayer().factions.includes("Tetrads")) ? "Tetrads" : "Slum Snakes";
+		const wasCreated = ns.gang.createGang(gangName);
 		if (wasCreated) {
 			ns.tprint("Started gang");
 			ns.run("/crime/manageGang.js");
