@@ -98,8 +98,8 @@ export function filesNeededForAttack(): string[] {
         , "/attack/libAttack.js"
         , "/attack/libController.js"
         , "/attack/libTargets.js"
-        , "/libPorts.js"
-        , "/libFormat.js"
-        , "/libServers.js"
+        , "libPorts.js"
+        , "libFormat.js"
+        , "libServers.js"
     ]
 }
