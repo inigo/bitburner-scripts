@@ -28,6 +28,7 @@ interface StartupStrategy {
 /**
  * Create a corporation, with "Agriculture" - $1.61t
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class AgricultureStrategy implements StartupStrategy {
     readonly division: string;
     readonly industry: string;
