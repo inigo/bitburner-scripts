@@ -66,7 +66,7 @@ export class AttackController {
 				firstWeakenInfo.threads = Math.floor(availableMemory / firstWeakenInfo.memoryPerThread);
 			}
 			while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) {
-				this.ns.exec("pWeaken.js", host, firstWeakenInfo.threads, this.targetServerName, 0, firstWeakenInfo.time, "prime_"+this.uniqueId(), "weaken1");				
+				this.ns.exec("/attack/weaken.js", host, firstWeakenInfo.threads, this.targetServerName, 0, firstWeakenInfo.time, "prime_"+this.uniqueId(), "weaken1");				
 				await this.waitForAttacksToEnd();
 			}
 		}
@@ -75,7 +75,7 @@ export class AttackController {
 				growthInfo.threads = Math.floor(availableMemory / growthInfo.memoryPerThread);
 			}
 			while (this.ns.getServerMoneyAvailable(this.targetServerName) < this.ns.getServerMaxMoney(this.targetServerName)) {
-				this.ns.exec("pGrow.js", host, growthInfo.threads, this.targetServerName, 0, growthInfo.time, "prime_"+this.uniqueId(), "grow");				
+				this.ns.exec("/attack/grow.js", host, growthInfo.threads, this.targetServerName, 0, growthInfo.time, "prime_"+this.uniqueId(), "grow");				
 				await this.waitForAttacksToEnd();
 			}
 		}
@@ -84,7 +84,7 @@ export class AttackController {
 				secondWeakenInfo.threads = Math.floor(availableMemory / secondWeakenInfo.memoryPerThread);
 			}			
 			while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) {
-				this.ns.exec("pWeaken.js", host, secondWeakenInfo.threads, this.targetServerName, 0, secondWeakenInfo.time, "prime_"+this.uniqueId(), "weaken2");				
+				this.ns.exec("/attack/weaken.js", host, secondWeakenInfo.threads, this.targetServerName, 0, secondWeakenInfo.time, "prime_"+this.uniqueId(), "weaken2");				
 				await this.waitForAttacksToEnd();
 			}
 		}		
