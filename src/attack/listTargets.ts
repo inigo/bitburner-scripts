@@ -1,4 +1,4 @@
-import { listBestTargets }  from "newAttack";
+import { TargetFinder }  from "attack/libTargets";
 import { PrettyTable }  from "libFormat";
 import { NS } from '@ns'
 
@@ -11,7 +11,8 @@ export async function main(ns: NS): Promise<void> {
 	const moneyToTakePercent: number = (ns.args[2] as number) ?? 0.5;
 
 	const table = new PrettyTable(ns, ["Name", "Attacked?", "Quick ($/s)", "Max ($/s)", "Money ($)", "Attack time (s)", "Memory (GB)", "Threads", "Prime time (s)"]);
-	const targets = listBestTargets(ns, 60, launchServerRam, launchServerCores, moneyToTakePercent);
+	const targetFinder = new TargetFinder(ns);
+	const targets = targetFinder.listBestTargets(60, launchServerRam, launchServerCores, moneyToTakePercent);
 	for (const t of targets.slice(0,20)) {
 		table.addRow([t.name, (t.isAttacked ? "Yes" : " "), t.incomeWithinPeriodPerSecond, t.incomePerSecond, t.maxMoney, t.time, t.totalMemory, t.threads, t.initialPrimeTime ]);
 	}

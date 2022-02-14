@@ -1,5 +1,5 @@
-import { listBestTargets } from "newAttack"; 
-import { listStandardFiles } from "libFiles"
+import { TargetFinder }  from "/attack/libTargets";
+import { launchAttack } from "/attack/launchAttacksFromPurchasedServers"
 import { fmt } from "libFormat"; 
 import { NS } from '@ns';
 
@@ -21,7 +21,8 @@ async function buyServerWithAttack(ns: NS, ignoreLimit: boolean) {
 	const ramSize = (existingCount < 3 || hackLevel < 1000) ? 16384 :
 						(existingCount < 6 || hackLevel < 1500) ? 65536 :
 						524288;
-	const viableTargets = listBestTargets(ns, 60, ramSize).filter(t => t.isAttacked == false);
+	const targetFinder = new TargetFinder(ns);
+	const viableTargets = targetFinder.listBestTargets(60, ramSize).filter(t => t.isAttacked == false);
 
 	if (viableTargets.length==0) {
 		ns.print("No suitable targets to attack");
@@ -44,17 +45,14 @@ async function buyServerWithAttack(ns: NS, ignoreLimit: boolean) {
 	}
 
 	const target = viableTargets[0].name;
-	ns.toast("Buying server and attacking "+target);
-	await buyAndAttack(ns, ramSize, target);
+	ns.toast("Buying server - will probably attack "+target);
+	await buyAndAttack(ns, ramSize);
 }
 
-async function buyAndAttack(ns: NS, desiredRam: number, targetServer: string) {
+async function buyAndAttack(ns: NS, desiredRam: number) {
 	const newServerName = "pserv-" + desiredRam+"-"+randomInt(1000);
 	ns.purchaseServer(newServerName, desiredRam);
-	await ns.scp(listStandardFiles(), "home", newServerName);
-
-	const serverToAttack = targetServer;
-	ns.exec("newAttack.js", newServerName, 1, serverToAttack);
+	await launchAttack(ns, newServerName);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

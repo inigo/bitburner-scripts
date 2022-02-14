@@ -1,158 +1,6 @@
-import { findAllHackableServers } from "libServers";
-import { fmt } from "libFormat";
-import { log } from "libAttack";
 import { HackingFormulas, NS, Player, Server } from '@ns';
-import { receiveAttackTarget } from "spread/libSpread";
-
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function autocomplete(data : AutocompleteData, args : string[]) : string[] {
-    return [...data.servers];
-}
-
-export async function main(ns: NS): Promise<void> {
-	ns.disableLog("ALL");
-
-	const hackTarget: string = (ns.args[0] as string);
-	if (hackTarget==null) {
-		ns.tprint("ERROR No valid hack targets");
-		ns.exit();
-	}
-
-	const host = ns.getHostname();
-	const spareRamBuffer = host=="home" ? 100 : 0;
-	const moneyToTakePercent: number = (ns.args[1] as number) ?? 0.5;
-	
-	const minAttacksBeforeReset = 500;
-	const minWaitBeforeResetMs = 600000;
-	const resetBufferMs = 5000;
-
-	const availableRam = ns.getServerMaxRam(host) - spareRamBuffer;	
-
-	while(true) {
-		killAttacks(ns, hackTarget);
-		ns.toast(`Priming ${host} for attack on ${hackTarget}`, "info");
-
-		const cores = ns.getServer(host).cpuCores;
-		const primingAttack = new AttackController(ns, hackTarget, availableRam, cores, moneyToTakePercent);
-		const primingTiming = primingAttack.timingInfo();
-		
-		log(ns, fmt(ns)`INFO Planning ${primingTiming.simultaneousAttacks} simultaneous attacks`);		
-
-		const primingAttackInfo = primingAttack.infoPerCycle();
-		const memoryNeeded = primingAttackInfo.memory;
-		if (memoryNeeded > availableRam) {
-			ns.tprint(fmt(ns)`ERROR Unable to run hack on ${hackTarget} from ${host} - insufficient memory. Currently have ${availableRam}GB but need ${memoryNeeded}GB`);
-			ns.exit();
-		}
-
-		await primingAttack.primeServer();	
-		
-		// The priming often takes a while, and this sometimes means a significant change in hacking before the real attack starts
-		const attack = new AttackController(ns, hackTarget, availableRam, cores, moneyToTakePercent);
-		const timing = attack.timingInfo();
-		
-		ns.toast(fmt(ns)`Launching ${timing.simultaneousAttacks} simultaneous attacks on ${hackTarget} from ${host} with a pause of ${timing.pauseBetweenAttacks}s between each`, "info");
-		
-		const startTime = new Date().getTime();
-		let attacksSoFar = 0;
-		let potentiallyUnbalanced = 0;
-
-		const maxMoney = ns.getServerMaxMoney(hackTarget);
-		const minSecurity = ns.getServerMinSecurityLevel(hackTarget);
-
-		let i = 1;
-		while(true) {
-			if (runningAttacks(ns, hackTarget) < timing.simultaneousAttacks) {
-				attack.launchAttack(i++);
-			} else {
-				log(ns, "WARN Not launching a new attack - maybe timing is off?");
-			}
-			reportOnServer(ns, hackTarget);			
-			await ns.sleep(10);
-			await ns.sleep(timing.pauseBetweenAttacks);
-
-			if (ns.getServerMoneyAvailable(hackTarget) < (ns.getServerMaxMoney(hackTarget) / 10)) {
-				log(ns, "INFO Insufficient money on server - either unbalanced, or other scripts running");
-				potentiallyUnbalanced++;
-			} else {
-				potentiallyUnbalanced = 0;
-			}
-			if (potentiallyUnbalanced > 20) {
-				log(ns, "WARN Still insufficient money - rebalancing");
-				break;
-			}
-
-			if ((ns.getServerMaxMoney(hackTarget)!=maxMoney) || (ns.getServerMinSecurityLevel(hackTarget)!=minSecurity)) {
-				log(ns, "INFO server stats have changed - probably due to hashes - rebalancing");
-				break;
-			}
-			
-			const timeElapsed = new Date().getTime() - startTime;
-			attacksSoFar++;
-			if (attacksSoFar>=minAttacksBeforeReset && timeElapsed >= minWaitBeforeResetMs) {
-				log(ns, "INFO Reached rebalance limit.")
-				break;
-			}
-		}
-		await ns.sleep(10);
-		await ns.sleep(timing.pauseBetweenAttacks + resetBufferMs);
-	}
-}
-
-
-export function listBestTargets(ns: NS, paybackPeriodInMinutes = 60, serverRam: number = ns.getServerMaxRam("home"), serverCores = 1, moneyToTakePercent = 0.5): TargetInfo[] {
-	const targets = findAllHackableServers(ns);
-	const attacks = [ ...listRunningAttacks(ns), receiveAttackTarget(ns)?.targetServer ];
-	const player = ns.getPlayer();
-	const targetDetails = targets.map(t => {
-		const attack = new AttackController(ns, t, serverRam, serverCores, moneyToTakePercent);
-		const timingInfo = attack.timingInfo();
-		const memoryPerAttack = attack.infoPerCycle().memory;
-		const maxMoney = ns.getServerMaxMoney(t);
-		const bestMoneyPerAttack = Math.round(maxMoney * moneyToTakePercent);
-
-		const chance = ns.formulas.hacking.hackChance(toIdealServer(ns, t), player);
-		const actualMoneyPerAttack = bestMoneyPerAttack * chance;
-
-		const attacksPerSecond = 1000 * timingInfo.simultaneousAttacks / attack.infoPerCycle().time;
-		const incomePerSecond = actualMoneyPerAttack * attacksPerSecond;
-
-		const totalMemory = (memoryPerAttack * timingInfo.simultaneousAttacks) + ns.getScriptRam("newAttack.js", "home") 
-
-		const initialPrimeTime = attack.initialPrimeTime();
-
-		const paybackPeriodInSeconds = paybackPeriodInMinutes * 60;
-		const timeForAttacksInSeconds = paybackPeriodInSeconds - (initialPrimeTime/1000);
-
-		const incomeInPaybackPeriod = incomePerSecond * timeForAttacksInSeconds; 
-		const incomeWithinPeriodPerSecond = incomeInPaybackPeriod / paybackPeriodInSeconds;
-
-		const isAttacked = attacks.includes(t);
-
-		return { name: t, incomeWithinPeriodPerSecond: incomeWithinPeriodPerSecond, incomePerSecond, totalMemory, maxMoney, time: timingInfo.pauseBetweenAttacks, threads: timingInfo.simultaneousAttacks, chance: chance, initialPrimeTime, isAttacked };
-	});
-	return targetDetails
-				.filter(td => td.totalMemory <= serverRam)
-				.filter(td => td.incomePerSecond > 0 )
-				.filter(td => td.incomeWithinPeriodPerSecond > 0 )
-				.sort((a, b) => a.incomeWithinPeriodPerSecond - b.incomeWithinPeriodPerSecond)
-				.reverse();
-}
-
-function listRunningAttacks(ns: NS): string[] {
-	const servers = [... ns.getPurchasedServers(), "home"];
-	const attackedServers = servers.flatMap(s => ns.ps(s).filter(p => p.filename=="pController.js" || p.filename=="safePController.js" || p.filename=="newAttack.js").map(p => p.args[0]) );
-	const distinctTargets = [...new Set(attackedServers)];
-	return distinctTargets;	
-}
-
-export type TargetInfo = { name: string, incomeWithinPeriodPerSecond: number, incomePerSecond: number, maxMoney: number, totalMemory: number, time: number, threads: number, chance: number, initialPrimeTime: number, isAttacked: boolean };
-
-function toIdealServer(ns: NS, serverName: string): Server {
-	const serverInfo = ns.getServer(serverName);
-	return { ... serverInfo, hackDifficulty: serverInfo.minDifficulty, moneyAvailable: serverInfo.moneyMax };
-}
+import { fmt } from "libFormat";
+import { log, reportOnServer, runningAttacks, toIdealServer } from "attack/libAttack";
 
 export class AttackController {
 	targetServerName = "";
@@ -218,7 +66,7 @@ export class AttackController {
 				firstWeakenInfo.threads = Math.floor(availableMemory / firstWeakenInfo.memoryPerThread);
 			}
 			while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) {
-				this.ns.exec("pWeaken.js", host, firstWeakenInfo.threads, this.targetServerName, 0, firstWeakenInfo.time, "prime_"+uniqueId(), "weaken1");				
+				this.ns.exec("pWeaken.js", host, firstWeakenInfo.threads, this.targetServerName, 0, firstWeakenInfo.time, "prime_"+this.uniqueId(), "weaken1");				
 				await this.waitForAttacksToEnd();
 			}
 		}
@@ -227,7 +75,7 @@ export class AttackController {
 				growthInfo.threads = Math.floor(availableMemory / growthInfo.memoryPerThread);
 			}
 			while (this.ns.getServerMoneyAvailable(this.targetServerName) < this.ns.getServerMaxMoney(this.targetServerName)) {
-				this.ns.exec("pGrow.js", host, growthInfo.threads, this.targetServerName, 0, growthInfo.time, "prime_"+uniqueId(), "grow");				
+				this.ns.exec("pGrow.js", host, growthInfo.threads, this.targetServerName, 0, growthInfo.time, "prime_"+this.uniqueId(), "grow");				
 				await this.waitForAttacksToEnd();
 			}
 		}
@@ -236,7 +84,7 @@ export class AttackController {
 				secondWeakenInfo.threads = Math.floor(availableMemory / secondWeakenInfo.memoryPerThread);
 			}			
 			while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) {
-				this.ns.exec("pWeaken.js", host, secondWeakenInfo.threads, this.targetServerName, 0, secondWeakenInfo.time, "prime_"+uniqueId(), "weaken2");				
+				this.ns.exec("pWeaken.js", host, secondWeakenInfo.threads, this.targetServerName, 0, secondWeakenInfo.time, "prime_"+this.uniqueId(), "weaken2");				
 				await this.waitForAttacksToEnd();
 			}
 		}		
@@ -265,11 +113,11 @@ export class AttackController {
 		const delay = this.internalDelay;
 
 		const host = this.ns.getHostname();
-		this.ns.exec("pHack.js", host, atLeastOne(cycle.hackInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 0), cycle.hackInfo.time, i+"h", uniqueId(), "hack");	
+		this.ns.exec("/attack/hack.js", host, atLeastOne(cycle.hackInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 0), cycle.hackInfo.time, i+"h", this.uniqueId(), "hack");	
 		// This one is slowest
-		this.ns.exec("pWeaken.js", host, atLeastOne(cycle.firstWeakenInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 1), cycle.firstWeakenInfo.time, i+"w1", uniqueId(), "weaken1");
-		this.ns.exec("pGrow.js", host, atLeastOne(cycle.growthInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 2), cycle.growthInfo.time, i+"g", uniqueId(), "grow");	
-		this.ns.exec("pWeaken.js", host, atLeastOne(cycle.secondWeakenInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 3), cycle.secondWeakenInfo.time, i+"w2", uniqueId(), "weaken2");
+		this.ns.exec("/attack/weaken.js", host, atLeastOne(cycle.firstWeakenInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 1), cycle.firstWeakenInfo.time, i+"w1", this.uniqueId(), "weaken1");
+		this.ns.exec("/attack/grow.js", host, atLeastOne(cycle.growthInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 2), cycle.growthInfo.time, i+"g", this.uniqueId(), "grow");	
+		this.ns.exec("/attack/weaken.js", host, atLeastOne(cycle.secondWeakenInfo.threads), this.targetServerName, expectedEndTimeMillis + (delay * 3), cycle.secondWeakenInfo.time, i+"w2", this.uniqueId(), "weaken2");
 
 		return { time: timeTaken + (delay*3) };
 	}	
@@ -308,7 +156,7 @@ export class AttackController {
 		const hackPerThread = this.hf.hackPercent(server, player);
 		const hackThreads = this.moneyToTakePercent / hackPerThread;
 
-		const memoryPerThread = this.ns.getScriptRam("pHack.js");
+		const memoryPerThread = this.ns.getScriptRam("/attack/hack.js");
 		const hackMemory = hackThreads * memoryPerThread;
 		const securityGrowth = this.ns.hackAnalyzeSecurity( hackThreads );
 
@@ -323,7 +171,7 @@ export class AttackController {
 		const growthTime = this.hf.growTime(server, player)
 
 		const growthThreads = this.growThreads(server, growth, player); 
-		const memoryPerThread = this.ns.getScriptRam("pGrow.js");
+		const memoryPerThread = this.ns.getScriptRam("/attack/grow.js");
 		const growthMemory = growthThreads * memoryPerThread;	
 
 		const securityGrowth = this.ns.growthAnalyzeSecurity(growthThreads);
@@ -358,44 +206,19 @@ export class AttackController {
 		const weakenPerThread = 0.05 * coreBonus;
 		const weakenThreads = security / weakenPerThread;
 
-		const memoryPerThread = this.ns.getScriptRam("pWeaken.js");
+		const memoryPerThread = this.ns.getScriptRam("/attack/weaken.js");
 		const weakenMemory = weakenThreads * memoryPerThread;	
 
 		return { threads: weakenThreads, time: weakenTime, securityGrowth: (-1 * security), memory: weakenMemory, memoryPerThread: memoryPerThread }; 
 	}
 
+    uniqueId(): string {
+        return "unique_"+Math.random()+"_"+Math.random(); 
+    }
+    
 }
 
 export type AttackInfo = { time: number };
 export type TimingInfo = { simultaneousAttacks: number, pauseBetweenAttacks: number, maximumSimultaneousAttacks: number };
 export type CycleInfo = { time: number, memory: number, hackInfo: ActionInfo, firstWeakenInfo: ActionInfo, growthInfo: ActionInfo, secondWeakenInfo: ActionInfo };
 export type ActionInfo = { threads: number, time: number, securityGrowth: number, memory: number, memoryPerThread: number };
-
-function runningAttacks(ns: NS, target: string): number {
-	const scripts = ns.ps();
-	const growScripts = scripts.filter(p => p.filename=="pGrow.js" && p.args.includes(target));
-	const hackScripts = scripts.filter(p => p.filename=="pHack.js" && p.args.includes(target));
-	const weaken1Scripts = scripts.filter(p => p.filename=="pWeaken.js" && p.args.includes(target) && p.args.includes("weaken1") );
-	const weaken2Scripts = scripts.filter(p => p.filename=="pWeaken.js" && p.args.includes(target) && p.args.includes("weaken2") );
-	return Math.max(growScripts.length, hackScripts.length, weaken1Scripts.length, weaken2Scripts.length);
-}
-
-function killAttacks(ns: NS, target: string): void {
-	const host = ns.getHostname();
-	const scriptsToKill = ns.ps(host)
-		.filter(p => p.filename=="pGrow.js" || p.filename=="pHack.js" || p.filename=="pWeaken.js")
-		.filter(p => p.args.includes(target) );
-	scriptsToKill.forEach(p => ns.kill(p.filename, host, ... p.args) );
-}
-
-function uniqueId(): string {
-	return "unique_"+Math.random()+"_"+Math.random(); 
-}
-
-function reportOnServer(ns: NS, s: string) {
-	const security = ns.getServerSecurityLevel(s);
-	const minSecurity = ns.getServerMinSecurityLevel(s);
-	const presentMoney = ns.getServerMoneyAvailable(s);
-	const maxMoney = ns.getServerMaxMoney(s);
-	log(ns, fmt(ns)`For ${s}, security level is ${security} (min is ${minSecurity}) and money is £${presentMoney} of £${maxMoney}`);
-}
