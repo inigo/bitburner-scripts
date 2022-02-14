@@ -36,9 +36,9 @@ export function autocomplete(): string[] {
 }
 
 async function launchAttacks(ns: NS, isWeakenOnly: boolean): Promise<void> {
-	const hackRam = ns.getScriptRam("/spread/simpleHack.js");
-	const growRam = ns.getScriptRam("/spread/simpleGrow.js");
-	const weakenRam = ns.getScriptRam("/spread/simpleWeaken.js");
+	const hackRam = ns.getScriptRam("/spread/spreadHack.js");
+	const growRam = ns.getScriptRam("/spread/spreadGrow.js");
+	const weakenRam = ns.getScriptRam("/spread/spreadWeaken.js");
 	const smallestScriptMem = Math.min(hackRam, growRam, weakenRam);
 
 	if (getServersWithFreeMemory(ns, smallestScriptMem).length > 3) {
@@ -63,7 +63,7 @@ async function launchAttacks(ns: NS, isWeakenOnly: boolean): Promise<void> {
 		if (hackCount < targetHackCount && !isWeakenOnly) {
 			ns.print("Launching hack on "+s);
 			const threadsToLaunch = Math.floor(freeMemory / hackRam);
-			ns.exec("/spread/simpleHack.js", s, threadsToLaunch, uniqueId());
+			ns.exec("/spread/spreadHack.js", s, threadsToLaunch, uniqueId());
 			hackCount++;
 			continue;			
 		}
@@ -72,13 +72,13 @@ async function launchAttacks(ns: NS, isWeakenOnly: boolean): Promise<void> {
 			ns.print("Launching grow on "+s);
 			const threadsToLaunch = Math.floor(freeMemory / growRam);
 			if (threadsToLaunch<1) { continue; }
-			ns.exec("/spread/simpleGrow.js", s, threadsToLaunch, uniqueId());
+			ns.exec("/spread/spreadGrow.js", s, threadsToLaunch, uniqueId());
 			growThreads += threadsToLaunch;
 		} else {
 			ns.print("Launching weaken on "+s);
 			const threadsToLaunch = Math.floor(freeMemory / weakenRam);
 			if (threadsToLaunch<1) { continue; }
-			ns.exec("/spread/simpleWeaken.js", s, threadsToLaunch, uniqueId());
+			ns.exec("/spread/spreadWeaken.js", s, threadsToLaunch, uniqueId());
 			weakenThreads += threadsToLaunch;
 		}
 	}
@@ -96,13 +96,13 @@ function getServersWithFreeMemory(ns: NS, smallestScriptMem: number): string[] {
 
 async function copyFiles(ns: NS, servers: string[]): Promise<void> {
 	for (const s of servers) {
-		const filesToCopy = [ "/spread/simpleHack.js", "/spread/simpleGrow.js", "/spread/simpleWeaken.js", "/spread/libSpread.js", "libPorts.js" ]; 
+		const filesToCopy = [ "/spread/spreadHack.js", "/spread/spreadGrow.js", "/spread/spreadWeaken.js", "/spread/libSpread.js", "libPorts.js" ]; 
 		await ns.scp(filesToCopy, "home", s);			
 	}	
 }
 
 function serversHacking(ns: NS) {
-	return findCrackedServers(ns).filter(s => ns.ps(s).some(job => job.filename.includes("simpleHack"))).length;
+	return findCrackedServers(ns).filter(s => ns.ps(s).some(job => job.filename.includes("spreadHack"))).length;
 }
 
 

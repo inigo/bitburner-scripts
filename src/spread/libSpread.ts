@@ -34,7 +34,7 @@ export async function refreshAttackTarget(ns: NS): Promise<void> {
 export type SpreadAttackInstructions = { targetServer: string, maxMoney: number, minSecurity: number, hackPercent: number, targetServerInfo: Server };
 
 /**
- * Basic attack functions - run a single command in a loop. Imported by the various simple attack scripts.
+ * Basic attack functions - run a single command in a loop. Imported by the various spread attack scripts.
  */
 
 export async function growLoop(ns: NS): Promise<void> {
