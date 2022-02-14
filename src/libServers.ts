@@ -1,26 +1,12 @@
 import { NS } from '@ns';
 
 /** Find all servers in the game, including purchased and hacknet servers and home. */
-export function findAllServers(ns: NS): string[] {
-	ns.disableLog("disableLog");
-	ns.disableLog("scan");
-	
-	const toScan: string[] = ns.scan();
-	const foundServers = new Set<string>();
-	ns.print("Scanning for servers - starting with initial set of: "+toScan);
-
-	while (toScan.length > 0) {
-		const current: string = (toScan.pop() as string);
-		foundServers.add(current);
-
-		const newServers = ns.scan(current);
-		newServers.forEach(s => { 
-			if (!foundServers.has(s)) { toScan.push(s) } 
-		});
-	}
-
-	return [...foundServers];
+export function findAllServers(ns: NS, server = "home", foundAlready: string[] = []): string[] {
+	const newServers = ns.scan(server).filter(s => ! foundAlready.includes(s));
+	const foundNow = [... foundAlready, ... newServers];
+	return [... new Set([... foundNow, ... newServers.flatMap( s => findAllServers(ns, s, foundNow)) ])];
 }
+
 
 /** Find servers with root access, excluding purchased servers and home. */
 export function findCrackedServers(ns: NS): string[] {
