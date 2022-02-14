@@ -39,28 +39,20 @@ export async function main(ns: NS): Promise<void> {
 
 	// In early stages, before money production is high via other means, gamble in the casino for starting cash
 	const moneyAvailable = ns.getServerMoneyAvailable("home");
-	if (moneyAvailable < 5_000_000) {
-		if (moneyAvailable < 200_000) {
-			// Wait briefly in case we get enough money to travel
-			await ns.sleep(2000);
-		}
-		ns.run("/casino/coinFlip.js");
-		const serverRam = ns.getServerMaxRam("home")
-		if (serverRam < 256) {
-			while (anyScriptRunning(ns, "/casino/coinFlip.js")) {
-				await ns.sleep(1000);
-			}	
-		}
+	if (moneyAvailable < 5_000_000 || ns.getServerMaxRam("home") < 512) {
+		ns.run("/basic/cheatCasino.js");
+		while (anyScriptRunning(ns, "/basic/cheatCasino.js")) {
+			await ns.sleep(1000);
+		}		
 	}
 
 	while(! isPhaseTwo(ns)) {
 		if (! anyScriptRunning(ns, hackScript)) {
 			const scripts = [
-							"basicUpgradeMemory.js"
-							, "basicBuyCracks.js"
-							, "basicWriteSsh.js"
-							, "basicCrackAll.js" 
-							, "installBackdoors.js" 
+							"/basic/upgradeMemory.js"
+							, "/basic/buyCracks.js"
+							, "/basic/crackAll.js" 
+							, "/basic/installBackdoors.js" 
 							, "/spread/spreadAttackController.js"
 							, "/hacknet/manageHashSales.js"
 							, "/hacknet/upgradeNodes.js"

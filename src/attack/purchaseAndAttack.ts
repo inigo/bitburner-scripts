@@ -1,5 +1,5 @@
-import { TargetFinder }  from "/attack/libTargets";
-import { launchAttack } from "/attack/launchAttacksFromPurchasedServers"
+import { TargetFinder }  from "attack/libTargets";
+import { launchAttack } from "attack/launchAttacksFromPurchasedServers"
 import { fmt } from "libFormat"; 
 import { NS } from '@ns';
 

@@ -21,14 +21,12 @@ export async function main(ns: NS): Promise<void> {
 	
 	while(true) {
 		const scripts = [
-						"basicUpgradeMemory.js"
-						, "basicBuyCracks.js"
-						, "basicCrackAll.js" 
+						"/basic/upgradeMemory.js"
+						, "/basic/buyCracks.js"
+						, "/basic/crackAll.js" 
 						, "/spread/spreadAttackController.js"
-						, "basicBuyStockmarket.js"
-						, "basicWriteSsh.js"
-						, "purchaseAndHack.js"
-						, "installBackdoors.js"
+						, "/basic/buyStockmarket.js"
+						, "/basic/installBackdoors.js"
 						// , "joinFaction.js"  
 						// , "buyAugmentations.js"
 						, "/hacknet/upgradeNodes.js"
@@ -42,7 +40,8 @@ export async function main(ns: NS): Promise<void> {
 						, "/corp/startCorp.ts"				
 						, "/contracts/solveContracts.js"
 						, "/attack/launchAttackFromHome.js"						
-						, "/attack/launchAttacksFromPurchasedServers.js"						
+						, "/attack/purchaseAndAttack.js"																	
+						, "/attack/launchAttacksFromPurchasedServers.js"	
 						];
 		for (const script of scripts) {
 			ns.run(script);

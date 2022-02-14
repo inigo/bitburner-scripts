@@ -7,7 +7,7 @@ export async function main(ns: NS): Promise<void> {
 		return;
 	}
 	const totalMoney = ns.getServerMoneyAvailable("home");
-	const dataApiCost = 25000000000 * ns.getBitNodeMultipliers().FourSigmaMarketDataApiCost;
+	const dataApiCost = 25_000_000_000 * ns.getBitNodeMultipliers().FourSigmaMarketDataApiCost;
 	if (totalMoney > dataApiCost) {
 		ns.tprint("INFO Buying stockmarket access");
 		if (ns.stock.purchase4SMarketDataTixApi()) {
