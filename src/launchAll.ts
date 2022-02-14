@@ -38,9 +38,11 @@ export async function main(ns: NS): Promise<void> {
 						, "/sleeve/installSleeveAugments.js"
 						, "/stanek/reportFragments.js"
 						, "/crime/startGang.js"
-						, "/crime/reportGangStatus.js"						
+						, "/crime/reportGangStatus.js"
+						, "/corp/startCorp.ts"				
 						, "/contracts/solveContracts.js"
-						, "launchAttackFromHome.js"						
+						, "/attack/launchAttackFromHome.js"						
+						, "/attack/launchAttacksFromPurchasedServers.js"						
 						];
 		for (const script of scripts) {
 			ns.run(script);
