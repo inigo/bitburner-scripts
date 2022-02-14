@@ -1,4 +1,4 @@
-import {  JobPosition, JWeight, OfficeRole } from 'corp/libCorporation'
+import {  JobPosition, JWeight, OfficeRole, MaterialWeight } from 'corp/libCorporation'
 
 export class IndustryInfo {
     constructor(readonly industry: string) {
@@ -61,5 +61,16 @@ export class IndustryInfo {
         } else {
             return [];
         }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getProductionMultipliers(industry: string): MaterialWeight[] {
+        // Software
+        return [
+            { material: "Hardware", weight: 4.167, size: 0.06, pctOfWarehouse: 0.397 }
+            , { material: "Robots", weight: 0.1, size: 0.5, pctOfWarehouse: 0.079 }
+            , { material: "AICores", weight: 1.8, size: 0.1, pctOfWarehouse: 0.286 }
+            , { material: "RealEstate", weight: 30, size: 0.005, pctOfWarehouse: 0.238 } 
+        ]
     }
 }

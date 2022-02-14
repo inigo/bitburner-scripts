@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS, Office } from '@ns'
-import { findDivisionName, OfficeRole, listPositions, JobPosition, JobCounts, doCount, JWeight } from 'corp/libCorporation'
+import { findDivisionName, OfficeRole, listPositions, JobPosition, JobCounts, doCount, JWeight, TickGenerator } from 'corp/libCorporation'
 import { IndustryInfo } from 'corp/libIndustries'
 
 export class OfficeControl {
@@ -21,8 +21,9 @@ export class OfficeControl {
 
     enableSmartSupply(): void {
         this.ns.corporation.setSmartSupply(this.division, this.city, true);
+        // @todo This hasn't been merged yet
+        // this.industryInfo.listMaterials().forEach( m => this.ns.corporation.setSmartSupplyUseLeftovers(this.division, this.city, m, false));
     }
-
 
     /** Set this office's warehouse size to be at least newSize, purchasing a warehouse if there isn't already one available. */
     setWarehouseSize(newSize: number): number {
@@ -136,6 +137,30 @@ export class OfficeControl {
                 }
             }
         }
+    }
+
+    async buyProductionMultipliers(ticks: TickGenerator): Promise<void> {
+        const warehouse = this.ns.corporation.getWarehouse(this.division, this.city);
+        const spaceToUse = Math.floor(warehouse.size * 0.4);
+
+        let isBuying = false;
+        const weights = this.industryInfo.getProductionMultipliers(this.industry);        
+        for (const m of weights) {
+            const requiredAmount = spaceToUse * m.pctOfWarehouse / (m.size * 10);
+            const existingAmount = this.ns.corporation.getMaterial(this.division, this.city, m.material).qty;
+            if (existingAmount < requiredAmount) {
+                this.ns.print("Insufficient "+m.material+" in "+this.city+" for optimum product modifiers - buying more. Want "+requiredAmount+" but have "+existingAmount);
+                const amountToBuy = requiredAmount - existingAmount;
+                isBuying = true;
+                this.ns.corporation.buyMaterial(this.division, this.city, m.material, amountToBuy);
+            } else {
+                this.ns.corporation.buyMaterial(this.division, this.city, m.material, 0);
+            }
+        }
+        if (isBuying) {
+            await ticks.next();
+        }
+        weights.forEach(m => this.ns.corporation.buyMaterial(this.division, this.city, m.material, 0));
     }
 
     async assignEmployeesByRole(officeRole: OfficeRole): Promise<void> {

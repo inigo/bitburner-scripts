@@ -23,7 +23,7 @@ export class ResearchManager {
     unlockResearches(): void {
         const divisions = this.ns.corporation.getCorporation().divisions;
         for (const division of divisions) {
-            const isPrimary = (division.name==this.primaryDivision);
+            const isPrimary = (division.type ==this.primaryDivision);
             const relevantResearch = isPrimary ? this.primaryResearches : this.secondaryResearches;
             const multiplier = isPrimary ? this.requiredSurplusMultiplier : 1;
             this.unlockResearchForDivision(division, relevantResearch, multiplier);
@@ -38,7 +38,7 @@ export class ResearchManager {
             if (researchPoints > cost * multiplierNeeded) {
                 this.ns.print("Researching "+r+" for "+division.name);
                 this.ns.corporation.research(division.name, r);
-            }
+            } 
         }
    }
 }

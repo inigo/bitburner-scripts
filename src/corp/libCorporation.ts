@@ -2,7 +2,7 @@
 import {  NS } from '@ns'
 import * as ports from 'libPorts';
 
-export async function* waitForNextCorporationTick(ns: NS): AsyncGenerator<undefined, void, unknown> {
+export async function* waitForNextCorporationTick(ns: NS): TickGenerator {
     const getState = () => ns.corporation.getCorporation().state;
     // States are "START", "PURCHASE", "PRODUCTION", "SALE", "EXPORT"
     const weightTime = 200;
@@ -19,6 +19,8 @@ export async function* waitForNextCorporationTick(ns: NS): AsyncGenerator<undefi
         }
     }
 }
+
+export type TickGenerator = AsyncGenerator<undefined, void, unknown>
 
 export function listPositions(): string[] {
     return ["Operations", "Engineer", "Management", "Business", "Research & Development", "Training", "Unassigned" ];
@@ -53,6 +55,8 @@ export enum JobPosition {
     Training = "Training",
     Unassigned = "Unassigned"
 }
+
+export type MaterialWeight = { material: string, weight: number, size: number, pctOfWarehouse: number };
 
 export enum OfficeRole { 
     Product, // The one city that creates new products

@@ -113,8 +113,15 @@ class ProductPriceSetter {
      */
     update(): boolean {
         if (this.ns.corporation.hasResearched(this.division, "Market-TA.II")) {
-            this.ns.print("Nothing to do for '"+this.productName+"' - TA.II available and enabled");
-            this.ns.corporation.setProductMarketTA2(this.division, this.productName, true);
+            if (this.retrieveProductPriceInfo()==null) {
+                this.ns.print("Enabling TA.II for new product "+this.productName);
+                this.ns.corporation.sellProduct(this.division, "Sector-12", this.productName, "MAX", "MP*"+this.initialPriceMultiplier, true);
+                this.setProductPrice(this.initialPriceMultiplier);
+                this.updateProductPriceInfo(this.initialPriceMultiplier, false, false, this.initialRateOfChange);
+            } else {
+                this.ns.print("Nothing to do for '"+this.productName+"' - TA.II available");
+            }
+            this.ns.corporation.setProductMarketTA2(this.division, this.productName, true);            
             return true;
         }
 
