@@ -19,6 +19,8 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
     const offices = listCities().map(city => new OfficeControl(ns, city, industry));  
     offices.forEach(o => o.sellAllMaterials(1, "PROD"));
     offices.forEach(o => o.enableSmartSupply());
+    offices.forEach(o => o.setWarehouseSize(2000));
+
     const ticks = waitForNextCorporationTick(ns);
     while (await ticks.next()) {
         const prepareForInvestment = (retrieveCorporationInstructions(ns)?.prepareForInvestment ?? false);
