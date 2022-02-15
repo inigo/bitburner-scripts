@@ -41,9 +41,6 @@ export async function main(ns: NS): Promise<void> {
 	const moneyAvailable = ns.getServerMoneyAvailable("home");
 	if (moneyAvailable < 5_000_000 || ns.getServerMaxRam("home") < 512) {
 		ns.run("/basic/cheatCasino.js");
-		while (anyScriptRunning(ns, "/basic/cheatCasino.js")) {
-			await ns.sleep(1000);
-		}		
 	}
 
 	while(! isPhaseTwo(ns)) {
@@ -77,7 +74,8 @@ export async function main(ns: NS): Promise<void> {
 
 function isPhaseTwo(ns: NS): boolean {
 	const allCracksBought = (ports.checkPort(ns, ports.CRACKS_BOUGHT_COUNT, parseInt)==5);
-	return ns.getServerMaxRam("home") >= 1024 && ns.getServerMoneyAvailable("home") > 1_000_000 && allCracksBought;
+	const cheatingCasino = anyScriptRunning(ns, "/basic/cheatCasino.js");
+	return ns.getServerMaxRam("home") >= 1024 && ns.getServerMoneyAvailable("home") > 1_000_000 && allCracksBought && !cheatingCasino;
 }
 
 function launchHackLocal(ns: NS): void {
