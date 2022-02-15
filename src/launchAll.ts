@@ -37,7 +37,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/stanek/reportFragments.js"
 						, "/crime/startGang.js"
 						, "/crime/reportGangStatus.js"
-						, "/corp/startCorp.ts"				
+						, "/corp/startCorp.js"				
 						, "/contracts/solveContracts.js"
 						, "/attack/launchAttackFromHome.js"						
 						, "/attack/purchaseAndAttack.js"																	
