@@ -59,6 +59,7 @@ export async function main(ns: NS): Promise<void> {
 
 		const maxMoney = ns.getServerMaxMoney(hackTarget);
 		const minSecurity = ns.getServerMinSecurityLevel(hackTarget);
+		const hostMaxRam = ns.getServerMaxRam(host);
 
 		let i = 1;
 		while(true) {
@@ -86,6 +87,11 @@ export async function main(ns: NS): Promise<void> {
 				log(ns, "INFO server stats have changed - probably due to hashes - rebalancing");
 				break;
 			}
+
+			if ((ns.getServerMaxRam(host)!=hostMaxRam)) {
+				log(ns, "INFO host max memory has changed due to server upgrade - rebalancing");
+				break;
+			}			
 			
 			const timeElapsed = new Date().getTime() - startTime;
 			attacksSoFar++;
