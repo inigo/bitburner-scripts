@@ -27,7 +27,11 @@ async function acquireMoneyToTravel(ns: NS):Promise<void>  {
         // Wait briefly in case we get enough money to travel e.g. via sleeves or a gang
         await ns.sleep(2000);
         while (money() < 200_000) {
-            ns.commitCrime("Mug");
+            const time = ns.commitCrime("Mug");
+            await ns.sleep(time);
+            while (ns.isBusy()) {
+                await ns.sleep(100);
+            }
         }            
     }
 }
