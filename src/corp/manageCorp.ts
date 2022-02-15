@@ -8,7 +8,11 @@ import { OfficeControl } from 'corp/libOffice'
 
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");
-    await manageCorporation(ns, "Software");
+    if (! isInCorporation(ns)) { 
+        return; 
+    } else {
+        await manageCorporation(ns, "Software");
+    }
 }
 
 export async function manageCorporation(ns: NS, industry: string): Promise<void> {
@@ -36,5 +40,14 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
         for (const o of offices) {
             await o.buyProductionMultipliers(ticks);
         }
+    }
+}
+
+function isInCorporation(ns: NS): boolean {
+    try {
+        const corpExists = ns.corporation.getCorporation();
+        return (corpExists!=null);
+    } catch (err) {
+        return false;
     }
 }
