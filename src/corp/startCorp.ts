@@ -21,7 +21,7 @@ export async function main(ns : NS) : Promise<void> {
         sellAllShares(ns);
     }
     
-    ns.print("Starting corporation");
+    ns.tprint("Starting corporation");
     const started = ns.corporation.createCorporation("Bats Inc", selfFund);    
     if (started) {
         ns.run("/corp/manageStartup.js");
