@@ -26,6 +26,7 @@ export function manageGang(ns: NS, goal = "general", stage="early"): void {
 	const isWantedTooHigh = wantedTooHigh(ns, stage);
 	const reputationGoal = (stage=="early") ? 100000 : 750000;
 	const hasEnoughRespect = getReputation(ns) > reputationGoal;
+	const hasEnoughMoney = ns.getServerMoneyAvailable("home") > 1_000_000_000_000
 
 	const currentGang = ns.gang.getGangInformation();
 	for (const name of trainedMembers) {
@@ -65,6 +66,9 @@ export function manageGang(ns: NS, goal = "general", stage="early"): void {
 		} else if (goal == "money" ) {
 			preferredTask = bestTaskForMoney;
 			reason = "the goal is money"
+		} else if (hasEnoughMoney) {
+			preferredTask = bestTaskForRespect;
+			reason = "has enough money"
 		} else if (hasEnoughRespect) {
 			preferredTask = bestTaskForMoney;
 			reason = "respect level is high enough already"
