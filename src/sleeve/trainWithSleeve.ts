@@ -1,4 +1,4 @@
-import { getLowestPlayerCombatStat, listSleeves, workout, travelTo } from "sleeve/libSleeve";
+import { getLowestPlayerCombatStat, listSleeves, workout, travelTo, reportSleeveTasks } from "sleeve/libSleeve";
 import { NS } from '@ns'
 
 // Use sleeves to train player combat stats equally
@@ -12,7 +12,7 @@ export async function main(ns: NS): Promise<void> {
 	while (true) {
         const statToTrain = getLowestPlayerCombatStat(ns).name;
         sleeves.forEach(i => workout(ns, i, statToTrain));
-
+		await reportSleeveTasks(ns); 
 		await ns.sleep(1000);
 	}
 }
