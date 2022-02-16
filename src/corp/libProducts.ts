@@ -87,6 +87,10 @@ export class ProductPriceManager {
         const productNames = divisionInfo.products;
         return productNames.map(p => this.ns.corporation.getProduct(this.division, p));
     }
+
+    arePricesFairlyStable(): boolean {
+        return Math.max(... this.priceSetters.map(p => p.getLastRateOfChange())) < 1.03;
+    }
 }
 
 /**
@@ -227,6 +231,10 @@ class ProductPriceSetter {
 
     getLastPrice(): number {
         return this.retrieveProductPriceInfo()?.priceMultiplier ?? 1;
+    }
+
+    getLastRateOfChange(): number {
+        return this.retrieveProductPriceInfo()?.rateOfChange ?? this.initialRateOfChange;
     }
 
     private updateProductPriceInfo(multiplier: number, isReducing: boolean, isStable: boolean, rateOfChange: number): ProductPriceInfo { 

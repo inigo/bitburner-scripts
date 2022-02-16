@@ -61,6 +61,7 @@ export class ImprovementManager {
             , { importance: 0.5, improvement: new ProjectInsightImprovement(this.ns) }
             , { importance: 0.2, improvement: new SmartFactoriesImprovement(this.ns) }        
             , { importance: 0.1, improvement: new DreamSenseImprovement(this.ns) }
+            , { importance: 0.05, improvement: new WarehouseSpaceImprovement(this.ns, this.division, this.industry) }
         ]
     }    
 }
@@ -141,5 +142,20 @@ class EnlargeSecondaryOfficesImprovement implements Improvement {
         return Promise.resolve(); 
     }
 }
+
+
+class WarehouseSpaceImprovement implements Improvement {
+    private offices: OfficeControl[];
+    constructor(private ns: NS, private division: string, private industry: string) { 
+        this.offices = listCities().map(city => new OfficeControl(this.ns, city, this.industry));
+    }
+    getCost(): number {  return listCities().map(c => this.ns.corporation.getUpgradeWarehouseCost(this.division, c)).reduce((a,b) => a+b); }
+    async apply() { 
+        this.ns.print("Applying update - increasing warehouse size");
+        listCities().forEach(c => this.ns.corporation.upgradeWarehouse(this.division, c));
+        return Promise.resolve(); 
+    }
+}
+
 
 type WeightedImprovement = { improvement: Improvement, importance: number };

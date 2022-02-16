@@ -67,8 +67,8 @@ export class IndustryInfo {
     getProductionMultipliers(industry: string): MaterialWeight[] {
         // Software
         return [
-            { material: "Hardware", weight: 4.167, size: 0.06, pctOfWarehouse: 0.397 }
-            , { material: "Robots", weight: 0.1, size: 0.5, pctOfWarehouse: 0.079 }
+//            { material: "Hardware", weight: 4.167, size: 0.06, pctOfWarehouse: 0.397 }
+            { material: "Robots", weight: 0.1, size: 0.5, pctOfWarehouse: 0.079 }
             , { material: "AICores", weight: 1.8, size: 0.1, pctOfWarehouse: 0.286 }
             , { material: "RealEstate", weight: 30, size: 0.005, pctOfWarehouse: 0.238 } 
         ]

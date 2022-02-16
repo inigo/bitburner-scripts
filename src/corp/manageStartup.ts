@@ -5,7 +5,6 @@ import { OfficeControl } from 'corp/libOffice'
 import { formatMoney } from 'libFormat'
 import { spendHashesOnPurchases } from "hacknet/libHashes";
 import { waitForNextCorporationTick } from 'corp/libCorporation';
-import { manageCorporation } from 'corp/manageCorp';
 
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");
@@ -15,7 +14,9 @@ export async function main(ns : NS) : Promise<void> {
     await strategy.startCorporation(ns);
     await strategy.dump(ns);
     await strategy.initialUpgradeOffices(ns);
-    await manageCorporation(ns, strategy.industry);
+
+    // Quit this controller, and launch the main manager - using spawn because otherwise may require 2TB
+    ns.spawn("/corp/manageCorp.js");
 }
 
 interface StartupStrategy {
