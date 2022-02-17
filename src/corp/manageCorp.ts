@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns';
-import { waitForNextCorporationTick, JobPosition, retrieveCorporationInstructions, listCities } from 'corp/libCorporation';
+import { waitForNextCorporationTick, JobPosition, retrieveCorporationInstructions, listCities, reportCompanyStatus } from 'corp/libCorporation';
 import { ImprovementManager } from 'corp/libImprovements';
 import { InvestmentManager } from 'corp/libInvestment';
 import { ProductPriceManager, ProductLauncher } from '/corp/libProducts';
@@ -30,7 +30,7 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
 
     // These will provide research labs (once boosted by Hacknet research) and increase sale valuation by 10% each
     await setUpSubsidiary(ns, "Food", "NomBats");
-    await setUpSubsidiary(ns, "Tobacco", "NomBats");
+    await setUpSubsidiary(ns, "Tobacco", "SmokeBats");
 
     const ticks = waitForNextCorporationTick(ns);
     while (await ticks.next()) {
@@ -50,6 +50,8 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
 
         investmentManager.considerGettingInvestment();
         investmentManager.considerGoingPublic();
+
+        await reportCompanyStatus(ns);
     }
 }
 

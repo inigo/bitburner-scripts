@@ -6,6 +6,7 @@ import { lookupSleeveIcon } from "sleeve/libSleeve";
 import { lookupGangTaskIcon, GangReport } from "crime/libGang";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
 import { receiveAttackTarget } from "spread/libSpread";
+import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
 
 import { NS, SleeveTask } from '@ns'
 
@@ -81,8 +82,24 @@ export async function main(ns: NS): Promise<void> {
                 values.push(gangIncome);
                 headers.push("Gang: ");
                 values.push(gangInfo.icons);
-            }                        
+            }              
+            
+            const companyStatus = getCorpStatus(ns);
+            if (companyStatus!=null) {
+                headers.push("Corp value: ");
+                values.push(formatMoney(ns, companyStatus.value));
 
+                headers.push("Corp income: ");
+                values.push(formatMoney(ns, companyStatus.companyIncome));
+
+                headers.push("Funding round: ");
+                values.push( companyStatus.isPublic ? "Public" : companyStatus.investmentRound );
+
+                if (companyStatus.isPublic) {
+                    headers.push("Dividends: ")
+                    values.push(formatMoney(ns, companyStatus.dividendIncome));
+                }
+            }
 
             labelCell.innerText = headers.join(" \n");
             valueCell.innerText = values.join("\n");
@@ -141,4 +158,8 @@ function getStanekIcons(ns: NS): (string | null) {
 function getSpreadAttackTarget(ns: NS): (string | null) {
     const instructions = receiveAttackTarget(ns);
     return instructions?.targetServer ?? null;
+}
+
+function getCorpStatus(ns: NS): (CorporationStatus | null) {
+    return retrieveCompanyStatus(ns);
 }

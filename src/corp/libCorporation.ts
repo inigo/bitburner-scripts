@@ -73,3 +73,26 @@ export function retrieveCorporationInstructions(ns: NS): (CorporationInstruction
 }
 
 export type CorporationInstructions = { prepareForInvestment: boolean };
+
+
+export async function reportCompanyStatus(ns: NS): Promise<void> {
+    const dividendRate = 0.9;
+    const corp = ns.corporation.getCorporation();
+    const profit = (corp.revenue - corp.expenses);
+    const pctCompanyOwned = (corp.numShares / corp.totalShares);
+    const status: CorporationStatus = {
+        value: corp.funds,
+        companyIncome: corp.public ? profit*(1-dividendRate) : profit,
+        dividendIncome: corp.public ? (profit * dividendRate * pctCompanyOwned) : 0,
+        investmentRound: (ns.corporation.getInvestmentOffer().round-1),
+        isPublic: corp.public
+    };
+	await ports.setPortValue(ns, ports.CORP_REPORTS_PORT, JSON.stringify(status));
+}
+
+export function retrieveCompanyStatus(ns: NS): (CorporationStatus | null) {
+    return ports.checkPort(ns, ports.CORP_REPORTS_PORT, JSON.parse);
+}
+
+
+export type CorporationStatus = { value: number, companyIncome: number, dividendIncome: number, investmentRound: number, isPublic: boolean }

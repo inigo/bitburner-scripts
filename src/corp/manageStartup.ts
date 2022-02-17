@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns';
-import { listCities, JobPosition, OfficeRole } from 'corp/libCorporation'
+import { listCities, JobPosition, OfficeRole, reportCompanyStatus } from 'corp/libCorporation'
 import { OfficeControl } from 'corp/libOffice'
 import { formatMoney } from 'libFormat'
 import { spendHashesOnPurchases } from "hacknet/libHashes";
@@ -176,6 +176,8 @@ class AgricultureStrategy implements StartupStrategy {
             ns.corporation.levelUpgrade("Smart Storage"); 
         }
 
+        await reportCompanyStatus(ns);        
+
         // Set up each office to produce and sell output
         const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
         for (const o of offices) {
@@ -209,6 +211,7 @@ class AgricultureStrategy implements StartupStrategy {
 
         ns.print("Waiting for warehouses to be full - this will take a while");
         while(! offices.every(o => o.isWarehouseFull()) ) {
+            await reportCompanyStatus(ns);
             await ns.sleep(10000);
         }
         ns.print("Warehouses now full");
@@ -218,6 +221,7 @@ class AgricultureStrategy implements StartupStrategy {
         const division = this.division;
         const industry = this.industry;
 
+        await reportCompanyStatus(ns);
         const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
 
         ns.print("Switching all employees to Business (in two steps, because changing roles is slow)");
@@ -265,6 +269,7 @@ class AgricultureStrategy implements StartupStrategy {
         ns.tprint(message);
         ns.toast(message);
         ns.corporation.acceptInvestmentOffer();
+        await reportCompanyStatus(ns);
         ns.print("Phase I complete");
     }
 
