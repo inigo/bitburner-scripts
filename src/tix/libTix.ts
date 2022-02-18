@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { openDB, IDBPDatabase, DBSchema } from 'idb/entry';
-// import { openDB } from 'idb/idb';
+import { openDB, IDBPDatabase } from 'idb/entry';
 import { formatMoney } from 'libFormat';
 import * as ports from "libPorts";
 import { NS } from '@ns';

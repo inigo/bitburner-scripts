@@ -1,5 +1,4 @@
 import { sellAllShares, reportShareStatus, pauseTrading } from "tix/libTix"; 
-import * as ports from "libPorts";
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {
