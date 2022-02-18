@@ -3,7 +3,7 @@ import * as ports from "libPorts";
 
 /// Most basic control script - runs on a minimal server, and runs simple upgrades
 
-const hackScript = "basicHack.js";
+const hackScript = "/basic/timedHack.js";
 
 export async function main(ns: NS): Promise<void> {
 	ns.disableLog("ALL");
