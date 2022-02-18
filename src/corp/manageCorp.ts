@@ -37,11 +37,11 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
         const prepareForInvestment = (retrieveCorporationInstructions(ns)?.prepareForInvestment ?? false);
 
         researchManager.unlockResearches();
-        await improvementManager.buyNextImprovement();
+        await improvementManager.buyNextImprovement(5);
         // If trying to get investment, we want all products being sold, rather than cycling through them
-        if (!prepareForInvestment) {
-            await productLauncher.launchProducts();
-        }
+        const allowRetiring = investmentManager.getTimesInvested() >= 2 && !prepareForInvestment;
+        await productLauncher.launchProducts(allowRetiring);
+
         await priceManager.updateProductPrices();
 
         for (const o of offices) {

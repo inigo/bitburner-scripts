@@ -146,7 +146,7 @@ export class OfficeControl {
         let isBuying = false;
         const weights = this.industryInfo.getProductionMultipliers(this.industry);        
         for (const m of weights) {
-            const requiredAmount = spaceToUse * m.pctOfWarehouse / (m.size * 10);
+            const requiredAmount = spaceToUse * m.pctOfWarehouse / (m.size * 5);
             const existingAmount = this.ns.corporation.getMaterial(this.division, this.city, m.material).qty;
             if (existingAmount < requiredAmount) {
                 this.ns.print("Insufficient "+m.material+" in "+this.city+" for optimum product modifiers - buying more. Want "+requiredAmount+" but have "+existingAmount);

@@ -21,7 +21,7 @@ export class InvestmentManager {
         }
     }
 
-    private getTimesInvested(): number {
+    getTimesInvested(): number {
         const numShares = this.ns.corporation.getCorporation().numShares;
         return (numShares==1_000_000_000) ? 0 :
                 (numShares==900_000_000) ? 1 :

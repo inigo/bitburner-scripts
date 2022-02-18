@@ -14,7 +14,7 @@ export class ProductLauncher {
         this.productNamer = new ProductNamer();
     }
 
-    launchProducts(): void {
+    launchProducts(allowRetiring: boolean): void {
         const divisionInfo: Division = this.ns.corporation.getCorporation().divisions.find(d => d.name == this.division)!;
         const productNames = divisionInfo.products;
         const existingProducts = productNames.map(p => this.ns.corporation.getProduct(this.division, p));
@@ -23,13 +23,13 @@ export class ProductLauncher {
         const allProductsComplete = (completeProducts.length == existingProducts.length);
         const maxProducts = this.getMaxProducts();
     
-        if (allProductsComplete && completeProducts.length==maxProducts) {
+        if (allProductsComplete && completeProducts.length==maxProducts && allowRetiring) {
             // Assumes the products are ordered by age, and that the oldest is the worst
             const oldestProduct = completeProducts.at(0) !;
             this.ns.print("Retiring oldest product "+oldestProduct.name);
             this.ns.corporation.discontinueProduct(this.division, oldestProduct.name);
         }
-        if (allProductsComplete) {
+        if (allProductsComplete && completeProducts.length < maxProducts) {
             this.ns.print("Starting research on new product");
             const funds = this.ns.corporation.getCorporation().funds;
             const productInvestment = Math.floor(funds / 10);

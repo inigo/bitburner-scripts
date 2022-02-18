@@ -26,7 +26,11 @@ export class ResearchManager {
             const isPrimary = (division.type ==this.primaryDivision);
             const relevantResearch = isPrimary ? this.primaryResearches : this.secondaryResearches;
             const multiplier = isPrimary ? this.requiredSurplusMultiplier : 1;
-            this.unlockResearchForDivision(division, relevantResearch, multiplier);
+            try {
+                this.unlockResearchForDivision(division, relevantResearch, multiplier);
+            } catch (error) {
+                // @todo Need to catch this currently, because there's a bug that means Fulcrum might not exist
+            }
         }
     }
 

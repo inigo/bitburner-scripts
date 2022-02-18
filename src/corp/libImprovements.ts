@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns'
-import { findDivisionName, listCities, listEmployeeUpgrades, OfficeRole } from 'corp/libCorporation'
+import { doCount, findDivisionName, listCities, listEmployeeUpgrades, OfficeRole } from 'corp/libCorporation'
 import { OfficeControl } from 'corp/libOffice'
 
 /**
@@ -12,10 +12,13 @@ export class ImprovementManager {
         this.division = findDivisionName(ns, industry) !;
     }
 
-    async buyNextImprovement(): Promise<void> {
-        const getLeastExpensive = (): number => Math.min( ... this.listImprovements().map(imp => imp.improvement.getCost()));    
-        if (this.getFunds() > (getLeastExpensive() * 2)) {
-            await this.buyBestImprovement();
+    async buyNextImprovement(count = 1): Promise<void> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const _ of doCount(count)) {
+            const getLeastExpensive = (): number => Math.min( ... this.listImprovements().map(imp => imp.improvement.getCost()));    
+            if (this.getFunds() > (getLeastExpensive() * 2)) {
+                await this.buyBestImprovement();
+            }
         }
     }
     
@@ -55,13 +58,13 @@ export class ImprovementManager {
         return [
             { importance: 1.5, improvement: new WilsonAnalyticsImprovement(this.ns) }
             , { importance: 1, improvement: new EnlargeMainOfficeImprovement(this.ns, this.division, this.industry) }        
-            , { importance: 0.8, improvement: new AdVertImprovement(this.ns, this.division) }
+            , { importance: 0.9, improvement: new AdVertImprovement(this.ns, this.division) }
             , { importance: 0.7, improvement: new EmployeeBoostImprovement(this.ns) }        
             , { importance: 0.5, improvement: new EnlargeSecondaryOfficesImprovement(this.ns, this.division, this.industry) }
             , { importance: 0.5, improvement: new ProjectInsightImprovement(this.ns) }
             , { importance: 0.2, improvement: new SmartFactoriesImprovement(this.ns) }        
             , { importance: 0.1, improvement: new DreamSenseImprovement(this.ns) }
-            , { importance: 0.05, improvement: new WarehouseSpaceImprovement(this.ns, this.division, this.industry) }
+            , { importance: 0.02, improvement: new WarehouseSpaceImprovement(this.ns, this.division, this.industry) }
         ]
     }    
 }
