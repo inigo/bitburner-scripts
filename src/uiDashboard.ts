@@ -2,7 +2,7 @@
 import { formatMoney } from "libFormat";
 import * as ports from "libPorts";
 import { lookupHashIcons, HashUpgrade } from "hacknet/libHashes";
-import { lookupSleeveIcon } from "sleeve/libSleeve";
+import { lookupSleeveIcon, retrieveSleeveTasks } from "sleeve/libSleeve";
 import { lookupGangTaskIcon, GangReport } from "crime/libGang";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
 import { receiveAttackTarget } from "spread/libSpread";
@@ -125,9 +125,9 @@ function getHashnetExchangeIcons(ns: NS): (string | null) {
 }
 
 function getSleeveIcons(ns: NS): (string | null) {
-    const sleeveTasks = ports.checkPort(ns, ports.SLEEVE_REPORTS_PORT, JSON.parse) as (SleeveTask[] | null);
-    if (sleeveTasks==null) return null;
-
+    const sleeveTasks = retrieveSleeveTasks(ns);
+    if (sleeveTasks.length==0) return null;
+    
     const icons = sleeveTasks.map(o => o.task).map(lookupSleeveIcon).join("");
     return icons;
 }

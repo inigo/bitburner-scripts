@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as ports from "libPorts";
-import { NS } from '@ns'
+import { NS, SleeveTask } from '@ns'
 
 type SleeveTaskInfo = { name: string, emoji: string };
 export type SleeveNo = number;
@@ -123,6 +123,11 @@ function listUnwantedAugs(): string[] {
 export async function reportSleeveTasks(ns: NS): Promise<void> {
 	const tasks = listSleeves(ns).map(ns.sleeve.getTask);
 	await ports.setPortValue(ns, ports.SLEEVE_REPORTS_PORT, JSON.stringify(tasks));
+}
+
+export function retrieveSleeveTasks(ns: NS): SleeveTask[] {
+	const sleeveTasks = ports.checkPort(ns, ports.SLEEVE_REPORTS_PORT, JSON.parse) as (SleeveTask[] | null);
+	return sleeveTasks ?? [];
 }
 
 /** Used by the dashboard */
