@@ -321,7 +321,7 @@ export async function doTrading(ns: NS, valuesSourceFn: () => AsyncGenerator<Tic
 	let pauseBuyingUntil = 0;
 
 	for await (const ticks of valuesSourceFn()) {
-		const pauseMessage = ports.popPort(ns, ports.PAUSE_SHARE_TRADING)
+		const pauseMessage = ports.popPort(ns, ports.SHARETRADING_CONTROL_PORT)
 		if (pauseMessage!=null) {
 			pauseBuyingUntil = new Date().getTime()+(1000*60);
 		}
@@ -366,7 +366,7 @@ export async function doTrading(ns: NS, valuesSourceFn: () => AsyncGenerator<Tic
 				wallet.decreaseMoney(buyCost);
 			} 
 		}
-		await reportStockValue(ns);
+		await reportShareStatus(ns);
 
 		count++;
 	}
@@ -381,11 +381,6 @@ export async function doTrading(ns: NS, valuesSourceFn: () => AsyncGenerator<Tic
 	ns.print("Starting money : "+formatMoney(ns,wallet.getStartingMoney()));
 	ns.print("Final money : "+formatMoney(ns,wallet.getMoney()));
 	return wallet.getMoney();
-}
-
-async function reportStockValue(ns: NS): Promise<void> {
-	const shareValue = getOwnedShareValue(ns);
-	await ports.setPortValue(ns, ports.SHARE_VALUE_PORT, shareValue);
 }
 
 abstract class IStockmarket {
@@ -472,4 +467,22 @@ function sellAllOfShare(ns: NS, s: string): void {
 	const soldMessage = "Sold "+existingShares+" of "+s+" at "+bidPrice+" (bought at "+boughtPrice+") for a profit of "+totalProfit;
 	ns.toast(soldMessage);
 	ns.print(soldMessage);
+}
+
+export async function reportShareStatus(ns: NS): Promise<void> {
+	const value = getOwnedShareValue(ns);
+	const longStocks = ns.stock.getSymbols().filter(s => ns.stock.getPosition(s)[0]>0);
+	const shortStocks = ns.stock.getSymbols().filter(s => ns.stock.getPosition(s)[2]>0);
+	const shareStatus: ShareStatus = { value, longStocks, shortStocks };
+	await ports.setPortValue(ns, ports.SHARETRADING_REPORTS_PORT, JSON.stringify(shareStatus));
+}
+
+export function retrieveShareStatus(ns: NS): (ShareStatus | null) {
+	return ports.checkPort(ns, ports.SHARETRADING_REPORTS_PORT, JSON.parse);
+}
+
+export type ShareStatus = { value: number, longStocks: string[], shortStocks: string[] };
+
+export async function pauseTrading(ns: NS, duration = 60): Promise<void> {
+	await ports.setPortValue(ns, ports.SHARETRADING_CONTROL_PORT, duration);	
 }

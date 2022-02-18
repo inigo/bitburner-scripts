@@ -7,8 +7,8 @@ import { lookupGangTaskIcon, GangReport } from "crime/libGang";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
 import { receiveAttackTarget } from "spread/libSpread";
 import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
-
-import { NS, SleeveTask } from '@ns'
+import { retrieveShareStatus } from "tix/libTix";
+import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
@@ -113,7 +113,7 @@ export async function main(ns: NS): Promise<void> {
 }
 
 function getOwnedShareValue(ns: NS): (number | null) {
-    return ports.checkPort(ns, ports.SHARE_VALUE_PORT, parseInt);
+    return retrieveShareStatus(ns)?.value ?? null;
 }
 
 function getHashnetExchangeIcons(ns: NS): (string | null) {
@@ -127,7 +127,7 @@ function getHashnetExchangeIcons(ns: NS): (string | null) {
 function getSleeveIcons(ns: NS): (string | null) {
     const sleeveTasks = retrieveSleeveTasks(ns);
     if (sleeveTasks.length==0) return null;
-    
+
     const icons = sleeveTasks.map(o => o.task).map(lookupSleeveIcon).join("");
     return icons;
 }

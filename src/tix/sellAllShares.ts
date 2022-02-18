@@ -1,9 +1,9 @@
-import { sellAllShares } from "tix/libTix"; 
+import { sellAllShares, reportShareStatus, pauseTrading } from "tix/libTix"; 
 import * as ports from "libPorts";
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {
-	await ports.setPortValue(ns, ports.SHARE_VALUE_PORT, 0);
-	await ports.setPortValue(ns, ports.PAUSE_SHARE_TRADING, 60);
+	await pauseTrading(ns, 120);
 	sellAllShares(ns);
+	await reportShareStatus(ns);
 }

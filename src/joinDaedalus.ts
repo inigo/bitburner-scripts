@@ -1,6 +1,5 @@
 import { NS } from '@ns'
-import { sellAllShares, getOwnedShareValue } from "tix/libTix"; 
-import * as ports from "libPorts";
+import { sellAllShares, getOwnedShareValue, reportShareStatus, pauseTrading } from "tix/libTix"; 
 
 export async function main(ns : NS) : Promise<void> {
 
@@ -8,8 +7,8 @@ export async function main(ns : NS) : Promise<void> {
 	const availableMoney = ns.getServerMoneyAvailable("home") + getOwnedShareValue(ns);
 	if (availableMoney > 100_000_000_000 && !isMemberOrInvited(ns, "Daedalus")) {
 		sellAllShares(ns);
-		await ports.setPortValue(ns, ports.SHARE_VALUE_PORT, 0);
-		await ports.setPortValue(ns, ports.PAUSE_SHARE_TRADING, 60);	
+		await reportShareStatus(ns);
+		await pauseTrading(ns);
 	}
 
 	joinFaction(ns, "Daedalus");

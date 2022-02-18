@@ -3,13 +3,13 @@ import { NS } from '@ns';
 
 export const HACKING_PORT = 1; // Sets the target for the "spread" attacks
 export const LOGGING_PORT = 2; // A server name or "all" for servers that should log to the terminal
-export const SHARE_VALUE_PORT = 3; // Reports the current share value to the UI
+export const SHARETRADING_REPORTS_PORT = 3; // Reports the current share value to the UI
 export const HASH_SALES_PORT = 4; // What should hashes be sold for?
 export const SLEEVE_REPORTS_PORT = 5; // What are the sleeves working on?
 export const GANG_CONTROL_PORT = 6; // What action should the gang be doing?
 export const GANG_REPORTS_PORT = 7; // How is the gang?
 export const ACTIVE_FRAGMENTS_PORT = 8; // A list of the active fragments in Stanek's Gift
-export const PAUSE_SHARE_TRADING = 9; // Temporarily pause share trading if there is a message present
+export const SHARETRADING_CONTROL_PORT = 9; // Temporarily pause share trading if there is a message present
 export const CRACKS_BOUGHT_COUNT = 10; // Record whether all crack programs (e.g. BruteSSH) have been bought
 export const CORP_CONTROL_PORT = 11; // Send instructions and priorities to the corporation control script
 export const SLEEVE_CONTROL_PORT = 12; // Send instructions to sleeves

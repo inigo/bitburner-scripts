@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { sellAllShares, getOwnedShareValue } from "/tix/libTix.js"; 
+import { sellAllShares, getOwnedShareValue, reportShareStatus } from "/tix/libTix.js"; 
 
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");
@@ -19,6 +19,7 @@ export async function main(ns : NS) : Promise<void> {
 
     if (selfFund) {
         sellAllShares(ns);
+        await reportShareStatus(ns);
     }
     
     ns.tprint("Starting corporation");
