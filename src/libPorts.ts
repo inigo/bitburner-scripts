@@ -14,6 +14,7 @@ export const CRACKS_BOUGHT_COUNT = 10; // Record whether all crack programs (e.g
 export const CORP_CONTROL_PORT = 11; // Send instructions and priorities to the corporation control script
 export const SLEEVE_CONTROL_PORT = 12; // Send instructions to sleeves
 export const CORP_REPORTS_PORT = 13; // What is the status of the corporation?
+export const ATTACK_REPORTS_PORT = 14; // What servers are currently being attacked by a batch attack?
 
 export const AUGMENT_AND_RESTART = 20; // Install all augmentations and restart
 

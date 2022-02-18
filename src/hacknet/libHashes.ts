@@ -30,11 +30,15 @@ export function lookupHashAlias(alias: string): (HashInfo | null) {
 	return hashInfo ?? null;
 }
 
-// @todo Remember to fix this in uiDashboard - have changed shape of HashUpgrade from a pair of items in an array
+export function retrieveHashSpends(ns: NS): HashUpgrade[] {
+	return (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as HashUpgrade[]) ?? [];
+}
+
 export async function setHashSpend(ns: NS, targets: HashUpgrade[]): Promise<void> {
-	if (targets.length==0) { 
+	const existingHashSpends = retrieveHashSpends(ns);
+	if (targets.length==0 && existingHashSpends.length > 0) { 
 		ns.toast("Clearing hash spend target"); 
-	} else {
+	} else if (targets!=existingHashSpends) {
 		ns.toast("Hash spend target: "+targets.map(t => t.name).join(", "));
 	}
 	await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(targets));

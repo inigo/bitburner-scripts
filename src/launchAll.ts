@@ -43,6 +43,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/attack/launchAttackFromHome.js"						
 						, "/attack/purchaseAndAttack.js"																	
 						, "/attack/launchAttacksFromPurchasedServers.js"	
+						, "/attack/reportAttacks.js"
 						];
 		for (const script of scripts) {
 			ns.run(script);
