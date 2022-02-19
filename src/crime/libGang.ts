@@ -8,7 +8,7 @@ export function manageGang(ns: NS, goal = "general", stage="early"): void {
 	buyBasicEquipment(ns);
 	buyAffordableEquipment(ns);
 	buyAugmentations(ns);
-	startWarfare(ns, stage);
+	startWarfare(ns);
 	endWarfare(ns);
 	
 	const gangMembers = ns.gang.getMemberNames();
@@ -47,15 +47,15 @@ export function manageGang(ns: NS, goal = "general", stage="early"): void {
 		} else if (notEnoughMoney) {
 			preferredTask = bestTaskForMoney;
 			reason = "not enough money";
-		} else if (goal=="training") {
-			preferredTask = (Math.random() <= (1/3)) ? "Train Charisma" : "Train Combat";
-			reason = "the goal is training";
 		} else if (notRespected) {
 			preferredTask = bestTaskForRespect;
 			reason = "this individual is not respected";
+		} else if (goal=="training") {
+			preferredTask = (Math.random() <= (1/5)) ? "Train Charisma" : "Train Combat";
+			reason = "the goal is training";
 		} else if (Math.random() <= (1/7)) {
 			// This helps even out tasks that just train specific stats
-			preferredTask = (Math.random() <= (1/3)) ? "Train Charisma" : "Train Combat";
+			preferredTask = (Math.random() <= (1/5)) ? "Train Charisma" : "Train Combat";
 			reason = "one day of the week is for professional development";			
 		} else if ((goal=="territory") && currentGang.territoryClashChance<0.01) {
 			preferredTask = "Territory Warfare";
@@ -139,8 +139,8 @@ export function buyAugmentations(ns: NS, minimumMoney = 120_000_000_000): boolea
 	return madePurchase;
 }
 
-function startWarfare(ns: NS, stage: string): void {
-	const requiredRatio = (stage=="early" ? 6 : 10);
+function startWarfare(ns: NS): void {
+	const requiredRatio = 4;
 
 	const gangInfo = ns.gang.getGangInformation();
 	if (gangInfo.territory>0.999) {
@@ -300,8 +300,7 @@ function isUntrainedForCombat(ns: NS, name: string): boolean {
 function isUnlikeable(ns: NS, name: string): boolean {
 	const stats = ns.gang.getMemberInformation(name);
 	const charismaStat = stats.cha;
-	const base = stats.cha_asc_mult==1 ? 95 : 90;
-	const minCharismaStat = base * stats.cha_asc_mult; 
+	const minCharismaStat = stats.cha_asc_mult==1 ? 95 : 95;
 	return charismaStat < minCharismaStat;
 }
 
