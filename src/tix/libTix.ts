@@ -355,7 +355,7 @@ export async function doTrading(ns: NS, valuesSourceFn: () => AsyncGenerator<Tic
 		for (const s of stocksToBuy) {
 			const currentStockValue: number = (currentStocks.includes(s)) ? stockCostFn(s) : 0;
 			const desiredAmountToSpend = Math.max(maxInvestmentInStock - currentStockValue, wallet.getMoney()*0.7);
-			const amountToSpend = Math.min(desiredAmountToSpend, (wallet.getMoney()*0.95)-100000);
+			const amountToSpend = Math.min(desiredAmountToSpend, (wallet.getMoney()*0.9)-10_000_000);
 
 			if (amountToSpend > minimumBid && amountToSpend <= wallet.getMoney()) {
 				const tick = tickMap.get(s) !;
