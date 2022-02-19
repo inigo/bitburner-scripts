@@ -34,7 +34,7 @@ export async function main(ns : NS) : Promise<void> {
     } else if (level("Generate Coding Contract")<2) {
         ns.print("Less than two coding contracts, so generating another one");
         await setHashSpend(ns, [ { name: "Generate Coding Contract" } ]);
-    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes < hashesNeededForServerWeakening) {
+    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes < hashesNeededForServerWeakening && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {
         ns.print("Attacking a server, but insufficient hashes to improve it thoroughly - pausing until more hashes - currently "+hashes+" but want "+hashesNeededForServerWeakening);
         await setHashSpend(ns, [ ]);
     } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes >= hashesNeededForServerWeakening && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {

@@ -40,7 +40,7 @@ export async function setHashSpend(ns: NS, targets: HashUpgrade[]): Promise<void
 		if (existingHashSpends.length > 0) {
 			ns.toast("Clearing hash spend target"); 
 		}
-	} else if (targets!=existingHashSpends) {
+	} else if (JSON.stringify(targets)!=JSON.stringify(existingHashSpends)) {
 		ns.toast("Hash spend target: "+targets.map(t => t.name).join(", "));
 	}
 	await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(targets));
