@@ -44,6 +44,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/attack/reportAttacks.js"
 						, "joinFaction.js"  
 						// , "buyAugmentations.js"
+						, "/augment/buyAugmentationsFromGang.js"
 						, "/augment/completeBitnode.js"
 						];
 		for (const script of scripts) {
