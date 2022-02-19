@@ -23,6 +23,11 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
     const researchManager = new ResearchManager(ns);
     const investmentManager = new InvestmentManager(ns, industry, priceManager)
 
+    if (investmentManager.getTimesInvested()==0) {
+        ns.tprint("Not ready for manageCorp - run manageStartup instead");
+        return;
+    }
+
     const offices = listCities().map(city => new OfficeControl(ns, city, industry));  
     offices.forEach(o => o.sellAllMaterials(1, "PROD"));
     offices.forEach(o => o.enableSmartSupply());
