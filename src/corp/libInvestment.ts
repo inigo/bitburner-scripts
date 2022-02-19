@@ -36,7 +36,7 @@ export class InvestmentManager {
     considerGoingPublic(): void {
         const corp = this.ns.corporation.getCorporation();
         const income = corp.revenue - corp.expenses;
-        const sufficientIncome = (income > 1_000_000_000_000_000_000); // 1Q / second
+        const sufficientIncome = (income > 1_000_000_000_000_000); // 1q / second
 
         if (!corp.public && sufficientIncome) {
             this.ns.corporation.goPublic(0);
