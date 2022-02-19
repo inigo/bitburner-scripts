@@ -33,10 +33,10 @@ export async function main(ns : NS) : Promise<void> {
     } else if (level("Generate Coding Contract")<2) {
         ns.print("Less than two coding contracts, so generating another one");
         await setHashSpend(ns, [ { name: "Generate Coding Contract" } ]);
-    } else if (homeAttackTarget!=null && hashes < 700) {
+    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes < 700) {
         ns.print("Attacking a server, but insufficient hashes to improve it thoroughly - pausing until more hashes");
         await setHashSpend(ns, [ ]);
-    } else if (homeAttackTarget!=null && hashes >= 700 && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {
+    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes >= 700 && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {
         // Batch this increase together - otherwise the hack script will restart every time we make an improvement
         ns.print("Attacking server "+homeAttackTarget+", so making the attack easier");
         while (spendHashesOnPurchases(ns, [ { name: "Reduce Minimum Security", target: homeAttackTarget }, { name: "Increase Maximum Money", target: homeAttackTarget } ])) {
