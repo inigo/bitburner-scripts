@@ -10,6 +10,10 @@ export async function main(ns: NS): Promise<void> {
 						.forEach(g => ns.joinFaction(g));
 
 			const gangName = gangFactions.find(f => ns.getPlayer().factions.includes(f));
+			if (gangName==null) {
+				ns.toast("Can't start gang - no eligible factions");
+				return;
+			}
 			const wasCreated = ns.gang.createGang(gangName);
 			if (wasCreated) {
 				ns.tprint("Started gang");
