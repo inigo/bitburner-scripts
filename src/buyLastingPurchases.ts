@@ -52,8 +52,10 @@ function buyCores(ns: NS): void {
 }
 
 function buyGangAugments(ns: NS): void {
-	while (buyAugmentations(ns, 0)) {
-		ns.toast("Buying gang augmentations");
+	if (ns.gang.inGang()) {
+		while (buyAugmentations(ns, 0)) {
+			ns.toast("Buying gang augmentations");
+		}
 	}
 }
 
