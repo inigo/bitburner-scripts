@@ -27,7 +27,7 @@ export async function main(ns : NS) : Promise<void> {
 
     const anyVeryShocked = sleeveStats.some(ss => ss.shock > 97);
     const playerHackTooLow = ns.getPlayer().hacking < 10;
-    const sleevesUntrained = sleeves.map(s => getMeanCombatStat(ns, s)).some(combat => combat < 75);
+    const sleevesUntrained = sleeves.map(s => getMeanCombatStat(ns, s)).some(combat => combat < 90);
     const tooMuchKarma = ns.heart.break() > -54000;
     const notYetInGang = ! ns.gang.inGang();
     const playerStatsTooLowForGang = getLowestPlayerCombatStat(ns).value < 75;

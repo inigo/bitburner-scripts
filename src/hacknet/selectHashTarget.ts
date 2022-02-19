@@ -28,7 +28,7 @@ export async function main(ns : NS) : Promise<void> {
     } else if (investmentRound == 0) {
         ns.print("New corporation startup, so providing funds to be used for growth");
         await setHashSpend(ns, [ { name: "Sell for Corporation Funds" } ]);
-    } else if (allSleevesAtGym && level("Improve Gym Training") < 3) {
+    } else if (allSleevesAtGym) {
         ns.print("All sleeves are at the gym, so improving gym training to support them");
         await setHashSpend(ns, [ { name: "Improve Gym Training" } ]);
     } else if (level("Generate Coding Contract")<2) {
