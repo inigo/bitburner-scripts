@@ -295,3 +295,13 @@ class AgricultureStrategy implements StartupStrategy {
         }
     }
 }
+
+
+function isInCorporation(ns: NS): boolean {
+    try {
+        const corpExists = ns.corporation.getCorporation();
+        return (corpExists!=null);
+    } catch (err) {
+        return false;
+    }
+}
