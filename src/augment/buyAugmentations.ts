@@ -4,23 +4,25 @@ import { fmt } from "libFormat";
 import { triggerRestart, getUsefulAugmentations, FullAugmentationInfo, getCostMultiplier, getOrderedAugmentations } from "augment/libAugmentations";
 
 
+
 export async function main(ns: NS): Promise<boolean> {
-	return await buyAllPreferredAugmentations(ns);
+	const force = (ns.args.includes("force"));
+	return await buyAllPreferredAugmentations(ns, force);
 }
 
-export async function buyAllPreferredAugmentations(ns: NS): Promise<boolean> {
+export async function buyAllPreferredAugmentations(ns: NS, force: boolean): Promise<boolean> {
 	const targetFaction = findPreferredFaction(ns);
 	if (targetFaction==null) {
 		ns.print("No target faction available");
 		return false;
 	}
-	return await buyAllAugmentations(ns, targetFaction);
+	return await buyAllAugmentations(ns, targetFaction, force);
 }
 
 
-async function buyAllAugmentations(ns: NS, faction: string): Promise<boolean> {
+async function buyAllAugmentations(ns: NS, faction: string, force: boolean): Promise<boolean> {
 	const desiredAugs = getUsefulAugmentations(ns, faction);
-	const shouldRestart = hasSufficientReputation(ns, faction, desiredAugs);
+	const shouldRestart = hasSufficientReputation(ns, faction, desiredAugs) || force;
 	if (!shouldRestart) {
 		return false;
 	}
