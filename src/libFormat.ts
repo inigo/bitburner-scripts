@@ -11,7 +11,8 @@ export function fmt(ns: NS): ((template: TemplateStringsArray, ... expr: any[]) 
 
     const isNumber = (s: string) => ! Number.isNaN( parseFloat(s) );
 
-    const result = [strings[0]];
+	const firstString = (strings[0].endsWith("£")) ? strings[0].substring(0, strings[0].length-1) : strings[0];
+    const result = [firstString];
     values.forEach(function(value, i) {
       const previousString = strings[i];
       const nextString = strings[i+1];
@@ -38,7 +39,6 @@ export function fmt(ns: NS): ((template: TemplateStringsArray, ... expr: any[]) 
       let amendedNextString = nextString;
       if (formatFn == memoryFn) { amendedNextString = amendedNextString.substring(2); }
       if (formatFn == timeFn) { amendedNextString = amendedNextString.substring(1); }
-      if (amendedNextString.endsWith("£")) amendedNextString = amendedNextString.substring(0, amendedNextString.length-1);
 
       result.push(formatFn(value), amendedNextString);
     });
