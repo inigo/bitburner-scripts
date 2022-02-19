@@ -38,7 +38,7 @@ export async function main(ns : NS) : Promise<void> {
     ns.print("Affordable augmentations are : "+affordableAugmentations.map(a => a.name) );
     ns.print(fmt(ns)`Total cost would be £${costSoFar}`);
 
-    const shouldInstall = (affordableAugmentations.length >= 8) || ((usefulAugmentations.length - affordableAugmentations) <= 2 )
+    const shouldInstall = (affordableAugmentations.length >= 8) || ((usefulAugmentations.length - affordableAugmentations.length) <= 2 )
 
     if (shouldInstall || force) {
         await pauseTrading(ns, 120);
