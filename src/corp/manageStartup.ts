@@ -8,6 +8,16 @@ import { waitForNextCorporationTick } from 'corp/libCorporation';
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");
 
+    if (! isInCorporation(ns)) { 
+        ns.print("No corporation - nothing to do");
+        return;
+    }
+
+    if (ns.corporation.getInvestmentOffer().round > 1) {
+        ns.print("Corporation is not a startup - use manageCorp instead");
+        return;
+    }
+
     // const strategy: StartupStrategy = new AgricultureStrategy();
     const strategy: StartupStrategy = new SoftwareStrategy();
     await strategy.startCorporation(ns);

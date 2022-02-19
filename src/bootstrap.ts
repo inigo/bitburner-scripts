@@ -35,6 +35,8 @@ export async function main(ns: NS): Promise<void> {
 	ns.run("/sleeve/sleeveControl.js", 1, "clear");
 	await ns.sleep(1000);
 
+	ns.run("/corp/manageStartup.js");
+	await ns.sleep(200);
 	ns.run("/corp/manageCorp.js");
 	await ns.sleep(200);
 	// This will abort if not in a gang
