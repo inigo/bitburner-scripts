@@ -16,6 +16,7 @@ export function fmt(ns: NS): ((template: TemplateStringsArray, ... expr: any[]) 
       const previousString = strings[i];
       const nextString = strings[i+1];
 
+      const isInteger = (s: string) => /^\d+$/.test(s);
       const moneyFn = (s: number) => ns.nFormat(s, "($0.00a)");
       const memoryFn = (s: number) => ns.nFormat(s * 1024 * 1024 * 1024, "0.00b");
       const numberFn = (s: number) => ns.nFormat(s, "0,0.00");
@@ -29,7 +30,7 @@ export function fmt(ns: NS): ((template: TemplateStringsArray, ... expr: any[]) 
                         (isNumber(value) && nextString.startsWith("GB")) ? memoryFn :
                         (isNumber(value) && nextString.startsWith("s")) ? timeFn :
                         Array.isArray(value) ? arrayFn :
-                        Number.isInteger(parseInt(value)) ? integerFn :
+                        isInteger(value) ? integerFn :
                         (typeof value === "object") ? objFn :
                         (isNumber(value)) ? numberFn :
                         identifyFn;
@@ -101,11 +102,12 @@ export class PrettyTable {
 	/** Render the value inside a cell, formatting it appropriately for its type. */
 	displayValue(value: any, position: number): string {
 		const colType = this.colType(position);
+		const isInteger = (s: string) => /^\d+$/.test(s);
 		const isNumber = (s: string) => ! Number.isNaN( parseFloat(s) );
 		const formatted = (colType == ODataType.Money) ? this.ns.nFormat(value, "($0.00a)") :
 							(colType == ODataType.Time) ? this.ns.tFormat(value, false) :
 							(colType == ODataType.Memory) ? this.ns.nFormat(value * 1024 * 1024 * 1024, "0.00b") :
-							(Number.isInteger(parseInt(value))) ? this.ns.nFormat(value, "0,0") :
+							(isInteger(value)) ? this.ns.nFormat(value, "0,0") :
 							(isNumber(value)) ? this.ns.nFormat(value, "0,0.00") :
 							""+value;
 		return formatted;
