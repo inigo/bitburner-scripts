@@ -3,7 +3,6 @@ import { NS } from '@ns';
 import { listCities, JobPosition, OfficeRole, reportCompanyStatus } from 'corp/libCorporation'
 import { OfficeControl } from 'corp/libOffice'
 import { formatMoney } from 'libFormat'
-import { spendHashesOnPurchases } from "hacknet/libHashes";
 import { waitForNextCorporationTick } from 'corp/libCorporation';
 
 export async function main(ns : NS) : Promise<void> {
@@ -88,11 +87,6 @@ class AgricultureStrategy implements StartupStrategy {
         }    
         for (const o of offices) {
             await o.assignEmployees([ { position: JobPosition.Business, weight: 1 } ]);
-        }    
-
-        const exchangeTargets = [ { name: "Sell for Corporation Funds" } ];
-        while(spendHashesOnPurchases(ns, exchangeTargets)) {
-            ns.print("Exchanging hashes for corporation funds");
         }    
 
         ns.print("Buying adverts, and getting investment");
@@ -231,11 +225,6 @@ class AgricultureStrategy implements StartupStrategy {
         }    
         for (const o of offices) {
             await o.assignEmployees([ { position: JobPosition.Business, weight: 1 } ]);
-        }    
-
-        const exchangeTargets = [ { name: "Sell for Corporation Funds" } ];
-        while(spendHashesOnPurchases(ns, exchangeTargets)) {
-            ns.print("Exchanging hashes for corporation funds");
         }    
 
         const waitForTicks = waitForNextCorporationTick(ns);        
