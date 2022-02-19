@@ -56,6 +56,8 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
         investmentManager.considerGettingInvestment();
         investmentManager.considerGoingPublic();
 
+        donateToDaedalus(ns);
+
         await reportCompanyStatus(ns);
     }
 }
@@ -78,3 +80,16 @@ async function setUpSubsidiary(ns: NS, industry: string, division: string) {
     }
 }
 
+function donateToDaedalus(ns: NS) {
+    const requiredDonation = 10_000_000_000_000_000;
+    const isInDaedalus = ns.getPlayer().factions.includes("Daedalus");
+    const isPublic = ns.corporation.getCorporation().public;
+    const sufficientMoney = ns.corporation.getCorporation().funds > requiredDonation * 10;
+    const daedalusReputationLow = ns.getFactionRep("Daedalus") < 10_000_000_000;
+
+    if (isInDaedalus && isPublic && sufficientMoney && daedalusReputationLow) {
+        ns.print("Bribing Daedalus to increase reputation");
+        ns.corporation.bribe("Daedalus", requiredDonation, 0);
+    }
+    
+}
