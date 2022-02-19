@@ -26,10 +26,10 @@ export function buyCache(ns: NS): boolean {
 	const nodeCount = ns.hacknet.numNodes();
 
 	if (totalHashCapacity < 1000 && availableMoney > 750_000_000 && nodeCount > 0) {
-		ns.hacknet.upgradeCache(0, 1);
+		ns.hacknet.upgradeCache(0, 5);
 		return true;
 	} else if (totalHashCapacity < 2000 && availableMoney > 5_000_000_000 && nodeCount > 0) {
-		ns.hacknet.upgradeCache(0, 1);
+		ns.hacknet.upgradeCache(0, 10);
 		return true;
 	} else {
 		return false;
