@@ -64,6 +64,7 @@ function getAllPurchases(ns: NS): RichHacknetPurchase[] {
 interface HacknetPurchase { name: string, server: number, cost: number, benefit: number, upgradeFn: (() => void) }
 interface RichHacknetPurchase extends HacknetPurchase { millisecondsUntilPayback: number, hashOutputPerDollar: number }
 
+/** What's the cost/benefit of upgrading the ram, level or cores on an existing Hacknet server? */
 function getUpgradeBenefits(ns: NS, serverIndex: number): HacknetPurchase[] {
 	const hn = ns.hacknet;
 	const fm = ns.formulas.hacknetServers;
@@ -82,13 +83,27 @@ function getUpgradeBenefits(ns: NS, serverIndex: number): HacknetPurchase[] {
 	];
 }
 
+/** What's the cost/benefit of buying a new Hacknet server, upgraded to match the existing servers? */
 function getPurchaseBenefit(ns: NS): HacknetPurchase {
+	const hn = ns.hacknet;
+	const fm = ns.formulas.hacknetServers;
 	const p =  ns.getPlayer();
+
+	// Using second node, because first node may be the "startup" node that's artificially good
+	const secondNode =  (hn.numNodes()>1) ? hn.getNodeStats(1) : null;
+	const existingCores = secondNode?.cores ?? 1;
+	const existingLevel = secondNode?.level ?? 1;
+	const existingRam = secondNode?.ram ?? 1;
+
+	const upgradeCost = fm.coreUpgradeCost(1, existingCores - 1, p.hacknet_node_core_cost_mult) 
+						+ fm.ramUpgradeCost(1, existingRam - 1, p.hacknet_node_ram_cost_mult) 
+						+ fm.levelUpgradeCost(1, existingLevel - 1, p.hacknet_node_level_cost_mult);
+
 	return { name: "newServer", 
 			server: 0, 
-			cost: ns.hacknet.getPurchaseNodeCost(), 
-			upgradeFn: () => ns.hacknet.purchaseNode(), 
-			benefit: ns.formulas.hacknetServers.hashGainRate(1, 0, 1, 1, p.hacknet_node_money_mult) 
+			cost: hn.getPurchaseNodeCost() + upgradeCost, 
+			upgradeFn: () => hn.purchaseNode(), 
+			benefit: fm.hashGainRate(existingLevel, 0, existingRam, existingCores, p.hacknet_node_money_mult) 
 			};
 }
 
