@@ -52,12 +52,12 @@ export async function main(ns: NS): Promise<void> {
 			}				
 		}
 
-		// This is created by buyAugmentations
-		// @todo remove the file check, just use the port (easier to tidy up)
-		if (ns.fileExists("shutdown.txt", "home") || shouldRestart(ns)) {
-			ns.toast("Shutting down!", "warning");
+		// This is created by buyAugmentations and buyAugmentationsFromGang
+		if (shouldRestart(ns)) {
+			ns.toast("Triggering restart!", "warning");
 			ns.run("augmentAndRestart.js", 1, "forceRestart");
 			ns.exit();
+			break;
 		}
 
 		await ns.sleep(60000);

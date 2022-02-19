@@ -13,6 +13,7 @@ export async function buyLastingPurchases(ns: NS): Promise<void> {
 	buyCores(ns);
 	buyGangAugments(ns);
 	buySleeveAugments(ns);
+	acquireFreeAugments(ns);
 	await travelAroundWorld(ns);
 }
 
@@ -40,7 +41,10 @@ function buyNeurofluxGovernors(ns: NS): void {
 }
 
 function getFavouriteFaction(ns: NS): (string | null) {
-	const factions = ns.getPlayer().factions.sort((a, b) => ns.getFactionRep(a) - ns.getFactionRep(b)).reverse();
+	const gangFaction = ns.gang.inGang() ? ns.gang.getGangInformation().faction : null;
+	const factions = ns.getPlayer().factions
+						.filter(f => f!=gangFaction)
+						.sort((a, b) => ns.getFactionRep(a) - ns.getFactionRep(b)).reverse();
 	const favouriteFaction = (factions.length > 0) ? factions[0] : null;
 	return favouriteFaction;
 }
@@ -64,10 +68,25 @@ function buySleeveAugments(ns: NS): void {
 	unshockedSleeves.forEach(s => installSleeveAugments(ns, s, 0));
 }
 
+function acquireFreeAugments(ns: NS): void {
+	tryToBuyAugmentations(ns, "Daedalus", ["The Red Pill"]);
+	tryToBuyAugmentations(ns, "Church of the Machine God");
+}
+
+function tryToBuyAugmentations(ns: NS, faction: string, augments?: string[]): void {
+	const inFaction = ns.getPlayer().factions.includes(faction);
+	if (!inFaction) { return; }
+
+	ns.getAugmentationsFromFaction(faction)
+		.filter(f => augments==null ? true : augments.includes(f) )
+		.forEach(f => ns.purchaseAugmentation(faction, f) );
+}
+
+/** This provides Intelligence experience - although not very much */
 async function travelAroundWorld(ns: NS): Promise<void> {
 	ns.travelToCity("Chongqing"); // Make sure we're not in Sector-12 to begin with
 	outerloop:
-	for (let i = 0 ; i < 10000; i++) {
+	for (let i = 0 ; i < 100000; i++) {
 		for (const c of listCities()) {
 			if (ns.getServerMoneyAvailable("home")<200_000) break;
 			try {

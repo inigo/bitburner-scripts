@@ -72,6 +72,9 @@ export function findPreferredFaction(ns: NS): string {
 	const interestingFactions = listInterestingFactions();
 	const allPotentialFactions = listPotentialFactions(ns);
 	const potentialInterestingFactions = interestingFactions.filter( f => allPotentialFactions.includes(f));
+
+	// Prefer Daedalus, if available
+	if (potentialInterestingFactions.includes("Daedalus")) { return "Daedalus"; }
 	
 	const preferredFactions = potentialInterestingFactions
 		.filter(f => getUsefulAugmentations(ns, f).length > 1);
