@@ -36,8 +36,10 @@ export function retrieveHashSpends(ns: NS): HashUpgrade[] {
 
 export async function setHashSpend(ns: NS, targets: HashUpgrade[]): Promise<void> {
 	const existingHashSpends = retrieveHashSpends(ns);
-	if (targets.length==0 && existingHashSpends.length > 0) { 
-		ns.toast("Clearing hash spend target"); 
+	if (targets.length==0) { 
+		if (existingHashSpends.length > 0) {
+			ns.toast("Clearing hash spend target"); 
+		}
 	} else if (targets!=existingHashSpends) {
 		ns.toast("Hash spend target: "+targets.map(t => t.name).join(", "));
 	}
