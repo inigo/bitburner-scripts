@@ -5,13 +5,17 @@ import { NS } from '@ns';
 /// Charge all the active fragments - run with a large number of threads. Needs reportFragments to have been run first 
 
 export async function main(ns: NS): Promise<void> {
-	const repOnly = ns.args[0] == "reputation";
+	const repOnly = ns.args.includes("reputation");
+	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? Infinity;
+
 	let hasWarned = false;
-	while (true) {
+	let count = 0;
+	while (count < maxIterations) {
 		const allFrags = checkReportedFragments(ns);
 		const fragsToBoost = allFrags.filter(f => repOnly ? f.name=="boost" : f.name!="boost");
 		if (fragsToBoost.length==0) { 
 			if (!hasWarned) {
+				// Don't do it automatically, because that would use valuable memory
 				ns.tprint("WARN No fragments found in Stanek's Gift - may need to run reportFragments?")
 				hasWarned = true;
 			}
@@ -24,6 +28,7 @@ export async function main(ns: NS): Promise<void> {
 				ns.print(fmt(ns)`Could not charge fragment ${f} - probably removed`);
 			}
 		}
+		if (fragsToBoost.length > 0) { count++; }
 		await ns.sleep(1);
 	}
 }

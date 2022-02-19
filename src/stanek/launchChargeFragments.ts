@@ -1,12 +1,26 @@
 import { NS } from '@ns';
+import { reportFragments, addFragmentInfo, CombinedFragment } from "stanek/libFragment";
 
 export async function main(ns: NS): Promise<void> {
+	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? Infinity;
+
 	const ramPerThread = ns.getScriptRam("/stanek/chargeFragments.js");
-	const totalRam = ns.getServerMaxRam("home");
+	const totalRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home");
 
-	const preciseThreads = totalRam / ramPerThread;
+	const fragCharges = ns.stanek.activeFragments()
+					.map(f => addFragmentInfo(f as CombinedFragment))
+					.filter(f => f.name!="boost")
+					.map(f => f.numCharge);
+	const minFragCharge = Math.min(... fragCharges);
 
-	const threads = (preciseThreads > 1000) ? Math.floor(preciseThreads / 1000) * 1000
-								: Math.floor(preciseThreads / 100) * 100;
-	ns.run("/stanek/chargeFragments.js", threads, ... ns.args);
+	if (fragCharges.length==0) {
+		ns.print("No fragments available, so nothing to do");
+	} if (minFragCharge >= maxIterations) {
+		ns.print("Fragments already charged to or above "+maxIterations+" - nothing to do");
+	} else {
+		const preciseThreads = totalRam / ramPerThread;
+		await reportFragments(ns);	
+		ns.run("/stanek/chargeFragments.js", preciseThreads, ... ns.args);	
+	}
+
 }
