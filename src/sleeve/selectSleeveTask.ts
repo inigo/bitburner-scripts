@@ -72,9 +72,10 @@ export async function main(ns : NS) : Promise<void> {
         }
 
         const remainingSleeves = sleeves.slice(nextAvailableSleeve);
-        ns.print("Setting "+remainingSleeves.length+" other sleeves to study Computer Science to improve player hacking");
-        if (enoughMoneyForTravelling) { remainingSleeves.forEach(i => travelTo(ns, i, "Volhaven")); }
-        remainingSleeves.forEach(i => studyCs(ns, i));
+        // ns.print("Setting "+remainingSleeves.length+" other sleeves to study Computer Science to improve player hacking");
+        // if (enoughMoneyForTravelling) { remainingSleeves.forEach(i => travelTo(ns, i, "Volhaven")); }
+        // remainingSleeves.forEach(i => studyCs(ns, i));
+        remainingSleeves.forEach(i => commitCrime(ns, i));
     }
 
     await reportSleeveTasks(ns);
