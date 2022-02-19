@@ -19,9 +19,9 @@ function listInterestingFactions(): string[] {
 	return [ 
 			"Netburners"
 			, "CyberSec" 
+			, "Tian Di Hui"						
 			, "NiteSec"			
 			, "The Black Hand"
-			, "Tian Di Hui"			
 			, "BitRunners"
 			, "Daedalus" 
 	];

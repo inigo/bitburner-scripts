@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { sellAllShares } from "/tix/libTix.js"; 
-import { buyLastingPurchases } from "./buyLastingPurchases.js"; 
+import { sellAllShares } from "tix/libTix"; 
+import { buyLastingPurchases } from "augment/buyLastingPurchases"; 
 
 export async function main(ns: NS): Promise<void> {
 	const shouldForceRestart = ns.args[0] == "forceRestart";
@@ -10,16 +10,10 @@ export async function main(ns: NS): Promise<void> {
 }
 
 export async function restart(ns: NS, shouldForceRestart: boolean): Promise<void> {
-	ns.rm("shutdown.txt", "home");
+	ns.scriptKill("/tix/stockTrade.js", "home");
+	sellAllShares(ns);
 
-	if (ns.getPlayer().hasTixApiAccess) {
-		ns.toast("Stopping stock market trading and selling all shares", "info")
-		ns.scriptKill("/tix/stockTrade.js", "home");
-		sellAllShares(ns);
-	}
-	if (ns.isBusy()) {
-		ns.stopAction();
-	}
+	if (ns.isBusy()) { ns.stopAction(); }
 	await buyLastingPurchases(ns);
 	const shouldRestart = shouldForceRestart || await ns.prompt("Install augmentations and restart?")
 	if (shouldRestart) {

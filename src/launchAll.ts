@@ -57,7 +57,7 @@ export async function main(ns: NS): Promise<void> {
 		// This is created by buyAugmentations and buyAugmentationsFromGang
 		if (shouldRestart(ns)) {
 			ns.toast("Triggering restart!", "warning");
-			ns.run("augmentAndRestart.js", 1, "forceRestart");
+			ns.run("/augment/augmentAndRestart.js", 1, "forceRestart");
 			ns.exit();
 			break;
 		}
