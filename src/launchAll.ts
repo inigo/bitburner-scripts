@@ -27,8 +27,6 @@ export async function main(ns: NS): Promise<void> {
 						, "/spread/spreadAttackController.js"
 						, "/basic/buyStockmarket.js"
 						, "/basic/installBackdoors.js"
-						, "joinFaction.js"  
-						// , "buyAugmentations.js"
 						, "/hacknet/upgradeNodes.js"
 						, "/hacknet/selectHashTarget.js"							
 						, "/hacknet/sellHashes.js"
@@ -44,6 +42,9 @@ export async function main(ns: NS): Promise<void> {
 						, "/attack/purchaseAndAttack.js"																	
 						, "/attack/launchAttacksFromPurchasedServers.js"	
 						, "/attack/reportAttacks.js"
+						, "joinFaction.js"  
+						// , "buyAugmentations.js"
+						, "/augment/completeBitnode.js"
 						];
 		for (const script of scripts) {
 			ns.run(script);
