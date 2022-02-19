@@ -20,7 +20,7 @@ export async function main(ns: NS): Promise<void> {
 	ns.run("/sleeve/sleeveControl.js", 1, "study");
 	await ns.sleep(1000);
 
-	ns.run("/stanek/launchChargeFragments.js", 1, 50);
+	ns.run("/stanek/launchChargeFragments.js", 1, 20);
 	await ns.sleep(200);
 	while (anyScriptRunning(ns, "/stanek/chargeFragments.js")) {
 		await ns.sleep(1000);
