@@ -32,6 +32,7 @@ export async function main(ns : NS) : Promise<void> {
     const notYetInGang = ! ns.gang.inGang();
     const playerStatsTooLowForGang = getLowestPlayerCombatStat(ns).value < 75;
     const enoughMoneyForTravelling = ns.getServerMoneyAvailable("home") > 50_000_000;
+    const lotsOfMoney = ns.getServerMoneyAvailable("home") > 500_000_000_000;
 
     if (anyVeryShocked) {
         ns.print("Sleeves are very shocked - recovering");
@@ -72,10 +73,13 @@ export async function main(ns : NS) : Promise<void> {
         }
 
         const remainingSleeves = sleeves.slice(nextAvailableSleeve);
-        // ns.print("Setting "+remainingSleeves.length+" other sleeves to study Computer Science to improve player hacking");
-        // if (enoughMoneyForTravelling) { remainingSleeves.forEach(i => travelTo(ns, i, "Volhaven")); }
-        // remainingSleeves.forEach(i => studyCs(ns, i));
-        remainingSleeves.forEach(i => commitCrime(ns, i));
+        if (lotsOfMoney) {
+            ns.print("Setting "+remainingSleeves.length+" other sleeves to study Computer Science to improve player hacking");
+            remainingSleeves.forEach(i => travelTo(ns, i, "Volhaven"));
+            remainingSleeves.forEach(i => studyCs(ns, i));
+        } else {
+            remainingSleeves.forEach(i => commitCrime(ns, i));
+        }        
     }
 
     await reportSleeveTasks(ns);
