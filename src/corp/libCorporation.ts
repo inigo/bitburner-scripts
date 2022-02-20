@@ -78,7 +78,7 @@ export type CorporationInstructions = { prepareForInvestment: boolean };
 export async function reportCompanyStatus(ns: NS): Promise<void> {
     const dividendRate = 0.9;
     const corp = ns.corporation.getCorporation();
-    const profit = (corp.revenue - corp.expenses);
+    const profit = (corp.revenue - corp.expenses) / 10; // Profit is per tick - which is about 10s per tick when on normal time
     const pctCompanyOwned = (corp.numShares / corp.totalShares);
     const status: CorporationStatus = {
         value: corp.funds,

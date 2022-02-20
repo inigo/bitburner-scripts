@@ -100,14 +100,14 @@ export async function main(ns: NS): Promise<void> {
                 values.push(formatMoney(ns, companyStatus.value));
 
                 headers.push("Corp income: ");
-                values.push(formatMoney(ns, companyStatus.companyIncome));
+                values.push(formatMoney(ns, companyStatus.companyIncome) + "/s");
 
                 headers.push("Funding round: ");
                 values.push( companyStatus.isPublic ? "Public" : companyStatus.investmentRound );
 
                 if (companyStatus.isPublic) {
                     headers.push("Dividends: ")
-                    values.push(formatMoney(ns, companyStatus.dividendIncome));
+                    values.push(formatMoney(ns, companyStatus.dividendIncome) + "/s");
                 }
             }
 
