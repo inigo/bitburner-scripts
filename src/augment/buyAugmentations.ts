@@ -3,7 +3,6 @@ import { findPreferredFaction } from "joinFaction";
 import { fmt } from "libFormat"; 
 import { triggerRestart, getUsefulAugmentations, FullAugmentationInfo, getCostMultiplier, getOrderedAugmentations } from "augment/libAugmentations";
 
-
 export async function main(ns: NS): Promise<void> {
 	const force = (ns.args.includes("force"));
 	if (ns.gang.inGang()) {
@@ -14,7 +13,7 @@ export async function main(ns: NS): Promise<void> {
 }
 
 export async function buyAllPreferredAugmentations(ns: NS, force: boolean): Promise<boolean> {
-	const targetFaction = findPreferredFaction(ns);
+	const targetFaction = findPreferredFaction(ns, false);
 	if (targetFaction==null) {
 		ns.print("No target faction available");
 		return false;

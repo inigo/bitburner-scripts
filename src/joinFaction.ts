@@ -1,13 +1,15 @@
 import { getUsefulAugmentations } from "augment/libAugmentations";
+import { retrieveGangInfo } from "crime/libGang";
 
 export async function main(ns : NS) : Promise<void> {
 	await travelForFactions(ns);
 
-	joinPreferredFaction(ns);
+	const inGang = retrieveGangInfo(ns) != null;
+	joinPreferredFaction(ns, inGang);
 
 	const available = !ns.isBusy() || ns.getPlayer().workType=="Studying or Taking a class at university";
 	if (available) {
-		const preferredFaction = findPreferredFaction(ns);
+		const preferredFaction = findPreferredFaction(ns, inGang);
 		if (preferredFaction!=null) {
 			ns.workForFaction(preferredFaction, "Hacking Contracts");		
 		}
@@ -59,8 +61,8 @@ function isPreparedForFlight(ns: NS): boolean {
 			&& ns.getOwnedAugmentations(false).length >= 30);
 }
 
-function joinPreferredFaction(ns: NS): void {
-	const preferredFaction = findPreferredFaction(ns);
+function joinPreferredFaction(ns: NS, inGang: boolean): void {
+	const preferredFaction = findPreferredFaction(ns, inGang);
 	if (preferredFaction!=null && ns.checkFactionInvitations().includes(preferredFaction)) {
 		ns.toast("Joining preferred faction "+preferredFaction);
 		ns.joinFaction(preferredFaction);
@@ -69,8 +71,10 @@ function joinPreferredFaction(ns: NS): void {
 	}
 }
 
-export function findPreferredFaction(ns: NS): string {
-	const interestingFactions = listInterestingFactions();
+export function findPreferredFaction(ns: NS, inGang: boolean): string {
+	const gangFactions = ["NiteSec", "The Black Hand"];
+	const factionsToExclude = inGang ? gangFactions : [];
+	const interestingFactions = listInterestingFactions().filter(f => !factionsToExclude.includes(f));
 	const allPotentialFactions = listPotentialFactions(ns);
 	const potentialInterestingFactions = interestingFactions.filter( f => allPotentialFactions.includes(f));
 

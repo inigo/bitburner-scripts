@@ -8,6 +8,7 @@ import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
 import { receiveAttackTarget } from "spread/libSpread";
 import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
 import { retrieveShareStatus } from "tix/libTix";
+import { retrieveGangInfo } from "crime/libGang";
 import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
@@ -143,16 +144,14 @@ function getSleeveIcons(ns: NS): (string | null) {
 }
 
 function getGangInfo(ns: NS): (GangInfo | null) {
-    const report = ports.checkPort(ns, ports.GANG_REPORTS_PORT, JSON.parse) as (GangReport | null);
+    const report = retrieveGangInfo(ns);
     if (report==null) return null;
 
     const gangTasks = report.members
                         .map(g => g.task)
                         .map(lookupGangTaskIcon)
-                        .join("")
-                        // .match(/(.{1,6})/gu).join("\n");
-    const result = { gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks, factionRep: report.factionRep };
-    return result;
+                        .join("");
+    return { gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks, factionRep: report.factionRep };
 }
 
 type GangInfo = { gangIncome: number, icons: string, factionRep: number };

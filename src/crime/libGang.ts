@@ -436,5 +436,9 @@ export async function reportGangInfo(ns: NS): Promise<void> {
 	await ports.setPortValue(ns, ports.GANG_REPORTS_PORT, JSON.stringify(combinedInfo));
 }
 
+export function retrieveGangInfo(ns: NS): (GangReport | null) {
+	return ports.checkPort(ns, ports.GANG_REPORTS_PORT, JSON.parse) as (GangReport | null);
+}
+
 export type GangMemberReport = { name: string, task: string}
 export type GangReport = { gangInfo: GangGenInfo, factionRep: number, members: GangMemberReport[]  }
