@@ -77,15 +77,25 @@ export async function main(ns: NS): Promise<void> {
 
             const gangInfo = getGangInfo(ns);
             if (gangInfo!=null) {
+                headers.push("﹏﹏﹏﹏");
+                values.push("﹏﹏﹏﹏");
+
                 headers.push("Gang income:");
                 const gangIncome = formatMoney(ns, gangInfo.gangIncome * 5) + '/s';
                 values.push(gangIncome);
+
+                headers.push("Gang rep:");
+                values.push(ns.nFormat(gangInfo.factionRep, "0,0"));  
+
                 headers.push("Gang: ");
                 values.push(gangInfo.icons);
             }              
             
             const companyStatus = getCorpStatus(ns);
             if (companyStatus!=null) {
+                headers.push("﹏﹏﹏﹏");
+                values.push("﹏﹏﹏﹏");
+
                 headers.push("Corp value: ");
                 values.push(formatMoney(ns, companyStatus.value));
 
@@ -141,11 +151,11 @@ function getGangInfo(ns: NS): (GangInfo | null) {
                         .map(lookupGangTaskIcon)
                         .join("")
                         // .match(/(.{1,6})/gu).join("\n");
-    const result = { gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks };
+    const result = { gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks, factionRep: report.factionRep };
     return result;
 }
 
-type GangInfo = { gangIncome: number, icons: string };
+type GangInfo = { gangIncome: number, icons: string, factionRep: number };
 
 function getStanekIcons(ns: NS): (string | null) {
     const report = ports.checkPort(ns, ports.ACTIVE_FRAGMENTS_PORT, JSON.parse) as (CombinedFragment[] | null);

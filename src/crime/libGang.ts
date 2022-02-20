@@ -423,11 +423,13 @@ type TaskDescription = {name: string, emoji: string };
 export async function reportGangInfo(ns: NS): Promise<void> {
 	const info = ns.gang.getGangInformation();
 	const gangMembers = ns.gang.getMemberNames();
+	const factionRep = ns.getFactionRep(info.faction);
 	const memberInfos = gangMembers
 							.map(ns.gang.getMemberInformation)
 							.map(m => { return { name: m.name, task: m.task }; } );
 	const combinedInfo: GangReport = {
 		gangInfo: info,
+		factionRep,
 		members: memberInfos 
 	}
 
@@ -435,4 +437,4 @@ export async function reportGangInfo(ns: NS): Promise<void> {
 }
 
 export type GangMemberReport = { name: string, task: string}
-export type GangReport = { gangInfo: GangGenInfo, members: GangMemberReport[]  }
+export type GangReport = { gangInfo: GangGenInfo, factionRep: number, members: GangMemberReport[]  }
