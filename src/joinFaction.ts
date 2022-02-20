@@ -5,7 +5,8 @@ export async function main(ns : NS) : Promise<void> {
 
 	joinPreferredFaction(ns);
 
-	if (! ns.isBusy()) {
+	const available = !ns.isBusy() || ns.getPlayer().workType=="Studying or Taking a class at university";
+	if (available) {
 		const preferredFaction = findPreferredFaction(ns);
 		if (preferredFaction!=null) {
 			ns.workForFaction(preferredFaction, "Hacking Contracts");		
