@@ -31,8 +31,8 @@ export async function main(ns : NS) : Promise<void> {
     } else if (allSleevesAtGym) {
         ns.print("All sleeves are at the gym, so improving gym training to support them");
         await setHashSpend(ns, [ { name: "Improve Gym Training" } ]);
-    } else if (level("Generate Coding Contract")<2) {
-        ns.print("Less than two coding contracts, so generating another one");
+    } else if (level("Generate Coding Contract")<3) {
+        ns.print("Less than three coding contracts, so generating another one");
         await setHashSpend(ns, [ { name: "Generate Coding Contract" } ]);
     } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes < hashesNeededForServerWeakening && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {
         ns.print("Attacking a server, but insufficient hashes to improve it thoroughly - pausing until more hashes - currently "+hashes+" but want "+hashesNeededForServerWeakening);
