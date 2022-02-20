@@ -44,7 +44,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/attack/launchAttacksFromPurchasedServers.js"	
 						, "/attack/reportAttacks.js"
 						, "joinFaction.js"  
-						// , "buyAugmentations.js"
+						, "/augment/buyAugmentations.js"
 						, "/augment/buyAugmentationsFromGang.js"
 						];
 		for (const script of scripts) {
@@ -54,7 +54,7 @@ export async function main(ns: NS): Promise<void> {
 			}				
 		}
 
-		
+
 		// This is created by buyAugmentations and buyAugmentationsFromGang
 		if (shouldRestart(ns)) {
 			ns.toast("Triggering restart!", "warning");

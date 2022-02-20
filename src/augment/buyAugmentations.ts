@@ -4,10 +4,13 @@ import { fmt } from "libFormat";
 import { triggerRestart, getUsefulAugmentations, FullAugmentationInfo, getCostMultiplier, getOrderedAugmentations } from "augment/libAugmentations";
 
 
-
-export async function main(ns: NS): Promise<boolean> {
+export async function main(ns: NS): Promise<void> {
 	const force = (ns.args.includes("force"));
-	return await buyAllPreferredAugmentations(ns, force);
+	if (ns.gang.inGang()) {
+		return;
+	} else {
+		await buyAllPreferredAugmentations(ns, force);
+	}
 }
 
 export async function buyAllPreferredAugmentations(ns: NS, force: boolean): Promise<boolean> {
