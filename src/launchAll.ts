@@ -21,7 +21,8 @@ export async function main(ns: NS): Promise<void> {
 	
 	while(true) {
 		const scripts = [
-						"/basic/upgradeMemory.js"
+						"/augment/completeBitnode.js" // This needs to be at the beginning, so it triggers before any restarts
+						, "/basic/upgradeMemory.js"
 						, "/basic/buyCracks.js"
 						, "/basic/crackAll.js" 
 						, "/spread/spreadAttackController.js"
@@ -45,7 +46,6 @@ export async function main(ns: NS): Promise<void> {
 						, "joinFaction.js"  
 						// , "buyAugmentations.js"
 						, "/augment/buyAugmentationsFromGang.js"
-						, "/augment/completeBitnode.js"
 						];
 		for (const script of scripts) {
 			ns.run(script);
@@ -54,10 +54,11 @@ export async function main(ns: NS): Promise<void> {
 			}				
 		}
 
+		
 		// This is created by buyAugmentations and buyAugmentationsFromGang
 		if (shouldRestart(ns)) {
 			ns.toast("Triggering restart!", "warning");
-			ns.run("/augment/augmentAndRestart.js", 1, "forceRestart");
+			ns.exec("/augment/augmentAndRestart.js", "home", 1, "forceRestart");
 			ns.exit();
 			break;
 		}
