@@ -3,7 +3,7 @@ import { formatMoney } from "libFormat";
 import * as ports from "libPorts";
 import { lookupHashIcons, HashUpgrade } from "hacknet/libHashes";
 import { lookupSleeveIcon, retrieveSleeveTasks } from "sleeve/libSleeve";
-import { lookupGangTaskIcon, GangReport } from "crime/libGang";
+import { lookupGangTaskIcon } from "crime/libGang";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
 import { receiveAttackTarget } from "spread/libSpread";
 import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
