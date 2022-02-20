@@ -28,6 +28,8 @@ export async function main(ns: NS): Promise<void> {
 
 	const availableRam = ns.getServerMaxRam(host) - spareRamBuffer;	
 
+	const initialHackLevel = ns.getPlayer().hacking;
+
 	while(true) {
 		killAttacks(ns, hackTarget);
 		ns.toast(`Priming ${host} for attack on ${hackTarget}`, "info");
@@ -100,8 +102,26 @@ export async function main(ns: NS): Promise<void> {
 				break;
 			}
 		}
+
+		if (isSignificantHackingIncrease(ns.getPlayer().hacking, initialHackLevel) && host=="home") {
+			// Note that this will end completely - on home, we expect it to restart again with a new target shortly
+			break;
+		}
+
 		await ns.sleep(10);
 		await ns.sleep(timing.pauseBetweenAttacks + resetBufferMs);
+	}
+}
+
+function isSignificantHackingIncrease(currentHack: number, originalHack: number): boolean {
+	if (originalHack>1500) {
+		return false; // No change significant after a certain point
+	} else if (currentHack<500) {
+		return false; // Changes at a low level are unimportant
+	} else if (currentHack > (originalHack * 2)) {
+		return true; // Doubling hack level is significant
+	} else {
+		return false;
 	}
 }
 
