@@ -1,5 +1,6 @@
 import { NS } from '@ns'
 import { manuallyConnectTo } from "basic/installBackdoors"; 
+import { listSleeves, travelTo } from "sleeve/libSleeve";
 
 export async function main(ns : NS) : Promise<void> {
     const requiredHacking = ns.getBitNodeMultipliers().WorldDaemonDifficulty * 3000;
@@ -8,6 +9,8 @@ export async function main(ns : NS) : Promise<void> {
     const enoughPortsOpen = ns.getServer("w0r1d_d43m0n").openPortCount == 5;
 
     if (hasRedPill && enoughPortsOpen && currentHacking >= requiredHacking) {
+        // Work round the current bug that sleeves don't reset location when starting a new Bitnode - can remove once that is deployed
+        listSleeves(ns).forEach(s => travelTo(ns, s, "Sector-12"));
         await manuallyConnectTo(ns, "w0r1d_d43m0n");
         await ns.installBackdoor();
     }
