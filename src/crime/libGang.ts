@@ -1,13 +1,18 @@
 import { fmt, formatMoney } from "libFormat.js";
 import * as ports from "libPorts.js";
 import { GangGenInfo, GangMemberInfo, GangOtherInfoObject, NS } from '@ns';
+import { retrieveCompanyStatus } from "corp/libCorporation";
+import { getTotalMoney, buyWithShares } from "tix/libShareSelling";
 
-export function manageGang(ns: NS, goal = "general", stage="early"): void {
+export async function manageGang(ns: NS, goal = "general", stage="early"): Promise<void> {
 	const notEnoughMoney = !hasEnoughMoneyToRecruit(ns);
+	const isInCorporation = retrieveCompanyStatus(ns) != null;
+
 	recruit(ns);
 	buyBasicEquipment(ns);
 	buyAffordableEquipment(ns);
-	buyAugmentations(ns);
+	// Once in a corporation, put money into gang equipment faster
+	await buyAugmentations(ns, isInCorporation ? 15_000_000_000 : 120_000_000_000);
 	startWarfare(ns);
 	endWarfare(ns);
 	
@@ -120,8 +125,8 @@ export function buyAffordableEquipmentForIndividual(ns: NS, name: string): void 
 		.forEach(e => ns.gang.purchaseEquipment(name, e));
 }
 
-export function buyAugmentations(ns: NS, minimumMoney = 120_000_000_000): boolean {
-	const hasMoney = () => ns.getServerMoneyAvailable("home") > minimumMoney;
+export async function buyAugmentations(ns: NS, minimumMoney = 120_000_000_000): Promise<boolean> {
+	const hasMoney = () => getTotalMoney(ns) > minimumMoney;
 	if (!hasMoney()) return false;
 
 	const gangMembers = ns.gang.getMemberNames();
@@ -133,7 +138,7 @@ export function buyAugmentations(ns: NS, minimumMoney = 120_000_000_000): boolea
 	for (const aug of augmentations) {
 		for (const name of gangMembers) {
 			ns.print("Buying augmentation for "+name+" - "+aug);
-			madePurchase = madePurchase || ns.gang.purchaseEquipment(name, aug);
+			madePurchase = madePurchase || await buyWithShares(ns, ns.gang.getEquipmentCost(aug), () => ns.gang.purchaseEquipment(name, aug));
 			if (!hasMoney()) break;
 		}
 	}

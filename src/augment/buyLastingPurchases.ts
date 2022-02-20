@@ -11,7 +11,7 @@ export async function buyLastingPurchases(ns: NS): Promise<void> {
 	buyRam(ns);
 	buyNeurofluxGovernors(ns);
 	buyCores(ns);
-	buyGangAugments(ns);
+	await buyGangAugments(ns);
 	buySleeveAugments(ns);
 	acquireFreeAugments(ns);
 	await travelAroundWorld(ns);
@@ -55,9 +55,9 @@ function buyCores(ns: NS): void {
 	}
 }
 
-function buyGangAugments(ns: NS): void {
+async function buyGangAugments(ns: NS): Promise<void> {
 	if (ns.gang.inGang()) {
-		while (buyAugmentations(ns, 0)) {
+		while (await buyAugmentations(ns, 0)) {
 			ns.toast("Buying gang augmentations");
 		}
 	}

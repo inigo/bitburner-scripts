@@ -18,3 +18,7 @@ export async function buyWithShares(ns: NS, cost: number, buyFn: () => boolean):
 		return false;
 	}
 }
+
+export function getTotalMoney(ns: NS): number {
+	return ns.getServerMoneyAvailable("home") + getOwnedShareValue(ns);
+}

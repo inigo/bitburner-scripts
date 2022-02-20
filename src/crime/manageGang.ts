@@ -9,7 +9,7 @@ export async function main(ns: NS): Promise<void> {
 			const instructions = getGangInstructions(ns);
 			const goal = instructions?.goal ?? "general";
 			const stage = instructions?.stage ?? "early";
-			manageGang(ns, goal, stage);
+			await manageGang(ns, goal, stage);
 			await reportGangInfo(ns);
 
 			const pause = (ns.gang.getBonusTime() > 0) ? 1000 : 10000;
