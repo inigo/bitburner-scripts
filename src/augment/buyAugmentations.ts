@@ -5,11 +5,15 @@ import { triggerRestart, getUsefulAugmentations, FullAugmentationInfo, getCostMu
 
 export async function main(ns: NS): Promise<void> {
 	const force = (ns.args.includes("force"));
-	if (ns.gang.inGang()) {
+	if (ns.gang.inGang() && !inDaedalus(ns)) {
 		return;
 	} else {
 		await buyAllPreferredAugmentations(ns, force);
 	}
+}
+
+function inDaedalus(ns: NS): boolean {
+	return (ns.getPlayer().factions.includes("Daedalus") && ns.getFactionRep("Daedalus") > 20_000_000);
 }
 
 export async function buyAllPreferredAugmentations(ns: NS, force: boolean): Promise<boolean> {
