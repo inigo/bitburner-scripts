@@ -41,10 +41,11 @@ export async function main(ns : NS) : Promise<void> {
     const shouldInstall = (affordableAugmentations.length >= 8) || ((usefulAugmentations.length - affordableAugmentations.length) <= 2 )
 
     if (shouldInstall || force) {
-        await pauseTrading(ns, 120);
+        await pauseTrading(ns, 180);
         sellAllShares(ns);
-        // Should sort out the dependencies properly - but this is a hacky way of making them work
-        availableAugmentations.forEach(f => ns.purchaseAugmentation(gangFaction, f.name));
+        // Wait for a little while, to see if we acquire some more money or reputation
+        await ns.sleep(120_000);
+        usefulAugmentations.forEach(f => ns.purchaseAugmentation(gangFaction, f.name));
         await triggerRestart(ns);
     }
 }
