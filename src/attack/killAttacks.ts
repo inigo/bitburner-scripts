@@ -6,6 +6,10 @@ import { killMatchingScripts } from "attack/libAttack";
  */
 export async function main(ns : NS) : Promise<void> {
 	const target = (ns.args[0] as string) ?? "all";
+	await killAttacks(ns, target);
+}
+
+export async function killAttacks(ns: NS, target = "all"): Promise<void> {
 	const host = ns.getHostname();
     
 	const killedControllers = killMatchingScripts(ns, host, ["/attack/attack.js"], target);
@@ -16,4 +20,3 @@ export async function main(ns : NS) : Promise<void> {
 	const totalKilled = killedControllers + killedAttacks + killedHacks;
 	ns.tprint(`Killed ${totalKilled} processes`);
 }
-
