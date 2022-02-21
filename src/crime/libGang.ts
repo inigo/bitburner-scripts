@@ -12,7 +12,7 @@ export async function manageGang(ns: NS, goal = "general", stage="early"): Promi
 	buyBasicEquipment(ns);
 	buyAffordableEquipment(ns);
 	// Once in a corporation, put money into gang equipment faster
-	await buyAugmentations(ns, isInCorporation ? 15_000_000_000 : 120_000_000_000);
+	await buyAugmentations(ns, isInCorporation ? 15_000_000_000 : 200_000_000_000);
 	startWarfare(ns);
 	endWarfare(ns);
 	
@@ -146,7 +146,7 @@ export async function buyAugmentations(ns: NS, minimumMoney = 120_000_000_000): 
 }
 
 function startWarfare(ns: NS): void {
-	const requiredRatio = 3;
+	const requiredRatio = 4;
 
 	const gangInfo = ns.gang.getGangInformation();
 	if (gangInfo.territory>0.999) {
@@ -172,7 +172,7 @@ function endWarfare(ns: NS) {
 	}
 	const currentPower = gangInfo.power;
 	const gangs = [ ... getOtherGangInfo(ns)];
-	const rivals = gangs.filter(g => g.territory > 0).filter(g => (g.power * 1.5) >= currentPower);
+	const rivals = gangs.filter(g => g.territory > 0).filter(g => (g.power * 1.8) >= currentPower);
 	if (rivals.length > 0) {
 		ns.print("Other gangs too close in power - ending warfare");
 		ns.gang.setTerritoryWarfare(false);
