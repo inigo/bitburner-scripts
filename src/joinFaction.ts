@@ -18,12 +18,13 @@ export async function main(ns : NS) : Promise<void> {
 	flight(ns);
 }
 
+
 function listInterestingFactions(): string[] {
 	return [ 
 			"Netburners"
-			, "CyberSec" 
-			, "Tian Di Hui"						
-			, "NiteSec"			
+			, "CyberSec" 				
+			, "NiteSec"	
+			, "Tian Di Hui"							
 			, "The Black Hand"
 			, "BitRunners"
 			, "Daedalus" 
