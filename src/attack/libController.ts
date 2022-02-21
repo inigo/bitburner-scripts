@@ -65,8 +65,9 @@ export class AttackController {
 			if (firstWeakenInfo.memory > availableMemory) {
 				firstWeakenInfo.threads = Math.floor(availableMemory / firstWeakenInfo.memoryPerThread);
 			}
-			while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) {
+			while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) {				
 				this.ns.exec("/attack/weaken.js", host, firstWeakenInfo.threads, this.targetServerName, 0, firstWeakenInfo.time, "prime_"+this.uniqueId(), "weaken1");				
+				await this.ns.sleep(2);
 				await this.waitForAttacksToEnd();
 			}
 		}
@@ -76,6 +77,7 @@ export class AttackController {
 			}
 			while (this.ns.getServerMoneyAvailable(this.targetServerName) < this.ns.getServerMaxMoney(this.targetServerName)) {
 				this.ns.exec("/attack/grow.js", host, growthInfo.threads, this.targetServerName, 0, growthInfo.time, "prime_"+this.uniqueId(), "grow");				
+				await this.ns.sleep(2);				
 				await this.waitForAttacksToEnd();
 			}
 		}
@@ -85,6 +87,7 @@ export class AttackController {
 			}			
 			while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) {
 				this.ns.exec("/attack/weaken.js", host, secondWeakenInfo.threads, this.targetServerName, 0, secondWeakenInfo.time, "prime_"+this.uniqueId(), "weaken2");				
+				await this.ns.sleep(2);				
 				await this.waitForAttacksToEnd();
 			}
 		}		
@@ -154,7 +157,7 @@ export class AttackController {
 		const hackTime = this.hf.hackTime(server, player);
 
 		const hackPerThread = this.hf.hackPercent(server, player);
-		const hackThreads = this.moneyToTakePercent / hackPerThread;
+		const hackThreads = Math.floor(this.moneyToTakePercent / hackPerThread);
 
 		const memoryPerThread = this.ns.getScriptRam("/attack/hack.js");
 		const hackMemory = hackThreads * memoryPerThread;
@@ -170,7 +173,7 @@ export class AttackController {
 		const server = this.idealServerInfo;
 		const growthTime = this.hf.growTime(server, player)
 
-		const growthThreads = this.growThreads(server, growth, player); 
+		const growthThreads = Math.ceil(this.growThreads(server, growth, player)); 
 		const memoryPerThread = this.ns.getScriptRam("/attack/grow.js");
 		const growthMemory = growthThreads * memoryPerThread;	
 
@@ -204,7 +207,7 @@ export class AttackController {
 
 		const coreBonus = 1 + (this.sourceServerCores - 1) / 16;
 		const weakenPerThread = 0.05 * coreBonus;
-		const weakenThreads = security / weakenPerThread;
+		const weakenThreads = Math.ceil(security / weakenPerThread);
 
 		const memoryPerThread = this.ns.getScriptRam("/attack/weaken.js");
 		const weakenMemory = weakenThreads * memoryPerThread;	
