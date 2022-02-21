@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { openDB, IDBPDatabase } from 'idb/entry';
+import { openDB } from 'idb/idb';
 import { formatMoney } from 'libFormat';
 import * as ports from "libPorts";
 import { NS } from '@ns';
 import { ShareStatus } from 'tix/libShareInfo';
+
 
 // IDB is from https://github.com/jakearchibald/idb
 // Imported files are from https://cdn.jsdelivr.net/npm/idb@7.0.0/build/
@@ -41,9 +43,10 @@ export async function* realStockValues(ns: NS, limit = 0): AsyncGenerator<Tick[]
 export function getTick(ns: NS, sym: string): Tick {
 	const askPrice = ns.stock.getAskPrice(sym);
 	const bidPrice = ns.stock.getBidPrice(sym);
-	return { sym, askPrice, bidPrice };
+	const volatility = (ns.getPlayer().has4SDataTixApi) ? ns.stock.getVolatility(sym) : undefined;
+	return { sym, askPrice, bidPrice, volatility };
 }
-type Tick = { sym: string, askPrice: number, bidPrice: number };
+type Tick = { sym: string, askPrice: number, bidPrice: number, volatility?: number };
 
 
 // -------------------
@@ -52,7 +55,7 @@ type Tick = { sym: string, askPrice: number, bidPrice: number };
 export async function setupDatabase(ns: NS, storeName: string, version: number): Promise<DB> {
 	const db = await openDB(dbName, version, {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		upgrade(newdb, oldVersion, newVersion, transaction) {
+		upgrade(newdb: any, oldVersion: any, newVersion: any, transaction: any) {
 			newdb.createObjectStore(storeName, { keyPath: ['datetime', 'sym'] } );
 			// https://stackoverflow.com/questions/33852508/how-to-create-an-indexeddb-composite-key
 		}
@@ -60,7 +63,7 @@ export async function setupDatabase(ns: NS, storeName: string, version: number):
 	return db;
 }
 
-type DB = IDBPDatabase;
+type DB = any;
 
 export async function recordStockValues(ns: NS, db: DB, storeName: string, limit = 0): Promise<void> {
 	for await (const ticksWithDates of realStockValues(ns, limit)) {
