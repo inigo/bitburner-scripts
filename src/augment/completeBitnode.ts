@@ -13,9 +13,10 @@ export async function main(ns : NS) : Promise<void> {
         listSleeves(ns).forEach(s => travelTo(ns, s, "Sector-12"));
         await manuallyConnectTo(ns, "w0r1d_d43m0n");
         await ns.installBackdoor();
+
+        // Gives some time for the "Bitnode completed" scroll to complete
+        window.setTimeout(() => startNewNode(), 12_000);        
     }
-    // Gives some time for the "Bitnode completed" scroll to complete
-    window.setTimeout(() => startNewNode(), 12_000);
 }
 
 function startNewNode() {
