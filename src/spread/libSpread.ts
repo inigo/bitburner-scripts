@@ -55,11 +55,13 @@ export async function hackLoop(ns: NS): Promise<void> {
 		
 		// Don't take more than half the money while hacking, to reduce time to grow it back
 		const availableThreads = ns.getRunningScript().threads;
-		const maxHackThreads = 0.5 / targetInfo.hackPercent;
+		const maxHackThreads = (targetInfo) ? (0.5 / targetInfo.hackPercent) : Infinity;
 		const threadsToUse = Math.min(maxHackThreads, availableThreads);
+		// This means we won't hack at all until the target info has been set
+		const requiredMoney = (targetInfo) ? targetInfo.maxMoney*0.95 : Infinity;
 
 		// Only hack when the server is almost full of money
-		if (ns.getServerMoneyAvailable(s) < targetInfo.maxMoney*0.95) {
+		if (ns.getServerMoneyAvailable(s) < requiredMoney) {
 			// This is more efficient than attempting to grow the server in this thread, because
 			// the other servers get the target to a hackable state faster than it takes to run grow
 
