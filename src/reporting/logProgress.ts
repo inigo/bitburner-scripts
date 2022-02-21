@@ -29,6 +29,7 @@ class Reporter {
             , (corpInfo?.investmentRound ?? -1) == 2 ? "corporationTakenSecondInvestment" : ""
             , corpInfo?.isPublic ? "corporationPublic" : ""
             , sleeveInfo.every(s => s.crime=="Homicide") ? "sleevesMurdering" : ""
+            , this.ns.getPlayer().has4SDataTixApi ? "has4SData" : ""
         ].filter(s => s.length > 0);
 
         this.ns.print("Current significant events are "+currentState);

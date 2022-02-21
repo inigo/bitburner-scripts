@@ -6,7 +6,7 @@ import { lookupSleeveIcon, retrieveSleeveTasks } from "sleeve/libSleeve";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
 import { receiveAttackTarget } from "spread/libSpread";
 import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
-import { retrieveShareStatus } from "tix/libShareInfo";
+import { retrieveShareStatus, ShareStatus } from "tix/libShareInfo";
 import { retrieveGangInfo, lookupGangTaskIcon } from "crime/libGangInfo";
 import { NS } from '@ns'
 
@@ -28,10 +28,6 @@ export async function main(ns: NS): Promise<void> {
             const headers = []
             const values = [];
 
-            const karma = Math.floor(ns.heart.break());
-            headers.push("Karma: ");
-            values.push(karma);
-
             const income = formatMoney(ns, ns.getScriptIncome()[0]) + '/s';
             headers.push("Income: ");
             values.push(income);
@@ -40,13 +36,13 @@ export async function main(ns: NS): Promise<void> {
             headers.push("Hack exp: ");
             values.push(hackExp + '/s');
 
-            const ownedShareValue = getOwnedShareValue(ns);
-            if (ownedShareValue!=null) {
-                const shareValue = formatMoney(ns, ownedShareValue);
-                headers.push("Shares: ");
+            const shareInfo = getShareStatus(ns);
+            if (shareInfo!=null) {
+                const shareValue = formatMoney(ns, shareInfo.value);
+                headers.push((shareInfo.has4S ?  "Shares (4S): " : "Shares: "));
                 values.push(shareValue);
 
-                const totalMoney = formatMoney(ns, ns.getServerMoneyAvailable("home") + ownedShareValue);
+                const totalMoney = formatMoney(ns, ns.getServerMoneyAvailable("home") + shareInfo.value);
                 headers.push("Total money: ");
                 values.push(totalMoney);
             }
@@ -89,7 +85,11 @@ export async function main(ns: NS): Promise<void> {
 
                 headers.push("Gang: ");
                 values.push(gangInfo.icons);
-            }              
+            }  else {
+                const karma = Math.floor(ns.heart.break());
+                headers.push("Karma: ");
+                values.push(karma);
+            }
             
             const companyStatus = getCorpStatus(ns);
             if (companyStatus!=null) {
@@ -122,8 +122,8 @@ export async function main(ns: NS): Promise<void> {
 
 }
 
-function getOwnedShareValue(ns: NS): (number | null) {
-    return retrieveShareStatus(ns)?.value ?? null;
+function getShareStatus(ns: NS): (ShareStatus | null) {
+    return retrieveShareStatus(ns)?? null;
 }
 
 function getHashnetExchangeIcons(ns: NS): (string | null) {

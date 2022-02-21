@@ -473,7 +473,8 @@ export async function reportShareStatus(ns: NS): Promise<void> {
 	const value = getOwnedShareValue(ns);
 	const longStocks = ns.stock.getSymbols().filter(s => ns.stock.getPosition(s)[0]>0);
 	const shortStocks = ns.stock.getSymbols().filter(s => ns.stock.getPosition(s)[2]>0);
-	const shareStatus: ShareStatus = { value, longStocks, shortStocks };
+	const has4S = ns.getPlayer().has4SDataTixApi;	
+	const shareStatus: ShareStatus = { value, longStocks, shortStocks, has4S };
 	await ports.setPortValue(ns, ports.SHARETRADING_REPORTS_PORT, JSON.stringify(shareStatus));
 }
 
