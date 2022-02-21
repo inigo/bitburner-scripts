@@ -12,7 +12,7 @@ export async function main(ns : NS) : Promise<void> {
         return;
     }
 
-    const gangFaction = ns.gang.getGangInformation().faction
+    const gangFaction = ns.gang.getGangInformation().faction;
 
 	const availableAugmentations = getAvailableAugmentations(ns, gangFaction);     
     ns.print("Available augmentations are : "+availableAugmentations.map(a => a.name) );
@@ -27,7 +27,20 @@ export async function main(ns : NS) : Promise<void> {
         await ns.sleep(120_000);
         const updatedBestAugmentations = findMostAffordableAugmentations(ns, gangFaction);
         if (updatedBestAugmentations.length > 0) {
-            updatedBestAugmentations.forEach(f => ns.purchaseAugmentation(gangFaction, f.name));
+            for (const aug of updatedBestAugmentations) {
+                const success = ns.purchaseAugmentation(gangFaction, aug.name);
+                if (success) {
+                    ns.tprint("INFO Successfully bought "+aug.name);
+                } else {
+                    ns.print("WARN Failed to buy "+aug.name);
+                }
+            }
+            for (const aug of getAvailableAugmentations(ns, gangFaction)) {
+                const success = ns.purchaseAugmentation(gangFaction, aug.name);
+                if (success) {
+                    ns.tprint("WARN Also bought "+aug.name+" that should have been bought by the previous step");
+                } 
+            }
             await triggerRestart(ns);
         }
     }
@@ -72,7 +85,7 @@ function findAffordableAugmentations(ns: NS, availableAugmentations: FullAugment
 			costSoFar += modifiedCost;
 		}
 	}  
-    ns.print(fmt(ns)`Total cost would be £${costSoFar}`);    
+    ns.print(fmt(ns)`Total cost would be £${costSoFar} to install : ${affordableAugmentations.map(a => a.name)}`); 
     return affordableAugmentations;
 }
 
