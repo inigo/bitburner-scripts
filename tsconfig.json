@@ -9,7 +9,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "noImplicitReturns": true,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "esModuleInterop": true,
     "inlineSourceMap": true,
     "sourceRoot": "http://localhost:8000/sources/",
