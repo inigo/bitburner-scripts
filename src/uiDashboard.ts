@@ -3,12 +3,11 @@ import { formatMoney } from "libFormat";
 import * as ports from "libPorts";
 import { lookupHashIcons, HashUpgrade } from "hacknet/libHashes";
 import { lookupSleeveIcon, retrieveSleeveTasks } from "sleeve/libSleeve";
-import { lookupGangTaskIcon } from "crime/libGang";
 import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
 import { receiveAttackTarget } from "spread/libSpread";
 import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
-import { retrieveShareStatus } from "tix/libTix";
-import { retrieveGangInfo } from "crime/libGang";
+import { retrieveShareStatus } from "tix/libShareInfo";
+import { retrieveGangInfo, lookupGangTaskIcon } from "crime/libGangInfo";
 import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {

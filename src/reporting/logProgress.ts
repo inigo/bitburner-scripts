@@ -1,10 +1,7 @@
-import { NS, GangGenInfo } from '@ns'
+import { NS } from '@ns'
 import { retrieveCompanyStatus } from "corp/libCorporation";
 import { retrieveSleeveTasks } from "sleeve/libSleeve";
-
-// Defining retrieveGangInfo to work around a bug in the memory calculations
-// import { retrieveGangInfo } from "crime/libGang";
-import * as ports from "libPorts";
+import { retrieveGangInfo } from "crime/libGangInfo";
 
 export async function main(ns : NS) : Promise<void> {
     const reporter = new Reporter(ns);
@@ -129,12 +126,3 @@ class Reporter {
 
 type LoggedEvent = { name: string, timeOccurred? : number }
 type LogInfo = { lastLogTimeSinceStart: number, loggedEvents: LoggedEvent[]  }
-
-
-
-function retrieveGangInfo(ns: NS): (GangReport | null) {
-	return ports.checkPort(ns, ports.GANG_REPORTS_PORT, JSON.parse) as (GangReport | null);
-}
-
-export type GangMemberReport = { name: string, task: string}
-export type GangReport = { gangInfo: GangGenInfo, factionRep: number, members: GangMemberReport[]  }

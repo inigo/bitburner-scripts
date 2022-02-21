@@ -1,5 +1,5 @@
 import { getUsefulAugmentations } from "augment/libAugmentations";
-import { retrieveGangInfo } from "crime/libGang";
+import { retrieveGangInfo } from "crime/libGangInfo";
 
 export async function main(ns : NS) : Promise<void> {
 	await travelForFactions(ns);

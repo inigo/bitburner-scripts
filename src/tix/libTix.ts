@@ -3,6 +3,7 @@ import { openDB, IDBPDatabase } from 'idb/entry';
 import { formatMoney } from 'libFormat';
 import * as ports from "libPorts";
 import { NS } from '@ns';
+import { ShareStatus } from 'tix/libShareInfo';
 
 // IDB is from https://github.com/jakearchibald/idb
 // Imported files are from https://cdn.jsdelivr.net/npm/idb@7.0.0/build/
@@ -475,12 +476,6 @@ export async function reportShareStatus(ns: NS): Promise<void> {
 	const shareStatus: ShareStatus = { value, longStocks, shortStocks };
 	await ports.setPortValue(ns, ports.SHARETRADING_REPORTS_PORT, JSON.stringify(shareStatus));
 }
-
-export function retrieveShareStatus(ns: NS): (ShareStatus | null) {
-	return ports.checkPort(ns, ports.SHARETRADING_REPORTS_PORT, JSON.parse);
-}
-
-export type ShareStatus = { value: number, longStocks: string[], shortStocks: string[] };
 
 export async function pauseTrading(ns: NS, duration = 60): Promise<void> {
 	await ports.setPortValue(ns, ports.SHARETRADING_CONTROL_PORT, duration);	
