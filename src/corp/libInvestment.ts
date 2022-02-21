@@ -40,7 +40,7 @@ export class InvestmentManager {
 
         if (!corp.public && sufficientIncome) {
             this.ns.corporation.goPublic(0);
-            this.ns.corporation.issueDividends(0.9);
+            this.ns.corporation.issueDividends(0.8);
             this.unlockUpgrade("Shady Accounting");
             this.unlockUpgrade("Government Partnership");
         }

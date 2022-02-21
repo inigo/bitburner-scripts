@@ -57,14 +57,14 @@ export class ImprovementManager {
     listImprovements(): WeightedImprovement[] {
         return [
             { importance: 1.5, improvement: new WilsonAnalyticsImprovement(this.ns) }
-            , { importance: 1, improvement: new EnlargeMainOfficeImprovement(this.ns, this.division, this.industry) }        
-            , { importance: 0.9, improvement: new AdVertImprovement(this.ns, this.division) }
+            , { importance: 1.2, improvement: new AdVertImprovement(this.ns, this.division) }            
+            , { importance: 1, improvement: new EnlargeMainOfficeImprovement(this.ns, this.division, this.industry) }
             , { importance: 0.7, improvement: new EmployeeBoostImprovement(this.ns) }        
             , { importance: 0.5, improvement: new EnlargeSecondaryOfficesImprovement(this.ns, this.division, this.industry) }
             , { importance: 0.5, improvement: new ProjectInsightImprovement(this.ns) }
             , { importance: 0.2, improvement: new SmartFactoriesImprovement(this.ns) }        
             , { importance: 0.1, improvement: new DreamSenseImprovement(this.ns) }
-            , { importance: 0.02, improvement: new WarehouseSpaceImprovement(this.ns, this.division, this.industry) }
+            , { importance: 0.01, improvement: new WarehouseSpaceImprovement(this.ns, this.division, this.industry) }
         ]
     }    
 }

@@ -42,7 +42,7 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
         const prepareForInvestment = (retrieveCorporationInstructions(ns)?.prepareForInvestment ?? false);
 
         researchManager.unlockResearches();
-        await improvementManager.buyNextImprovement(5);
+        await improvementManager.buyNextImprovement(6);
         // If trying to get investment, we want all products being sold, rather than cycling through them
         const allowRetiring = investmentManager.getTimesInvested() >= 2 && !prepareForInvestment;
         await productLauncher.launchProducts(allowRetiring);
@@ -84,7 +84,7 @@ function donateToDaedalus(ns: NS) {
     const requiredDonation = 10_000_000_000_000_000;
     const isInDaedalus = ns.getPlayer().factions.includes("Daedalus");
     const isPublic = ns.corporation.getCorporation().public;
-    const sufficientMoney = ns.corporation.getCorporation().funds > requiredDonation * 10;
+    const sufficientMoney = ns.corporation.getCorporation().funds > requiredDonation * 4;
     const daedalusReputationLow = ns.getFactionRep("Daedalus") < 10_000_000_000;
 
     if (isInDaedalus && isPublic && sufficientMoney && daedalusReputationLow) {
