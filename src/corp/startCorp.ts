@@ -21,7 +21,8 @@ export async function main(ns : NS) : Promise<void> {
     } 
     const selfFund = (ns.getPlayer().bitNodeN!=3);
     const cost = selfFund ? 150_000_000_000 : 0;
-    const started = await buyWithShares(ns, cost, () => ns.corporation.createCorporation("Bats Inc", selfFund));
+    const corp = eval("ns.corporation");
+    const started = await buyWithShares(ns, cost, () => corp.createCorporation("Bats Inc", selfFund));
     
     if (started) {
         ns.tprint("Starting corporation");
@@ -43,9 +44,11 @@ export async function main(ns : NS) : Promise<void> {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isInCorporation(ns: NS): boolean {
     try {
-        const corpExists = ns.corporation.getCorporation();
+        const corp = eval("ns.corporation");
+        const corpExists = corp.getCorporation();
         return (corpExists!=null);
     } catch (err) {
         return false;
