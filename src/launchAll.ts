@@ -46,6 +46,7 @@ export async function main(ns: NS): Promise<void> {
 						, "joinFaction.js"  
 						, "/augment/buyAugmentations.js"
 						, "/augment/buyAugmentationsFromGang.js"
+						, "/reporting/logProgress.js"						
 						];
 		for (const script of scripts) {
 			ns.run(script);

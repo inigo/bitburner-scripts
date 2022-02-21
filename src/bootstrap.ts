@@ -14,6 +14,9 @@ export async function main(ns: NS): Promise<void> {
 
 	ns.tprint("Bootstrapping...");
 
+	ns.run("/reporting/logProgress.js");
+	await ns.sleep(100);
+
 	ns.run("uiDashboard.js");
 	await ns.sleep(200);
 
@@ -65,6 +68,7 @@ export async function main(ns: NS): Promise<void> {
 							, "/hacknet/upgradeNodes.js"
 							, "/contracts/solveContracts.js"
 							, "/sleeve/selectSleeveTask.js"
+							, "/reporting/logProgress.js"
 							];
 			for (const script of scripts) {
 				ns.run(script);
