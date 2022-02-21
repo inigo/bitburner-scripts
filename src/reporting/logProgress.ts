@@ -46,7 +46,9 @@ class Reporter {
             const msg = this.formatEventInfo(e);
             await this.recordEvent(msg);
         }
-        this.storeInfo(newEvents);
+        if (newEvents.length > 0) {
+            this.storeInfo(newEvents);
+        }
     }
 
     async regularLog(): Promise<void> {
