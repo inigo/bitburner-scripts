@@ -10,6 +10,8 @@ export async function main(ns: NS): Promise<void> {
 	if (ns.getPlayer().city!="Aevum") {
 		ns.travelToCity("Aevum");
 	}
+	ns.stopAction();
+	await ns.sleep(100);
 	dom.selectSidebarOption(doc, "City");
 	dom.goToLocationInCity(doc, "Iker Molina Casino");
 	dom.clickButton(doc, "Play coin flip");
