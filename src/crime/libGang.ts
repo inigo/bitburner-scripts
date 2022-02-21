@@ -13,7 +13,7 @@ export async function manageGang(ns: NS, goal = "general", stage="early"): Promi
 	buyBasicEquipment(ns);
 	buyAffordableEquipment(ns);
 	// Once in a corporation, put money into gang equipment faster
-	await buyAugmentations(ns, isInCorporation ? 15_000_000_000 : 200_000_000_000);
+	await buyAugmentations(ns, isInCorporation ? 30_000_000_000 : 200_000_000_000);
 	startWarfare(ns);
 	endWarfare(ns);
 	
