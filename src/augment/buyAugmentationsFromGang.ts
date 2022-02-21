@@ -2,7 +2,7 @@
 import { NS } from '@ns'
 import { fmt } from "libFormat";
 import { getOwnedShareValue, sellAllShares, pauseTrading } from "tix/libTix"; 
-import { getCostMultiplier, triggerRestart, getUsefulAugmentations } from "augment/libAugmentations";
+import { getCostMultiplier, triggerRestart, getUsefulAugmentations, FullAugmentationInfo } from "augment/libAugmentations";
 
 export async function main(ns : NS) : Promise<void> {
     const force = ns.args.includes("force");
@@ -12,20 +12,57 @@ export async function main(ns : NS) : Promise<void> {
         return;
     }
 
-    const availableMoney = ns.getServerMoneyAvailable("home") + getOwnedShareValue(ns);
     const gangFaction = ns.gang.getGangInformation().faction
-    const gangReputation = ns.getFactionRep(gangFaction);
-    const costMultiplier = getCostMultiplier(ns);
 
-    const usefulAugmentations = getUsefulAugmentations(ns, gangFaction);
-	const availableAugmentations = usefulAugmentations
-        .filter(a => a.reputationNeeded < gangReputation)
-        .filter(a => a.cost < availableMoney);
-     
-	const adjustedPrice = availableAugmentations.map(a => a.cost).reduce((acc, p, i) => acc + (p * (costMultiplier**i)), 0);
+	const availableAugmentations = getAvailableAugmentations(ns, gangFaction);     
     ns.print("Available augmentations are : "+availableAugmentations.map(a => a.name) );
-    ns.print(fmt(ns)`Total cost would be £${adjustedPrice}`);
+    const bestAugmentations = findMostAffordableAugmentations(ns, gangFaction);
+    ns.print("Best augmentations are : "+bestAugmentations.map(a => a.name) );
 
+    if ((bestAugmentations.length > 0) || force) {
+        await pauseTrading(ns, 180);
+        sellAllShares(ns);
+        // Wait for a little while, to see if we acquire some more money or reputation
+        ns.tprint("Will shortly augment - brief pause to acquire more money and reputation")
+        await ns.sleep(120_000);
+        const updatedBestAugmentations = findMostAffordableAugmentations(ns, gangFaction);
+        if (updatedBestAugmentations.length > 0) {
+            updatedBestAugmentations.forEach(f => ns.purchaseAugmentation(gangFaction, f.name));
+            await triggerRestart(ns);
+        }
+    }
+}
+
+function findMostAffordableAugmentations(ns: NS, faction: string,): FullAugmentationInfo[] {
+	const availableAugmentations = getAvailableAugmentations(ns, faction);         
+
+    let candidateAugmentations = findAffordableAugmentations(ns, availableAugmentations);
+    while (candidateAugmentations.length > 0) {
+        if (isWorthInstalling(ns, faction, candidateAugmentations)) {
+            ns.print("Worthwhile set to install "+candidateAugmentations.map(a => a.name));
+            return candidateAugmentations;
+        }
+
+        if (candidateAugmentations.length >= 6) {
+            ns.print("Shortened worthwhile set to install "+candidateAugmentations.map(a => a.name));
+            return candidateAugmentations;
+        }
+
+        availableAugmentations.shift();
+        candidateAugmentations = findAffordableAugmentations(ns, availableAugmentations);
+    }
+
+    return [];
+}
+
+function isWorthInstalling(ns: NS, faction: string, candidateAugmentations: FullAugmentationInfo[]) {
+    const usefulAugmentations = getUsefulAugmentations(ns, faction);
+    return (candidateAugmentations.length >= 8) || ((usefulAugmentations.length - candidateAugmentations.length) <= 2 )
+}
+
+function findAffordableAugmentations(ns: NS, availableAugmentations: FullAugmentationInfo[]): FullAugmentationInfo[] {
+    const availableMoney = getAvailableMoney(ns);
+    const costMultiplier = getCostMultiplier(ns);
 	const affordableAugmentations = [];
 	let costSoFar = 0;
 	for (const aug of availableAugmentations) {
@@ -35,17 +72,19 @@ export async function main(ns : NS) : Promise<void> {
 			costSoFar += modifiedCost;
 		}
 	}  
-    ns.print("Affordable augmentations are : "+affordableAugmentations.map(a => a.name) );
-    ns.print(fmt(ns)`Total cost would be £${costSoFar}`);
+    ns.print(fmt(ns)`Total cost would be £${costSoFar}`);    
+    return affordableAugmentations;
+}
 
-    const shouldInstall = (affordableAugmentations.length >= 8) || ((usefulAugmentations.length - affordableAugmentations.length) <= 2 )
+function getAvailableMoney(ns: NS): number {
+    return ns.getServerMoneyAvailable("home") + getOwnedShareValue(ns);
+}
 
-    if (shouldInstall || force) {
-        await pauseTrading(ns, 180);
-        sellAllShares(ns);
-        // Wait for a little while, to see if we acquire some more money or reputation
-        await ns.sleep(120_000);
-        usefulAugmentations.forEach(f => ns.purchaseAugmentation(gangFaction, f.name));
-        await triggerRestart(ns);
-    }
+function getAvailableAugmentations(ns: NS, faction: string): FullAugmentationInfo[] {
+    const availableMoney = getAvailableMoney(ns);
+    const rep = ns.getFactionRep(faction);
+    const usefulAugmentations = getUsefulAugmentations(ns, faction);
+	return usefulAugmentations
+        .filter(a => a.reputationNeeded < rep)
+        .filter(a => a.cost < availableMoney);
 }
