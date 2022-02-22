@@ -44,9 +44,10 @@ export function getTick(ns: NS, sym: string): Tick {
 	const askPrice = ns.stock.getAskPrice(sym);
 	const bidPrice = ns.stock.getBidPrice(sym);
 	const volatility = (ns.getPlayer().has4SDataTixApi) ? ns.stock.getVolatility(sym) : undefined;
-	return { sym, askPrice, bidPrice, volatility };
+	const forecast = (ns.getPlayer().has4SDataTixApi) ? ns.stock.getForecast(sym) : undefined;
+	return { sym, askPrice, bidPrice, volatility, forecast };
 }
-type Tick = { sym: string, askPrice: number, bidPrice: number, volatility?: number };
+type Tick = { sym: string, askPrice: number, bidPrice: number, volatility?: number, forecast?: number };
 
 
 // -------------------
@@ -143,14 +144,18 @@ export class WixStockChooser extends IStockChooser {
 		// Does nothing
 	}
 	getBestStocks(): string[] {
-		return this.ns.stock.getSymbols().filter(s => this.ns.stock.getForecast(s) > 0.63)
-							.sort((a, b) => this.ns.stock.getForecast(a) - this.ns.stock.getForecast(b) )
+		return this.ns.stock.getSymbols()
+							.sort((a, b) => this.ns.stock.getVolatility(a) - this.ns.stock.getVolatility(b) )
+							.reverse()
+							.filter(s => this.ns.stock.getForecast(s) > 0.6);
 	}
 	getGoodStocks(): string[] {
-		return this.ns.stock.getSymbols().filter(s => this.ns.stock.getForecast(s) > 0.60)
+		return this.ns.stock.getSymbols().filter(s => this.ns.stock.getForecast(s) > 0.55)
 							.sort((a, b) => this.ns.stock.getForecast(a) - this.ns.stock.getForecast(b) )
+							.reverse();
 	}
 }
+
 
 // -------------------
 
