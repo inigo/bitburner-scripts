@@ -27,7 +27,7 @@ export async function main(ns: NS): Promise<void> {
 
 	const startTime = new Date().getTime();
 
-	for (let i=0; i<101024; i++) {
+	for (let i=0; i<201029; i++) {
 		if (prediction!=null && noBetSet) {
 			setBet(doc, maxBet);
 			noBetSet = false;
