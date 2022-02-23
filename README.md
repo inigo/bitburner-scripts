@@ -15,9 +15,7 @@ Read the fuller documentation in the template project repo for more information.
 
 ## License
 
-Copyright (C) 2022 Inigo Surguy, except for IDB.
-
-IDB is Copyright (c) 2016, Jake Archibald <jaffathecake@gmail.com> - see https://github.com/jakearchibald/idb.
+Copyright (C) 2022 Inigo Surguy.
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.

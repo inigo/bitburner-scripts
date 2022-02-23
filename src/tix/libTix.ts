@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { openDB } from 'idb/idb';
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { openDB } from "https://cdn.jsdelivr.net/npm/idb@7/+esm";
 import { formatMoney } from 'libFormat';
 import * as ports from "libPorts";
 import { NS } from '@ns';
 import { ShareStatus } from 'tix/libShareInfo';
 
-
 // IDB is from https://github.com/jakearchibald/idb
-// Imported files are from https://cdn.jsdelivr.net/npm/idb@7.0.0/build/
-// with mild editing to add export before variables imports + exports 
+// Accessing it via the URL so it works in Bitburner
 
 const dbName = "stocktest";
 
