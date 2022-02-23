@@ -3,10 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+
+  "config": {
+    "bitburnerAuthToken": "REPLACE_THIS",
+    "bitburnerScriptRoot": "./dist"
+  },
+
   "scripts": {
     "watch": "npx tsc -w",
     "lint": "eslint . --ext .ts",
-    "defs": "node ./updateDefs.js"
+    "defs": "node ./updateDefs.js",
+    "sync": "bitburner-sync --watch"
   },
   "repository": {
     "type": "git",
@@ -27,6 +34,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "bitburner-sync": "^1.0.1",
     "idb": "^7.0.0"
   }
 }
