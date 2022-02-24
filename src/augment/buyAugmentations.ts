@@ -1,7 +1,7 @@
 import { sellAllShares, getOwnedShareValue } from "tix/libTix"; 
 import { findPreferredFaction } from "joinFaction"; 
 import { fmt } from "libFormat"; 
-import { triggerRestart, getUsefulAugmentations, FullAugmentationInfo, getCostMultiplier, getOrderedAugmentations } from "augment/libAugmentations";
+import { triggerRestart, getUsefulAugmentations, FullAugmentationInfo, getCostMultiplier, getOrderedAugmentations, maybeBuyStanekAugmentation } from "augment/libAugmentations";
 
 export async function main(ns: NS): Promise<void> {
 	const force = (ns.args.includes("force"));
@@ -39,7 +39,14 @@ async function buyAllAugmentations(ns: NS, faction: string, force: boolean): Pro
 
 	// Need to reorder here, since we might have removed an aug with a dependency
 	const orderedAugs = getOrderedAugmentations(ns, augsWithSufficientRep);
-	const totalPrice = orderedAugs.map(a => a.cost).reduce((acc, p, i) => acc + (p * (costMultiplier**i)), 0);
+	let totalPrice = orderedAugs.map(a => a.cost).reduce((acc, p, i) => acc + (p * (costMultiplier**i)), 0);
+
+	// Acquiring Stanek's Gift is "free", but must be done first. It counts as an augment purchase so increases subsequent costs
+	if (calculateAllAvailableMoney(ns) >= totalPrice) {
+		if (maybeBuyStanekAugmentation(ns)) {
+			totalPrice = totalPrice * costMultiplier;
+		}
+	}
 
 	if (calculateAvailableMoney(ns) < totalPrice && calculateAllAvailableMoney(ns) >= totalPrice) {
 		ns.print("Selling things to make more money available");

@@ -14,6 +14,11 @@ export async function main(ns: NS): Promise<void> {
 	const name = (ns.args[0] as string) ?? "scratch"; 
 	const filename = toFilename(ns, name);	
 
+	loadFragments(ns, filename);
+	await reportFragments(ns);
+}
+
+export function loadFragments(ns: NS, filename: string) {
 	const fragsJson = ns.read(filename);
 	if (fragsJson=="") {
 		ns.tprint("ERROR File not found - looking for "+filename);
@@ -22,6 +27,4 @@ export async function main(ns: NS): Promise<void> {
 	const frags: SimpleFragment[] = JSON.parse(fragsJson)
 	ns.stanek.clear();
 	frags.forEach(f => ns.stanek.place(f.x, f.y, f.rotation, f.id) );
-
-	await reportFragments(ns);
 }

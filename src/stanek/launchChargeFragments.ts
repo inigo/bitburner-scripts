@@ -1,8 +1,13 @@
 import { NS } from '@ns';
 import { reportFragments, addFragmentInfo, CombinedFragment } from "stanek/libFragment";
+import { loadFragments } from "stanek/loadFragments";
 
 export async function main(ns: NS): Promise<void> {
 	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? Infinity;
+
+	if (ns.stanek.activeFragments().length==0) {
+		loadFragments(ns, "hacking");
+	}
 
 	const ramPerThread = ns.getScriptRam("/stanek/chargeFragments.js");
 	const totalRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home");

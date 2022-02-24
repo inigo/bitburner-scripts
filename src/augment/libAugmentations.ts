@@ -65,3 +65,13 @@ export interface FullAugmentationInfo extends AugmentationStats {
 export async function triggerRestart(ns: NS): Promise<void> {
 	await ports.setPortValue(ns, ports.AUGMENT_AND_RESTART, "true");
 }
+
+export function maybeBuyStanekAugmentation(ns: NS): boolean {
+    const stanekWidth = ns.stanek.width();
+    const requiredWidth = 5; // Don't bother if not enough gain from the gift
+    if (stanekWidth >= requiredWidth) {
+        return ns.purchaseAugmentation("Church of the Machine God", "Stanek's Gift - Genesis");
+    } else {
+        return false;
+    }
+}
