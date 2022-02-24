@@ -17,6 +17,7 @@ export async function main(ns : NS) : Promise<void> {
     const allSleevesAtGym = sleeveInfo.every(s => s.task=="Gym");
     const homeAttackTarget = retrieveAttackStatus(ns).filter(a => a.source=="home").map(a => a.target)[0] ?? null;
     const hashes = ns.hacknet.numHashes();
+    const hashCapacity = ns.hacknet.hashCapacity();
     const hashesNeededForServerWeakening = 700;
 
     if (level("Generate Coding Contract")<1) {
@@ -46,6 +47,9 @@ export async function main(ns : NS) : Promise<void> {
     } else if (investmentRound >= 1) {
         ns.print("Providing research to corporation");
         await setHashSpend(ns, [ { name: "Exchange for Corporation Research" } ]);
+    } else if (hashes > hashCapacity*0.6) {
+        ns.print("No other objectives and plenty spare, so converting to cash");
+        await setHashSpend(ns, [ { name: "Sell for Money" } ]);
     } else {
         ns.print("No other objectives, so saving hashes for later");
         await setHashSpend(ns, [ ]);

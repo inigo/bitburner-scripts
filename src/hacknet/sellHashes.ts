@@ -15,7 +15,7 @@ export async function main(ns: NS): Promise<void> {
 
 	const exchangeTargets = ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse);
 	if (exchangeTargets) {
-		while(spendHashesOnPurchases(ns, exchangeTargets)) {
+		while(spendHashesOnPurchases(ns, exchangeTargets, 20)) {
 			// Continuing to buy
 		}
 	}

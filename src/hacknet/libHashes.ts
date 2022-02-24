@@ -46,7 +46,8 @@ export async function setHashSpend(ns: NS, targets: HashUpgrade[]): Promise<void
 	await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(targets));
 }
 
-export function spendHashesOnPurchases(ns: NS, purchases: HashUpgrade[]): boolean {
+export function spendHashesOnPurchases(ns: NS, purchases: HashUpgrade[], maxPurchases = 100): boolean {
+	let count = 0;
 	let purchaseMade = false;
 	for (const p of purchases) {
 		const wasSuccessful = ns.hacknet.spendHashes(p.name, p.target);
@@ -55,8 +56,10 @@ export function spendHashesOnPurchases(ns: NS, purchases: HashUpgrade[]): boolea
 			if (p.name!="Sell for Money") {
 				ns.toast("Hashes: "+p.name); 
 			}
+			count++;
 		}
 		purchaseMade = purchaseMade || wasSuccessful;
+		if (count >= maxPurchases) break;
 	}
 	return purchaseMade;
 }

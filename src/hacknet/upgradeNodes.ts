@@ -6,7 +6,7 @@ import { buyUpgrades, buyCache } from "hacknet/libHacknet";
 export async function main(ns: NS): Promise<void> {
 	ns.disableLog("ALL");
 
-	const paybackTimeInMinutes = (ns.args[0] as number) ?? 60;
+	const paybackTimeInMinutes = (ns.args[0] as number) ?? 90;
 	const passedInBudget = (ns.args[1] as number) ?? Number.MAX_VALUE;
 
 	const budget = Math.min(ns.getServerMoneyAvailable("home"), passedInBudget);	
