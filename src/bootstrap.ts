@@ -88,7 +88,7 @@ export async function main(ns: NS): Promise<void> {
 
 function isPhaseTwo(ns: NS): boolean {
 	const allCracksBought = (ports.checkPort(ns, ports.CRACKS_BOUGHT_COUNT, parseInt)==5);
-	const cheatingCasino = anyScriptRunning(ns, "/basic/cheatCasino.js");
+	const cheatingCasino = anyScriptRunning(ns, "/basic/cheatCasino.js") || anyScriptRunning(ns, "/casino/coinFlip.js");
 	return ns.getServerMaxRam("home") >= 1024 && ns.getServerMoneyAvailable("home") > 1_000_000 && allCracksBought && !cheatingCasino;
 }
 
