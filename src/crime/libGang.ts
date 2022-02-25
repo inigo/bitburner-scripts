@@ -147,7 +147,7 @@ export async function buyAugmentations(ns: NS, minimumMoney = 120_000_000_000): 
 }
 
 function startWarfare(ns: NS): void {
-	const requiredRatio = 4;
+	const requiredRatio = 3;
 
 	const gangInfo = ns.gang.getGangInformation();
 	if (gangInfo.territory>0.999) {
@@ -157,7 +157,7 @@ function startWarfare(ns: NS): void {
 
 	const currentPower = gangInfo.power;
 	const gangs = [ ... getOtherGangInfo(ns)];
-	const rivals = gangs.filter(g => (g.power * requiredRatio) >= currentPower)
+	const rivals = gangs.filter(g => g.territory > 0).filter(g => (g.power * requiredRatio) >= currentPower)
 	if (rivals.length == 0 && gangInfo.territoryClashChance <= 0.01) {
 		if (! gangInfo.territoryWarfareEngaged) {
 			ns.gang.setTerritoryWarfare(true);
