@@ -63,7 +63,7 @@ export async function main(ns: NS): Promise<void> {
 			break;
 		}
 
-		await ns.sleep(60000);
+		await ns.sleep(15_000);
 	}
 }
 
