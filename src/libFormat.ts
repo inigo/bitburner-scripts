@@ -39,6 +39,7 @@ export function fmt(ns: NS): ((template: TemplateStringsArray, ... expr: any[]) 
       let amendedNextString = nextString;
       if (formatFn == memoryFn) { amendedNextString = amendedNextString.substring(2); }
       if (formatFn == timeFn) { amendedNextString = amendedNextString.substring(1); }
+      if (amendedNextString.endsWith("£")) amendedNextString = amendedNextString.substring(0, amendedNextString.length-1);
 
       result.push(formatFn(value), amendedNextString);
     });
