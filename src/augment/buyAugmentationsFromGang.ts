@@ -30,7 +30,7 @@ export async function main(ns : NS) : Promise<void> {
         sellAllShares(ns);
         // Wait for a little while, to see if we acquire some more money or reputation
         ns.tprint("Will shortly augment - brief pause to acquire more money and reputation")
-        await ns.sleep(120_000);
+        // await ns.sleep(120_000);
         const updatedBestAugmentations = findMostAffordableAugmentations(ns, gangFaction);
         if (updatedBestAugmentations.length > 0) {
             for (const aug of updatedBestAugmentations) {
