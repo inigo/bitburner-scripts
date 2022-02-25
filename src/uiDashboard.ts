@@ -90,6 +90,10 @@ export async function main(ns: NS): Promise<void> {
                 headers.push("Gang rep:");
                 values.push(ns.nFormat(gangInfo.factionRep, "0,0"));  
 
+                const warfareIcon = gangInfo.isWarfare ? " (⚔)" : "";
+                headers.push("Territory"+warfareIcon+":");
+                values.push(ns.nFormat(gangInfo.territory*100, "0.0")+"%");
+
                 headers.push("Gang: ");
                 values.push(gangInfo.icons);
             }  else {
@@ -157,10 +161,14 @@ function getGangInfo(ns: NS): (GangInfo | null) {
                         .map(g => g.task)
                         .map(lookupGangTaskIcon)
                         .join("");
-    return { gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks, factionRep: report.factionRep };
+    return { gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks,
+            factionRep: report.factionRep,
+            territory: report.gangInfo.territory, isWarfare: report.gangInfo.territoryWarfareEngaged };
+
+
 }
 
-type GangInfo = { gangIncome: number, icons: string, factionRep: number };
+type GangInfo = { gangIncome: number, icons: string, factionRep: number, territory: number, isWarfare: boolean };
 
 function getStanekIcons(ns: NS): (string | null) {
     const report = ports.checkPort(ns, ports.ACTIVE_FRAGMENTS_PORT, JSON.parse) as (CombinedFragment[] | null);
