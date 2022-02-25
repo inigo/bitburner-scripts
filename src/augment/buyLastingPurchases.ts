@@ -1,12 +1,14 @@
 import { NS } from '@ns'
 import { listSleeves, installSleeveAugments } from "sleeve/libSleeve";
 import { buyAugmentations } from "crime/libGang";
+import {sellAllShares} from "/tix/libTix";
 
 export async function main(ns: NS) : Promise<void>{
 	await buyLastingPurchases(ns);
 }
 
 export async function buyLastingPurchases(ns: NS): Promise<void> {
+	sellAllShares(ns);
 	buyStockmarketAccess(ns);
 	buyRam(ns);
 	buyNeurofluxGovernors(ns);
