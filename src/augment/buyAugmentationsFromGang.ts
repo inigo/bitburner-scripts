@@ -52,7 +52,7 @@ export async function main(ns : NS) : Promise<void> {
     }
 }
 
-function findMostAffordableAugmentations(ns: NS, faction: string,): FullAugmentationInfo[] {
+function findMostAffordableAugmentations(ns: NS, faction: string): FullAugmentationInfo[] {
 	const availableAugmentations = getAvailableAugmentations(ns, faction);         
 
     let candidateAugmentations = findAffordableAugmentations(ns, availableAugmentations);
