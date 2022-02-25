@@ -23,6 +23,7 @@ export async function main(ns: NS): Promise<void> {
 	} if (minFragCharge >= maxIterations) {
 		ns.print("Fragments already charged to or above "+maxIterations+" - nothing to do");
 	} else {
+		ns.tprint("Charging Stanek fragments by "+maxIterations);
 		const preciseThreads = totalRam / ramPerThread;
 		await reportFragments(ns);	
 		ns.run("/stanek/chargeFragments.js", preciseThreads, ... ns.args);	
