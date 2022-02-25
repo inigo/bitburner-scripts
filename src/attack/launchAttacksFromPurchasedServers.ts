@@ -14,7 +14,7 @@ export async function main(ns : NS) : Promise<void> {
 export async function launchAttack(ns: NS, server: string): Promise<void> {
     const availableRam = ns.getServerMaxRam(server);
     const targetFinder = new TargetFinder(ns);
-	const viableTargets = targetFinder.listBestTargets(120, availableRam, 1).filter(t => ! t.isAttacked);
+	const viableTargets = targetFinder.listBestTargets(15, availableRam, 1).filter(t => ! t.isAttacked);
 
     if (viableTargets.length==0) {
         ns.print("No viable targets to attack from "+server);
