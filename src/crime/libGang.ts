@@ -12,8 +12,9 @@ export async function manageGang(ns: NS, goal = "general", stage="early"): Promi
 	recruit(ns);
 	buyBasicEquipment(ns);
 	buyAffordableEquipment(ns);
-	// Once in a corporation, put money into gang equipment faster
-	await buyAugmentations(ns, isInCorporation ? 30_000_000_000 : 200_000_000_000);
+	// Once in a corporation, put money into gang equipment faster, but reduce as we grow to give more scope to augments
+	const territorySizeMultiplier = ns.gang.getGangInformation().territory / 0.143;
+	await buyAugmentations(ns, isInCorporation ? (30_000_000_000*territorySizeMultiplier) : 200_000_000_000);
 	startWarfare(ns);
 	endWarfare(ns);
 	
