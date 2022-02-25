@@ -25,11 +25,15 @@ export function buyCache(ns: NS): boolean {
 	const availableMoney = ns.getServerMoneyAvailable("home");
 	const nodeCount = ns.hacknet.numNodes();
 
-	if (totalHashCapacity < 1000 && availableMoney > 750_000_000 && nodeCount > 0) {
-		ns.hacknet.upgradeCache(0, 5);
+
+	if (totalHashCapacity < 600 && availableMoney > 100_000_000 && nodeCount > 0) {
+		ns.hacknet.upgradeCache(0, 3);
+		return true;
+	} else if (totalHashCapacity < 1000 && availableMoney > 750_000_000 && nodeCount > 0) {
+		ns.hacknet.upgradeCache(0, 2);
 		return true;
 	} else if (totalHashCapacity < 2000 && availableMoney > 5_000_000_000 && nodeCount > 0) {
-		ns.hacknet.upgradeCache(0, 10);
+		ns.hacknet.upgradeCache(0, 2);
 		return true;
 	} else {
 		return false;
