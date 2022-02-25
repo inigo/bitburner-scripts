@@ -15,18 +15,20 @@ export async function main(ns: NS): Promise<void> {
 
 	// Set up
 
-	const storeName = "historicalTickStore6"
+	// const storeName = "historicalTickStore6"
 	// ns.print(`Using datastore ${storeName} to set up database`);
-	const db = await setupDatabase(ns, storeName, 6);
+	// const db = await setupDatabase(ns, storeName, 6);
 
 	const symbols = ns.stock.getSymbols();
 	const predictors = symbols.map(s => new SmoothingStockPredictor(ns, new OngoingStockPredictor(s, 90), 25));
 
 	const stockChooser = (ns.getPlayer().has4SDataTixApi && isLive) ? new WixStockChooser(ns) : new StockChooser(ns, predictors);
 
-	const realValuesSourceFn = () => realStockValues(ns, 0);
-	const replayValuesSourceFn = () => replayStoredStockValues(ns, db, storeName, 0);
-	const valuesSourceFn = isLive ? realValuesSourceFn : replayValuesSourceFn;
+	// const realValuesSourceFn = () => realStockValues(ns, 0);
+	// const replayValuesSourceFn = () => replayStoredStockValues(ns, db, storeName, 0);
+	// const valuesSourceFn = isLive ? realValuesSourceFn : replayValuesSourceFn;
+
+	const valuesSourceFn = () => realStockValues(ns, 0);
 	
 	const realStockmarket = new RealStockmarket(ns);
 	const fakeStockmarket = new FakeStockmarket(ns);
