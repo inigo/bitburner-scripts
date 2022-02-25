@@ -3,12 +3,18 @@ import { NS } from '@ns'
 import { fmt } from "libFormat";
 import { getOwnedShareValue, sellAllShares, pauseTrading } from "tix/libTix"; 
 import { getCostMultiplier, triggerRestart, getUsefulAugmentations, FullAugmentationInfo } from "augment/libAugmentations";
+import { retrieveCompanyStatus } from "corp/libCorporation";
 
 export async function main(ns : NS) : Promise<void> {
     const force = ns.args.includes("force");
 
-    if (ns.gang.inGang()==false) {
+    if (!ns.gang.inGang()) {
         ns.print("Not in a gang - no augmentations to buy");
+        return;
+    }
+    const isInCorporation = retrieveCompanyStatus(ns) != null;
+    if (!isInCorporation && ns.getServerMoneyAvailable("home") < 200_000_000_000) {
+        ns.print("Save money for corporation startup instead");
         return;
     }
 
