@@ -3,7 +3,13 @@ import { reportFragments, addFragmentInfo, CombinedFragment, toFilename } from "
 import { loadFragments } from "stanek/loadFragments";
 
 export async function main(ns: NS): Promise<void> {
-	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? Infinity;
+	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? 100;
+
+	const hasStanek = ns.getOwnedAugmentations().includes("Stanek's Gift - Genesis");
+	if (!hasStanek) {
+		ns.print("Does not have Stanek's Gift - nothing to do")
+		return;
+	}
 
 	if (ns.stanek.activeFragments().length==0) {
 		loadFragments(ns, toFilename(ns, "hacking"));
