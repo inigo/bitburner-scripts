@@ -21,8 +21,7 @@ export class OfficeControl {
 
     enableSmartSupply(): void {
         this.ns.corporation.setSmartSupply(this.division, this.city, true);
-        // @todo This hasn't been merged yet
-        // this.industryInfo.listMaterials().forEach( m => this.ns.corporation.setSmartSupplyUseLeftovers(this.division, this.city, m, false));
+        this.industryInfo.listInputs().forEach( m => this.ns.corporation.setSmartSupplyUseLeftovers(this.division, this.city, m, false));
     }
 
     /** Set this office's warehouse size to be at least newSize, purchasing a warehouse if there isn't already one available. */
@@ -144,14 +143,17 @@ export class OfficeControl {
         const spaceToUse = Math.floor(warehouse.size * 0.4);
 
         let isBuying = false;
-        const weights = this.industryInfo.getProductionMultipliers(this.industry);        
+        const weights = this.industryInfo.getProductionMultipliers(this.industry);
         for (const m of weights) {
             const requiredAmount = spaceToUse * m.pctOfWarehouse / (m.size * 5);
-            const existingAmount = this.ns.corporation.getMaterial(this.division, this.city, m.material).qty;
+            const material = this.ns.corporation.getMaterial(this.division, this.city, m.material);
+            const existingAmount = material.qty;
             if ((existingAmount*1.2) < requiredAmount) {
                 this.ns.print("Insufficient "+m.material+" in "+this.city+" for optimum product modifiers - buying more. Want "+requiredAmount+" but have "+existingAmount);
-                const amountToBuy = requiredAmount - existingAmount;
+                const boughtBySmartSupply = (-1 * material.prod);
+                const amountToBuy = boughtBySmartSupply + requiredAmount - existingAmount;
                 isBuying = true;
+                this.ns.corporation.setSmartSupply(this.division, this.city, false);
                 this.ns.corporation.buyMaterial(this.division, this.city, m.material, amountToBuy);
             } else {
                 this.ns.corporation.buyMaterial(this.division, this.city, m.material, 0);
@@ -161,6 +163,7 @@ export class OfficeControl {
             await ticks.next();
         }
         weights.forEach(m => this.ns.corporation.buyMaterial(this.division, this.city, m.material, 0));
+        this.ns.corporation.setSmartSupply(this.division, this.city, true);
     }
 
     async assignEmployeesByRole(officeRole: OfficeRole): Promise<void> {
