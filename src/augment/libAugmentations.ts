@@ -30,11 +30,10 @@ export function getOrderedAugmentations(ns: NS, augs: FullAugmentationInfo[]): F
 	const augsWithoutDependencies = augs.filter(a => ! augsWithDependencies.map(ad => ad.name).includes(a.name));
 
 	// Insert the dependent augments after the augments they depend on
-	const orderedAugs = augsWithoutDependencies.flatMap(a => {
+	return augsWithoutDependencies.flatMap(a => {
 		const dependentAugs = augsWithDependencies.filter(ad => ad.reqs.includes(a.name));
 		return [a, ...dependentAugs];
 	});
-	return orderedAugs;
 }
 
 
