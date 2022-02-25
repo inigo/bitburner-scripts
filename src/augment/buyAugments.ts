@@ -8,9 +8,10 @@ import {
     calculateReputation,
     triggerRestart,
     maybeBuyStanekAugmentation,
-    reportAugInfo, calculateAllAvailableMoney
+    reportAugInfo, calculateAllAvailableMoney, calculateCost
 } from "augment/libAugmentations";
 import { retrieveCompanyStatus } from "corp/libCorporation";
+import { fmt } from "libFormat";
 
 
 export async function main(ns: NS): Promise<void> {
@@ -44,7 +45,8 @@ async function buyAugmentations(ns: NS, force: boolean): Promise<void> {
     const restartForFavor = ((gangFaction==null && (bestAugs.length>=3)) || faction=="Daedalus") && willGetEnoughFavorForDonations(ns, faction);
     const savingForCorporation = isSavingForCorporation(ns, faction);
 
-    ns.print(`Preferred faction is ${faction} with available augs ${bestAugs.map(a => a.name)}`);
+    const cost = calculateCost(ns, bestAugs);
+    ns.print(fmt(ns)`Preferred faction is ${faction} with available augs ${bestAugs.map(a => a.name)} costing £${cost}`);
 
     if ((!savingForCorporation && (worthBuying || restartForFavor)) || isRedPillAvailable(ns) || force ) {
         sellAllShares(ns);
