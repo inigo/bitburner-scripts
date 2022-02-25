@@ -8,6 +8,7 @@ import { receiveAttackTarget } from "spread/libSpread";
 import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
 import { retrieveShareStatus, ShareStatus } from "tix/libShareInfo";
 import { retrieveGangInfo, lookupGangTaskIcon } from "crime/libGangInfo";
+import { AugReport, retrieveAugInfo} from "augment/libAugmentations";
 import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
@@ -45,6 +46,12 @@ export async function main(ns: NS): Promise<void> {
                 const totalMoney = formatMoney(ns, ns.getServerMoneyAvailable("home") + shareInfo.value);
                 headers.push("Total money: ");
                 values.push(totalMoney);
+            }
+
+            const augInfo = getAugInfo(ns);
+            if (augInfo!=null) {
+                headers.push("Available augs: ");
+                values.push(`${augInfo.augCount} (${augInfo.neurofluxCount})`);
             }
 
             const spreadAttackTarget = getSpreadAttackTarget(ns);
@@ -170,4 +177,8 @@ function getSpreadAttackTarget(ns: NS): (string | null) {
 
 function getCorpStatus(ns: NS): (CorporationStatus | null) {
     return retrieveCompanyStatus(ns);
+}
+
+function getAugInfo(ns: NS): (AugReport | null) {
+    return retrieveAugInfo(ns);
 }
