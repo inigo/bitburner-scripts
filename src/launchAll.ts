@@ -7,6 +7,8 @@ export async function main(ns: NS): Promise<void> {
 	ns.disableLog("ps");
 	ns.disableLog("sleep");
 
+	ns.tprint("Updated version");
+
 	if (ns.getServerMaxRam("home") > 128 && !anyScriptRunning(ns, "/tix/stockTrade.js")) {
 		ns.run("/tix/stockTrade.js", 1, "live");
 	}
@@ -35,7 +37,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/stanek/reportFragments.js"
 						, "/crime/startGang.js"
 						, "/crime/reportGangStatus.js"
-						, "/corp/startCorp.js"				
+						// , "/corp/startCorp.js"
 						, "/contracts/solveContracts.js"
 						, "/attack/launchAttackFromHome.js"						
 						, "/attack/purchaseAndAttack.js"																	

@@ -6,7 +6,7 @@ import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {
 	const repOnly = ns.args.includes("reputation");
-	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? Infinity;
+	const maxIterations: number = ns.args.find(arg => Number.isInteger(arg)) as number ?? Infinity;
 
 	let hasWarned = false;
 	let count = 0;

@@ -3,7 +3,7 @@ import { reportFragments, addFragmentInfo, CombinedFragment, toFilename } from "
 import { loadFragments } from "stanek/loadFragments";
 
 export async function main(ns: NS): Promise<void> {
-	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? 100;
+	const maxIterations: number = ns.args.find(arg => Number.isInteger(arg)) as number ?? 100;
 
 	const hasStanek = ns.singularity.getOwnedAugmentations().includes("Stanek's Gift - Genesis");
 	if (!hasStanek) {
