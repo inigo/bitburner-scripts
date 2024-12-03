@@ -1,4 +1,4 @@
-import {FactionWorkType, NS} from '@ns'
+import {NS} from '@ns'
 import {getOwnedShareValue, pauseTrading, reportShareStatus, sellAllShares} from "tix/libTix";
 
 export async function main(ns : NS) : Promise<void> {
@@ -29,7 +29,7 @@ function joinFaction(ns: NS, faction: string) {
 		ns.toast("Joining preferred faction "+faction);
 		ns.singularity.joinFaction(faction);
 
-		ns.singularity.workForFaction(faction, FactionWorkType.hacking);
+		ns.singularity.workForFaction(faction, ns.enums.FactionWorkType.hacking);
 		ns.singularity.setFocus(true);
 	}
 }

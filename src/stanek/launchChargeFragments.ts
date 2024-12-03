@@ -30,7 +30,7 @@ export async function main(ns: NS): Promise<void> {
 		ns.print("Fragments already charged to or above "+maxIterations+" - nothing to do");
 	} else {
 		ns.tprint("Charging Stanek fragments by "+maxIterations);
-		const preciseThreads = totalRam / ramPerThread;
+		const preciseThreads = Math.floor(totalRam / ramPerThread);
 		await reportFragments(ns);	
 		ns.run("/stanek/chargeFragments.js", preciseThreads, ... ns.args);	
 	}

@@ -117,7 +117,7 @@ class AdVertImprovement implements Improvement {
 class EnlargeMainOfficeImprovement implements Improvement {
     private office: OfficeControl;
     constructor(private ns: NS, private division: string, private industry: string) { 
-        this.office = new OfficeControl(this.ns, CityName.Sector12, this.industry);
+        this.office = new OfficeControl(this.ns, "Sector-12" as CityName, this.industry);
     }
     getCost(): number {  return this.office.increaseOfficeSizeCost(15); }
     async apply() { 
@@ -132,8 +132,8 @@ class EnlargeSecondaryOfficesImprovement implements Improvement {
     private offices: OfficeControl[];
     private sizeIncrease = 6;
     constructor(private ns: NS, private division: string, private industry: string) { 
-        const cities = listCities().filter(s => s != CityName.Sector12);
-        this.offices = cities.map(city => new OfficeControl(this.ns, city, this.industry));
+        const cities = listCities().filter(s => s != "Sector-12");
+        this.offices = cities.map(city => new OfficeControl(this.ns, city as CityName, this.industry));
     }
     getCost(): number { return this.offices.map(o => o.increaseOfficeSizeCost(this.sizeIncrease)).reduce((a,b) => a+b); }
     async apply() { 
@@ -150,7 +150,7 @@ class EnlargeSecondaryOfficesImprovement implements Improvement {
 class WarehouseSpaceImprovement implements Improvement {
     private offices: OfficeControl[];
     constructor(private ns: NS, private division: string, private industry: string) { 
-        this.offices = listCities().map(city => new OfficeControl(this.ns, city, this.industry));
+        this.offices = listCities().map(city => new OfficeControl(this.ns, city as CityName, this.industry));
     }
     getCost(): number {  return listCities().map(c => this.ns.corporation.getUpgradeWarehouseCost(this.division, c)).reduce((a,b) => a+b); }
     async apply() { 

@@ -36,7 +36,7 @@ export class ProductLauncher {
             const funds = this.ns.corporation.getCorporation().funds;
             const productInvestment = Math.floor(funds / 10);
             const productName = this.productNamer.getUniqueName( completeProducts.map(p=>p.name) );
-            this.ns.corporation.makeProduct(this.division, CityName.Sector12, productName, productInvestment, productInvestment);
+            this.ns.corporation.makeProduct(this.division, "Sector-12", productName, productInvestment, productInvestment);
         }
     }
     
@@ -122,7 +122,7 @@ class ProductPriceSetter {
         if (this.ns.corporation.hasResearched(this.division, "Market-TA.II")) {
             if (this.retrieveProductPriceInfo()==null) {
                 this.ns.print("Enabling TA.II for new product "+this.productName);
-                this.ns.corporation.sellProduct(this.division, CityName.Sector12, this.productName, "MAX", "MP*"+this.initialPriceMultiplier, true);
+                this.ns.corporation.sellProduct(this.division, "Sector-12", this.productName, "MAX", "MP*"+this.initialPriceMultiplier, true);
                 this.setProductPrice(this.initialPriceMultiplier);
                 this.updateProductPriceInfo(this.initialPriceMultiplier, false, false, this.initialRateOfChange);
             } else {
@@ -206,7 +206,7 @@ class ProductPriceSetter {
     setProductPrice(multiplier: number): void {
         // This works around large prices being represented in exponential form, which the product prices can't cope with
         const multiplierAsString = multiplier.toLocaleString().replaceAll(",","");
-        this.ns.corporation.sellProduct(this.division, CityName.Sector12, this.productName, "MAX", "MP*"+multiplierAsString, true);
+        this.ns.corporation.sellProduct(this.division, "Sector-12", this.productName, "MAX", "MP*"+multiplierAsString, true);
     }
 
     getSalesInfo(): ProductSaleInfo[] {

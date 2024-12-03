@@ -1,29 +1,18 @@
 {
-  "name": "bitburner-typescript-template",
+  "name": "inigo-bitburner-scripts",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-
   "config": {
     "bitburnerAuthToken": "qJPlh1CYpaRIsimB0se+y3q/ZemI3dlRS+vS867eaKFAPD8jgPpzpedA4p2jUGIG",
     "bitburnerScriptRoot": "./dist"
   },
-
   "scripts": {
     "watch": "npx tsc -w",
     "lint": "eslint . --ext .ts",
     "defs": "node ./updateDefs.js",
     "sync": "bitburner-sync --watch"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bitburner-official/vscode-template.git"
-  },
-  "author": "SlyCedix",
-  "bugs": {
-    "url": "https://github.com/bitburner-official/vscode-template/issues"
-  },
-  "homepage": "https://github.com/bitburner-official/vscode-template#readme",
   "devDependencies": {
     "@types/lodash": "^4.14.199",
     "@types/node": "^22.10.1",

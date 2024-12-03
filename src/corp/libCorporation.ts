@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {CityName, CorpEmployeePosition, Division, NS} from '@ns'
+import {CityName, CorpEmployeePosition, CrimeType, Division, NS} from '@ns'
 import * as ports from 'libPorts';
 
 export async function* waitForNextCorporationTick(ns: NS): TickGenerator {
@@ -27,8 +27,8 @@ export function listPositions(): CorpEmployeePosition[] {
     return ["Operations", "Engineer", "Management", "Business", "Research & Development", "Intern", "Unassigned" ];
 }
 
-export function listCities(): CityName[] {
-    return Object.values(CityName);
+export function listCities(): `${CityName}`[] {
+    return ["Aevum", "Chongqing", "Sector-12", "New Tokyo", "Ishima", "Volhaven"];
 }
 
 export function doCount(i: number): number[] {

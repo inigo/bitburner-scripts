@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NS } from '@ns';
 
+// @todo update - ns.nFormat is deprecated - Use ns.formatNumber, ns.formatRam, ns.formatPercent, or JS built-in objects/functions (e.g., Intl namespace) instead.
+
 /**
  * "Tagged template" for formatting strings - e.g.
  *    fmt(ns)`Current money is £${money} and server memory is ${mem}GB after time ${time}s`

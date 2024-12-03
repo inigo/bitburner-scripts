@@ -19,12 +19,12 @@ export function travelTo(ns: NS, sleeveNo: SleeveNo, city: string): void {
 
 export function studyCs(ns: NS, sleeveNo: SleeveNo): void {
 	const availableMoney = ns.getServerMoneyAvailable("home");
-	const course = (availableMoney>100000) ? UniversityClassType.algorithms : UniversityClassType.computerScience;
-	studyCourse(ns, sleeveNo, course);
+	const course = (availableMoney > 100000) ? "Algorithms" : "Computer Science";
+	studyCourse(ns, sleeveNo, course as UniversityClassType);
 }
 
 export function studyCharisma(ns: NS, sleeveNo: SleeveNo): void {
-	studyCourse(ns, sleeveNo, UniversityClassType.leadership);
+	studyCourse(ns, sleeveNo, "Leadership" as UniversityClassType);
 }
 
 function studyCourse(ns: NS, sleeveNo: SleeveNo, course: UniversityClassType): void {
@@ -154,10 +154,10 @@ export function retrieveSleeveInstructions(ns: NS): (SleeveInstructions | null) 
 
 export function statToGymType(stat: string): GymType {
 	switch(stat.toLowerCase()) {
-		case "agility": return GymType.agility;
-		case "defense": return GymType.defense;
-		case "strength": return GymType.strength;
-		case "dexterity": return GymType.dexterity;
+		case "agility": return "agi" as GymType;
+		case "defense": return "def" as GymType;
+		case "strength": return "str" as GymType;
+		case "dexterity": return "dex" as GymType;
 	}
 	throw new Error("Stat does not map to GymType - was "+stat);
 }

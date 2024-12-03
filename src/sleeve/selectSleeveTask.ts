@@ -101,10 +101,10 @@ function trainCombat(ns: NS, sleeves: SleeveNo[]): void {
 
 function workForFaction(ns: NS, sleeveNo: SleeveNo, faction: string): void {
     const preferHacking = getMeanCombatStat(ns, sleeveNo) > ns.sleeve.getSleeve(sleeveNo).skills.hacking;
-    const preferredTasks = preferHacking ? [ FactionWorkType.hacking, FactionWorkType.security, FactionWorkType.field ] : [ FactionWorkType.security, FactionWorkType.field, FactionWorkType.hacking ];
+    const preferredTasks = preferHacking ? [ "hacking", "security", "field" ] : [ "security", "field", "hacking" ];
     const currentTask = ns.sleeve.getTask(sleeveNo);
     for (const task of preferredTasks) {
         if (currentTask && currentTask.type=="FACTION" && currentTask.factionName==faction && currentTask.factionWorkType == task) break;
-        if (ns.sleeve.setToFactionWork(sleeveNo, faction, task)) break;
+        if (ns.sleeve.setToFactionWork(sleeveNo, faction, task as FactionWorkType)) break;
     }    
 }

@@ -62,10 +62,10 @@ class AgricultureStrategy implements StartupStrategy {
         }
 
         // Set up each office to produce and sell output
-        const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
+        const offices = listCities().map(city => new OfficeControl(ns, city as CityName, industry));
         for (const o of offices) {
             ns.print("Setting up office in "+o.city);
-            if (o.city!=CityName.Sector12) { o.setupOffice(); }
+            if (o.city!="Sector-12") { o.setupOffice(); }
             o.setWarehouseSize(300);
             o.enableSmartSupply();
             o.setOfficeSize(3);
@@ -88,7 +88,7 @@ class AgricultureStrategy implements StartupStrategy {
         const division = this.division;
         const industry = this.industry;
 
-        const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
+        const offices = listCities().map(city => new OfficeControl(ns, city as CityName, industry));
 
         ns.print("Switching all employees to Business (in two steps, because changing roles is slow)");
         for (const o of offices) {
@@ -127,7 +127,7 @@ class AgricultureStrategy implements StartupStrategy {
      */
     async initialUpgradeOffices(ns: NS): Promise<void> {
         const industry = "Tobacco";
-        const o = new OfficeControl(ns, CityName.Sector12, industry);
+        const o = new OfficeControl(ns, "Sector-12" as CityName, industry);
         ns.print("Expanding head office for "+industry);
         o.setOfficeSize(63);
         o.setWarehouseSize(200);
@@ -136,9 +136,9 @@ class AgricultureStrategy implements StartupStrategy {
         ns.print("Assigning employees to roles in head office");
         await o.assignEmployeesByRole(OfficeRole.Product);
 
-        for (const city of listCities().filter(s => s!=CityName.Sector12)) {
+        for (const city of listCities().filter(s => s!="Sector-12")) {
             ns.print("Expanding branch office in "+city+" for "+industry);
-            const o = new OfficeControl(ns, city, industry);
+            const o = new OfficeControl(ns, city as CityName, industry);
             o.setupOffice();        
             o.setOfficeSize(20);
             o.fillOffice();
@@ -182,10 +182,10 @@ class AgricultureStrategy implements StartupStrategy {
         await reportCompanyStatus(ns);        
 
         // Set up each office to produce and sell output
-        const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
+        const offices = listCities().map(city => new OfficeControl(ns, city as CityName, industry));
         for (const o of offices) {
             ns.print("Setting up office in "+o.city);
-            if (o.city!=CityName.Sector12) { o.setupOffice(); }
+            if (o.city!="Sector-12") { o.setupOffice(); }
             o.setWarehouseSize(900);
             o.enableSmartSupply();
             o.setOfficeSize(3);
@@ -195,7 +195,7 @@ class AgricultureStrategy implements StartupStrategy {
         }
 
         if (ns.corporation.getDivision(division).researchPoints < 3) {
-            const o = new OfficeControl(ns, CityName.Sector12, industry);
+            const o = new OfficeControl(ns, "Sector-12" as CityName, industry);
             await o.assignEmployees([ { position: JobPosition.RandD, weight: 1 }]);
 
             const waitForTicks = waitForNextCorporationTick(ns);
@@ -225,7 +225,7 @@ class AgricultureStrategy implements StartupStrategy {
         const industry = this.industry;
 
         await reportCompanyStatus(ns);
-        const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
+        const offices = listCities().map(city => new OfficeControl(ns, city as CityName, industry));
 
         ns.print("Switching all employees to Business (in two steps, because changing roles is slow)");
         for (const o of offices) {
@@ -276,16 +276,16 @@ class AgricultureStrategy implements StartupStrategy {
      */
     async initialUpgradeOffices(ns: NS): Promise<void> {
         const industry = "Software";
-        const o = new OfficeControl(ns, CityName.Sector12, industry);
+        const o = new OfficeControl(ns, "Sector-12" as CityName, industry);
         ns.print("Expanding head office for "+industry);
         o.setOfficeSize(63);
         o.fillOffice();    
         ns.print("Assigning employees to roles in head office");
         await o.assignEmployeesByRole(OfficeRole.Product);
 
-        for (const city of listCities().filter(s => s!=CityName.Sector12)) {
+        for (const city of listCities().filter(s => s!="Sector-12")) {
             ns.print("Expanding branch office in "+city+" for "+industry);
-            const o = new OfficeControl(ns, city, industry);
+            const o = new OfficeControl(ns, city as CityName, industry);
             o.setupOffice();        
             o.setOfficeSize(20);
             o.fillOffice();

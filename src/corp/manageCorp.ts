@@ -28,7 +28,7 @@ export async function manageCorporation(ns: NS, industry: string): Promise<void>
         return;
     }
 
-    const offices = listCities().map(city => new OfficeControl(ns, city, industry));  
+    const offices = listCities().map(city => new OfficeControl(ns, city as CityName, industry));
     offices.forEach(o => o.sellAllMaterials(1, "PROD"));
     offices.forEach(o => o.enableSmartSupply());
     offices.forEach(o => o.setWarehouseSize(2000));
@@ -75,7 +75,7 @@ function isInCorporation(ns: NS): boolean {
 async function setUpSubsidiary(ns: NS, industry: CorpIndustryName, division: string) {
     if (!listDivisions(ns).some(d => d.type == industry)) {
         ns.corporation.expandIndustry(industry, division);
-        const foodHeadOffice = new OfficeControl(ns, CityName.Sector12, industry);
+        const foodHeadOffice = new OfficeControl(ns, "Sector-12" as CityName, industry);
         foodHeadOffice.setOfficeSize(3);
         await foodHeadOffice.assignEmployees([ { position: JobPosition.RandD, weight: 1 }]);
     }
