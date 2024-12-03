@@ -1,18 +1,19 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {NS, AugmentationStats} from '@ns'
-import { retrieveGangInfo } from "/crime/libGangInfo";
+import {NS} from '@ns'
+import {retrieveGangInfo} from "/crime/libGangInfo";
 import * as ports from "libPorts";
 import {getOwnedShareValue} from "/tix/libTix";
+import {AugReport, FullAugmentationInfo} from "/augment/libAugmentationInfo";
 
 export function getCostMultiplier(ns: NS): number {
-    const sf11Count = ns.getOwnedSourceFiles().filter(sf => sf.n == 11).length;
+    const sf11Count = ns.singularity.getOwnedSourceFiles().filter(sf => sf.n == 11).length;
     const sf11Modifier = [1, 0.96, 0.94, 0.93].at(sf11Count) !;
     return 1.9 * sf11Modifier;
 }
 
 export function getUsefulAugmentations(ns: NS, faction: string): FullAugmentationInfo[] {
-	const ownedAugmentations = ns.getOwnedAugmentations(true);
-	const availableAugmentations = ns.getAugmentationsFromFaction(faction);
+	const ownedAugmentations = ns.singularity.getOwnedAugmentations(true);
+	const availableAugmentations = ns.singularity.getAugmentationsFromFaction(faction);
 	const augs = availableAugmentations
 			.map(a => getAugmentationInfo(ns, a))
 			.filter(a => ! ownedAugmentations.includes(a.name))
@@ -38,29 +39,19 @@ export function getOrderedAugmentations(ns: NS, augs: FullAugmentationInfo[]): F
 
 
 export function getAugmentationInfo(ns: NS, augName: string): FullAugmentationInfo {
-    const stats = ns.getAugmentationStats(augName)
-    const cost = ns.getAugmentationPrice(augName);
-    const reputationNeeded = ns.getAugmentationRepReq(augName);
+    const stats = ns.singularity.getAugmentationStats(augName)
+    const cost = ns.singularity.getAugmentationPrice(augName);
+    const reputationNeeded = ns.singularity.getAugmentationRepReq(augName);
 
-    const isHackingAugmentation: boolean = (stats.hacking_chance_mult || stats.hacking_exp_mult || stats.hacking_grow_mult || stats.hacking_money_mult || stats.hacking_mult || stats.hacking_speed_mult) != null;
-    const isReputationAugmentation: boolean = (stats.faction_rep_mult != null);
-    const isHacknetAugmentation: boolean = (stats.hacknet_node_core_cost_mult || stats.hacknet_node_level_cost_mult || stats.hacknet_node_money_mult || stats.hacknet_node_purchase_cost_mult || stats.hacknet_node_ram_cost_mult) != null;
+    const isHackingAugmentation: boolean = (stats.hacking_chance || stats.hacking_exp || stats.hacking_grow || stats.hacking_money || stats.hacking || stats.hacking_speed) != null;
+    const isReputationAugmentation: boolean = (stats.faction_rep != null);
+    const isHacknetAugmentation: boolean = (stats.hacknet_node_core_cost || stats.hacknet_node_level_cost || stats.hacknet_node_money || stats.hacknet_node_purchase_cost || stats.hacknet_node_ram_cost) != null;
     const isNeuroflux: boolean = (augName == "NeuroFlux Governor");
-    const reqs = ns.getAugmentationPrereq(augName);
+    const reqs = ns.singularity.getAugmentationPrereq(augName);
 
     return { name: augName, ...stats, reqs, cost, reputationNeeded, isHackingAugmentation, isReputationAugmentation, isHacknetAugmentation, isNeuroflux }
 }
 
-export interface FullAugmentationInfo extends AugmentationStats {
-    name: string;
-    reqs: string[];
-    cost: number;
-    reputationNeeded: number;
-    isHackingAugmentation: boolean;
-    isReputationAugmentation: boolean;
-    isHacknetAugmentation: boolean;
-    isNeuroflux: boolean;
-}
 
 
 export async function triggerRestart(ns: NS): Promise<void> {
@@ -68,10 +59,10 @@ export async function triggerRestart(ns: NS): Promise<void> {
 }
 
 export function maybeBuyStanekAugmentation(ns: NS): boolean {
-    const stanekWidth = ns.stanek.width();
+    const stanekWidth = ns.stanek.giftWidth();
     const requiredWidth = 5; // Don't bother if not enough gain from the gift
     if (stanekWidth >= requiredWidth) {
-        return ns.purchaseAugmentation("Church of the Machine God", "Stanek's Gift - Genesis");
+        return ns.singularity.purchaseAugmentation("Church of the Machine God", "Stanek's Gift - Genesis");
     } else {
         return false;
     }
@@ -81,9 +72,9 @@ export function countAvailableNeuroflux(ns: NS, availableToSpend: number = ns.ge
     const neurofluxFaction = getNeurofluxFaction(ns);
     if (neurofluxFaction==null) return 0;
 
-    const reputation = ns.getFactionRep(neurofluxFaction);
-    const startingPrice = ns.getAugmentationPrice("NeuroFlux Governor");
-    const startingReputationRequired = ns.getAugmentationRepReq("NeuroFlux Governor");
+    const reputation = ns.singularity.getFactionRep(neurofluxFaction);
+    const startingPrice = ns.singularity.getAugmentationPrice("NeuroFlux Governor");
+    const startingReputationRequired = ns.singularity.getAugmentationRepReq("NeuroFlux Governor");
 
     const costMultiplier = getCostMultiplier(ns);
     const neurofluxMultiplier = 1.14;
@@ -108,7 +99,7 @@ function getNeurofluxFaction(ns: NS): (string | null) {
     const gangFaction = getGangFaction(ns);
     const factions = ns.getPlayer().factions
         .filter(f => f!=gangFaction)
-        .sort((a, b) => ns.getFactionRep(a) - ns.getFactionRep(b))
+        .sort((a, b) => ns.singularity.getFactionRep(a) - ns.singularity.getFactionRep(b))
         .reverse();
     return factions.at(0)  ?? null;
 }
@@ -118,15 +109,9 @@ export async function reportAugInfo(ns: NS, augs: FullAugmentationInfo[]): Promi
     const moneyAfterCost = calculateAllAvailableMoney(ns) - cost;
     const neurofluxCount = countAvailableNeuroflux(ns, moneyAfterCost);
 
-    const info = { augCount: augs.length, installableAugs: augs, neurofluxCount };
+    const info: AugReport = { augCount: augs.length, installableAugs: augs, neurofluxCount };
     await ports.setPortValue(ns, ports.AUG_REPORTS_PORT, JSON.stringify(info));
 }
-
-export function retrieveAugInfo(ns: NS): (AugReport | null) {
-    return ports.checkPort(ns, ports.AUG_REPORTS_PORT, JSON.parse) as (AugReport | null);
-}
-
-export type AugReport = { augCount: number, installableAugs: FullAugmentationInfo[], neurofluxCount: number  }
 
 
 // ----------
@@ -173,9 +158,10 @@ export function getGangFaction(ns: NS): (string | null) {
 
 
 export function calculateReputation(ns: NS, faction: string): number {
-    const savedReputation = ns.getFactionRep(faction);
-    const inProgressReputation = (ns.isBusy() && ns.getPlayer().currentWorkFactionName==faction) ? ns.getPlayer().workRepGained : 0;
-    return savedReputation + inProgressReputation;
+    const savedReputation = ns.singularity.getFactionRep(faction);
+    // @todo update - no need to calculate inProgressReputation separately, since it's applied immediately
+    // const inProgressReputation = (ns.singularity.isBusy() && ns.getPlayer().currentWorkFactionName==faction) ? ns.s getPlayer().workRepGained : 0;
+    return savedReputation;
 }
 
 export function calculateAvailableMoney(ns: NS): number {
@@ -183,7 +169,7 @@ export function calculateAvailableMoney(ns: NS): number {
 }
 
 export function calculateAllAvailableMoney(ns: NS): number {
-    const shareValue = (ns.getPlayer().hasTixApiAccess) ? getOwnedShareValue(ns) : 0;
+    const shareValue = (ns.stock.hasTIXAPIAccess()) ? getOwnedShareValue(ns) : 0;
     return calculateAvailableMoney(ns) + shareValue;
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as ports from "libPorts";
-import { NS, SleeveTask } from '@ns'
+import {CityName, GymType, NS, SleeveTask, UniversityClassType} from '@ns'
 
 type SleeveTaskInfo = { name: string, emoji: string };
 export type SleeveNo = number;
@@ -11,38 +11,36 @@ export function listSleeves(ns: NS): SleeveNo[] {
 }
 
 export function travelTo(ns: NS, sleeveNo: SleeveNo, city: string): void {
-	const info = ns.sleeve.getInformation(sleeveNo);
+	const info = ns.sleeve.getSleeve(sleeveNo);
 	if (info.city!=city) {
-		ns.sleeve.travel(sleeveNo, city);
+		ns.sleeve.travel(sleeveNo, city as CityName);
 	}
 }
 
 export function studyCs(ns: NS, sleeveNo: SleeveNo): void {
 	const availableMoney = ns.getServerMoneyAvailable("home");
-	const course = (availableMoney>100000) ? "Algorithms" : "Study Computer Science";
+	const course = (availableMoney>100000) ? UniversityClassType.algorithms : UniversityClassType.computerScience;
 	studyCourse(ns, sleeveNo, course);
 }
 
 export function studyCharisma(ns: NS, sleeveNo: SleeveNo): void {
-	studyCourse(ns, sleeveNo, "Leadership");
+	studyCourse(ns, sleeveNo, UniversityClassType.leadership);
 }
 
-function studyCourse(ns: NS, sleeveNo: SleeveNo, course: string): void {
-	const city = ns.sleeve.getInformation(sleeveNo).city;
+function studyCourse(ns: NS, sleeveNo: SleeveNo, course: UniversityClassType): void {
+	const city = ns.sleeve.getSleeve(sleeveNo).city;
 	const uni = (city=="Volhaven") ? "ZB Institute of Technology" : "Rothman University";
 	const task = ns.sleeve.getTask(sleeveNo);
-	if (task.location != uni || task.task != course) {
-		ns.sleeve.setToUniversityCourse(sleeveNo, uni, course);
-	}
+	if (task && task.type=="CLASS" && task.classType===course && task.location == uni) return;
+	ns.sleeve.setToUniversityCourse(sleeveNo, uni, course);
 }
 
-export function workout(ns: NS, sleeveNo: SleeveNo, stat: string): void {
+export function workout(ns: NS, sleeveNo: SleeveNo, stat: GymType): void {
 	const location = "Powerhouse Gym";
 
 	const task = ns.sleeve.getTask(sleeveNo);
-	if (task.gymStatType != stat) {
-		ns.sleeve.setToGymWorkout(sleeveNo, location, stat);
-	}
+	if (task && task.type=="CLASS" && task.classType===stat) return;
+	ns.sleeve.setToGymWorkout(sleeveNo, location, stat);
 }
 
 export function commitCrime(ns: NS, sleeveNo: SleeveNo): void {
@@ -50,26 +48,24 @@ export function commitCrime(ns: NS, sleeveNo: SleeveNo): void {
 	const crime = (meanStats < 50) ? "Mug" : "Homicide";
 
 	const task = ns.sleeve.getTask(sleeveNo);
-	if (task.crime!=crime) {
-		ns.sleeve.setToCommitCrime(sleeveNo, crime);
-	}
+	if (task && task.type=="CRIME" && task.crimeType===crime) return;
+	ns.sleeve.setToCommitCrime(sleeveNo, crime);
 }
 
 export function recoverShock(ns: NS, sleeveNo: SleeveNo): void {
 	const task = ns.sleeve.getTask(sleeveNo);
-	if (task.task!="Recovery") {
-		ns.sleeve.setToShockRecovery(sleeveNo);
-	}
+	if (task && task.type=="RECOVERY") return;
+	ns.sleeve.setToShockRecovery(sleeveNo);
 }
 
 export function getMeanCombatStat(ns: NS, sleeveNo: SleeveNo): number {
-	const slv = ns.sleeve.getSleeveStats(sleeveNo);
+	const slv = ns.sleeve.getSleeve(sleeveNo).skills;
 	const stats = [slv.agility, slv.defense, slv.dexterity, slv.strength];
 	return stats.reduce((a,b) => a + b ) / stats.length;
 }
 
 export function getLowestPlayerCombatStat(ns: NS): CombatStat {
-    const p = ns.getPlayer() as CombatStats;
+    const p = ns.getPlayer().skills as CombatStats;
     return getOrderedCombatStats(p)[0];
 }
 
@@ -154,6 +150,16 @@ export async function setSleeveInstructions(ns: NS, instructions: SleeveInstruct
 
 export function retrieveSleeveInstructions(ns: NS): (SleeveInstructions | null) {
     return ports.checkPort(ns, ports.SLEEVE_CONTROL_PORT, JSON.parse);
+}
+
+export function statToGymType(stat: string): GymType {
+	switch(stat.toLowerCase()) {
+		case "agility": return GymType.agility;
+		case "defense": return GymType.defense;
+		case "strength": return GymType.strength;
+		case "dexterity": return GymType.dexterity;
+	}
+	throw new Error("Stat does not map to GymType - was "+stat);
 }
 
 export type SleeveInstructions = { useManualControl: boolean };

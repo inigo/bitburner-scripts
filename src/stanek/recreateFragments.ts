@@ -5,6 +5,6 @@ import { checkReportedFragments } from "stanek/libFragment";
 /** @param {NS} ns **/
 export async function main(ns: NS): Promise<void> {
 	const allFrags = checkReportedFragments(ns);
-	ns.stanek.clear();
-	allFrags.forEach(f => ns.stanek.place(f.x, f.y, f.rotation, f.id) );
+	ns.stanek.clearGift();
+	allFrags.forEach(f => ns.stanek.placeFragment(f.x, f.y, f.rotation, f.id) );
 }

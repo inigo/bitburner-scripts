@@ -2,7 +2,7 @@
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {
-	if (ns.getPlayer().has4SDataTixApi) {
+	if (ns.stock.has4SDataTIXAPI()) {
 		ns.print("Already have access to stock market");
 		return;
 	}

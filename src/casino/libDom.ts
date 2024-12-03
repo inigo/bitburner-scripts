@@ -27,7 +27,7 @@ export function evaluateCss(doc: Document, selector: string): HTMLElement {
 }
 
 export function evaluateXpath(doc: Document, xpath: string): HTMLElement {
-	return doc.evaluate(xpath, document.getElementById("root") as Node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement;
+	return doc.evaluate(xpath, getDocument().getElementById("root") as Node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement;
 }
 
 export function setValue(input: HTMLElement, value: string): void {

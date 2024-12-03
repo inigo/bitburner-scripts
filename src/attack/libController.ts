@@ -183,16 +183,16 @@ export class AttackController {
 	}
 
 	growThreads(server: Server, growthAmount: number, player: Player): number {
-		let ajdGrowthRate = 1 + (0.03 / server.hackDifficulty);
+		let ajdGrowthRate = 1 + (0.03 / server.hackDifficulty!);
 		if (ajdGrowthRate > 1.0035) {
 			ajdGrowthRate = 1.0035;
 		}
-		const serverGrowthPercentage = server.serverGrowth / 100;
+		const serverGrowthPercentage = server.serverGrowth! / 100;
 		const coreBonus = 1 + (this.sourceServerCores - 1) / 16;
 		const cycles =
 			Math.log(growthAmount) /
 			(Math.log(ajdGrowthRate) *
-			player.hacking_grow_mult *
+			player.mults.hacking_grow *
 			serverGrowthPercentage *
 			this.ns.getBitNodeMultipliers().ServerGrowthRate *
 			coreBonus);

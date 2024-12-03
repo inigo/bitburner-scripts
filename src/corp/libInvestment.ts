@@ -47,8 +47,8 @@ export class InvestmentManager {
     }
 
     private unlockUpgrade(name: string): void {
-        if (!this.ns.corporation.hasUnlockUpgrade(name)) {
-            this.ns.corporation.unlockUpgrade(name);
+        if (!this.ns.corporation.hasUnlock(name) && (this.ns.corporation.getCorporation().funds > this.ns.corporation.getUnlockCost(name))) {
+            this.ns.corporation.purchaseUnlock(name);
         }
     }
 }

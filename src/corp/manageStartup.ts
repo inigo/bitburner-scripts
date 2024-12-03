@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { NS } from '@ns';
-import { listCities, JobPosition, OfficeRole, reportCompanyStatus } from 'corp/libCorporation'
-import { OfficeControl } from 'corp/libOffice'
-import { formatMoney } from 'libFormat'
-import { waitForNextCorporationTick } from 'corp/libCorporation';
+import {CityName, CorpIndustryName, NS} from '@ns';
+import {JobPosition, listCities, listDivisions, OfficeRole, reportCompanyStatus, waitForNextCorporationTick} from 'corp/libCorporation'
+import {OfficeControl} from 'corp/libOffice'
+import {formatMoney} from 'libFormat'
 
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");
@@ -41,7 +40,7 @@ interface StartupStrategy {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class AgricultureStrategy implements StartupStrategy {
     readonly division: string;
-    readonly industry: string;
+    readonly industry: CorpIndustryName;
     constructor() {
         this.division = "GrowBats";
         this.industry = "Agriculture";
@@ -49,24 +48,24 @@ class AgricultureStrategy implements StartupStrategy {
 
     async startCorporation(ns: NS): Promise<void> {
         const division = this.division;
-        const industry = this.industry;
+        const industry: CorpIndustryName = this.industry;
 
         ns.corporation.expandIndustry("Tobacco", "SmokeBats");
 
-        if (!ns.corporation.getCorporation().divisions.some(d => d.type == industry)) {
+        if (!listDivisions(ns).some(d => d.type == industry)) {
             ns.corporation.expandIndustry(industry, division);
         }
 
         // Unlock Smart Supply, so we don't need to worry about buying inputs
-        if (!ns.corporation.hasUnlockUpgrade("Smart Supply")) {
-            ns.corporation.unlockUpgrade("Smart Supply");
+        if (!ns.corporation.hasUnlock("Smart Supply")) {
+            ns.corporation.purchaseUnlock("Smart Supply");
         }
 
         // Set up each office to produce and sell output
         const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
         for (const o of offices) {
             ns.print("Setting up office in "+o.city);
-            if (o.city!="Sector-12") { o.setupOffice(); }
+            if (o.city!=CityName.Sector12) { o.setupOffice(); }
             o.setWarehouseSize(300);
             o.enableSmartSupply();
             o.setOfficeSize(3);
@@ -128,7 +127,7 @@ class AgricultureStrategy implements StartupStrategy {
      */
     async initialUpgradeOffices(ns: NS): Promise<void> {
         const industry = "Tobacco";
-        const o = new OfficeControl(ns, "Sector-12", industry);
+        const o = new OfficeControl(ns, CityName.Sector12, industry);
         ns.print("Expanding head office for "+industry);
         o.setOfficeSize(63);
         o.setWarehouseSize(200);
@@ -137,7 +136,7 @@ class AgricultureStrategy implements StartupStrategy {
         ns.print("Assigning employees to roles in head office");
         await o.assignEmployeesByRole(OfficeRole.Product);
 
-        for (const city of listCities().filter(s => s!="Sector-12")) {
+        for (const city of listCities().filter(s => s!=CityName.Sector12)) {
             ns.print("Expanding branch office in "+city+" for "+industry);
             const o = new OfficeControl(ns, city, industry);
             o.setupOffice();        
@@ -158,7 +157,7 @@ class AgricultureStrategy implements StartupStrategy {
  */
  class SoftwareStrategy implements StartupStrategy {
     readonly division: string;
-    readonly industry: string;
+    readonly industry: CorpIndustryName;
     constructor() {
         this.division = "MicroBats";
         this.industry = "Software";
@@ -168,12 +167,12 @@ class AgricultureStrategy implements StartupStrategy {
         const division = this.division;
         const industry = this.industry;
 
-        if (!ns.corporation.getCorporation().divisions.some(d => d.type == industry)) {
+        if (!listDivisions(ns).some(d => d.type == industry)) {
             ns.corporation.expandIndustry(industry, division);
         }
 
-        if (!ns.corporation.hasUnlockUpgrade("Smart Supply")) {
-            ns.corporation.unlockUpgrade("Smart Supply");
+        if (!ns.corporation.hasUnlock("Smart Supply")) {
+            ns.corporation.purchaseUnlock("Smart Supply");
         }
 
         while (ns.corporation.getUpgradeLevel("Smart Storage") < 5) {
@@ -186,7 +185,7 @@ class AgricultureStrategy implements StartupStrategy {
         const offices = listCities().map(city => new OfficeControl(ns, city, industry));    
         for (const o of offices) {
             ns.print("Setting up office in "+o.city);
-            if (o.city!="Sector-12") { o.setupOffice(); }
+            if (o.city!=CityName.Sector12) { o.setupOffice(); }
             o.setWarehouseSize(900);
             o.enableSmartSupply();
             o.setOfficeSize(3);
@@ -195,12 +194,12 @@ class AgricultureStrategy implements StartupStrategy {
             o.sellAllMaterials(1, "PROD*0.4");            
         }
 
-        if (ns.corporation.getDivision(division).research < 3) {
-            const o = new OfficeControl(ns, "Sector-12", industry);
+        if (ns.corporation.getDivision(division).researchPoints < 3) {
+            const o = new OfficeControl(ns, CityName.Sector12, industry);
             await o.assignEmployees([ { position: JobPosition.RandD, weight: 1 }]);
 
             const waitForTicks = waitForNextCorporationTick(ns);
-            while (ns.corporation.getDivision(division).research < 3) {
+            while (ns.corporation.getDivision(division).researchPoints < 3) {
                 await waitForTicks.next();
             }
             await o.assignEmployees([ { position: JobPosition.Unassigned, weight: 1 }]);
@@ -277,14 +276,14 @@ class AgricultureStrategy implements StartupStrategy {
      */
     async initialUpgradeOffices(ns: NS): Promise<void> {
         const industry = "Software";
-        const o = new OfficeControl(ns, "Sector-12", industry);
+        const o = new OfficeControl(ns, CityName.Sector12, industry);
         ns.print("Expanding head office for "+industry);
         o.setOfficeSize(63);
         o.fillOffice();    
         ns.print("Assigning employees to roles in head office");
         await o.assignEmployeesByRole(OfficeRole.Product);
 
-        for (const city of listCities().filter(s => s!="Sector-12")) {
+        for (const city of listCities().filter(s => s!=CityName.Sector12)) {
             ns.print("Expanding branch office in "+city+" for "+industry);
             const o = new OfficeControl(ns, city, industry);
             o.setupOffice();        

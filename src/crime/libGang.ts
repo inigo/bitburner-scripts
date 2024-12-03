@@ -14,7 +14,8 @@ export async function manageGang(ns: NS, goal = "general", stage="early"): Promi
 	buyAffordableEquipment(ns);
 	// Once in a corporation, put money into gang equipment faster, but reduce as we grow to give more scope to augments
 	const territorySizeMultiplier = ns.gang.getGangInformation().territory / 0.143;
-	await buyAugmentations(ns, isInCorporation ? (30_000_000_000*territorySizeMultiplier) : 200_000_000_000);
+	const bitNodeMultiplier = (ns.getResetInfo().currentNode==13) ? 10 : 1;
+	await buyAugmentations(ns, isInCorporation ? (30_000_000_000*territorySizeMultiplier*bitNodeMultiplier) : 200_000_000_000*bitNodeMultiplier);
 	startWarfare(ns);
 	endWarfare(ns);
 	
@@ -34,7 +35,7 @@ export async function manageGang(ns: NS, goal = "general", stage="early"): Promi
 	const reputationGoal = (stage=="early") ? 100000 : 750000;
 	const hasEnoughRespect = getReputation(ns) > reputationGoal;
 	const hasEnoughMoney = ns.getServerMoneyAvailable("home") > 1_000_000_000_000
-	const hasEnoughIncome = ns.getScriptIncome()[0] > 20_000_000;
+	const hasEnoughIncome = ns.getTotalScriptIncome()[0] > 20_000_000;
 
 	const currentGang = ns.gang.getGangInformation();
 	for (const name of trainedMembers) {
@@ -103,7 +104,7 @@ export function mostLucrativeTask(ns: NS, name: string): string {
 function getReputation(ns: NS): number {
 	const currentGang = ns.gang.getGangInformation();
 	const factionName = currentGang.faction;
-	return ns.getFactionRep(factionName);
+	return ns.singularity.getFactionRep(factionName);
 }
 
 function buyBasicEquipment(ns: NS): void {
@@ -196,7 +197,7 @@ function* getOtherGangInfo(ns: NS): IterableIterator<SimpleGangInfo> {
 type SimpleGangInfo = { name: string, power: number, territory: number };
 
 function getAffordableEquipment(ns: NS): string[] {
-	const income = (ns.getScriptIncome()[0] + ns.gang.getGangInformation().moneyGainRate) * 10;
+	const income = (ns.getTotalScriptIncome()[0] + ns.gang.getGangInformation().moneyGainRate) * 10;
 	const relevantEquipment = ns.gang.getEquipmentNames()
 								.filter(e => isRelevantEquipment(ns, e));
 	return relevantEquipment.filter(e => ns.gang.getEquipmentCost(e) <= income);
@@ -254,8 +255,8 @@ export function shouldAscend(ns: NS, member: string): boolean {
 								meanAscMult > 5 ? 1.4 :
 								meanAscMult > 1 ? 1.5 : 
 								1.6;
-
-	const shouldAscend = statsImprovement.filter(s => s > requiredImprovement).length >= 3; 
+	const bitNodeModifier = (ns.getResetInfo().currentNode==13) ? 0.6 : 0;
+	const shouldAscend = statsImprovement.filter(s => s > (requiredImprovement+bitNodeModifier)).length >= 3;
 
 	const lostRespect = result?.respect ?? 0;
 	const totalRespect = ns.gang.getGangInformation().respect;
@@ -417,7 +418,7 @@ function listNames(): string[] {
 export async function reportGangInfo(ns: NS): Promise<void> {
 	const info = ns.gang.getGangInformation();
 	const gangMembers = ns.gang.getMemberNames();
-	const factionRep = ns.getFactionRep(info.faction);
+	const factionRep = ns.singularity.getFactionRep(info.faction);
 	const memberInfos = gangMembers
 							.map(ns.gang.getMemberInformation)
 							.map(m => { return { name: m.name, task: m.task }; } );

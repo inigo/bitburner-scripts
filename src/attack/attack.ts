@@ -28,7 +28,7 @@ export async function main(ns: NS): Promise<void> {
 
 	const availableRam = ns.getServerMaxRam(host) - spareRamBuffer;	
 
-	const initialHackLevel = ns.getPlayer().hacking;
+	const initialHackLevel = ns.getPlayer().skills.hacking;
 
 	while(true) {
 		killAttacks(ns, hackTarget);
@@ -103,13 +103,22 @@ export async function main(ns: NS): Promise<void> {
 			}
 		}
 
-		if (isSignificantHackingIncrease(ns.getPlayer().hacking, initialHackLevel) && host=="home") {
+		if (isSignificantHackingIncrease(ns.getPlayer().skills.hacking, initialHackLevel) && host=="home") {
 			// Note that this will end completely - on home, we expect it to restart again with a new target shortly
 			break;
 		}
 
 		await ns.sleep(10);
 		await ns.sleep(timing.pauseBetweenAttacks + resetBufferMs);
+
+		restartControlNotRunning(ns);
+	}
+}
+
+function restartControlNotRunning(ns: NS) {
+	const controlScriptRunning = (ns.ps("home").some(p => p.filename==="launchAll.js" || p.filename==="bootstrap.js"));
+	if (!controlScriptRunning) {
+		ns.exec("/bootstrap.js", "home", 1);
 	}
 }
 

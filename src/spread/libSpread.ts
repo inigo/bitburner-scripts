@@ -54,7 +54,7 @@ export async function hackLoop(ns: NS): Promise<void> {
 		const targetInfo = receiveAttackTarget(ns) as SpreadAttackInstructions;
 		
 		// Don't take more than half the money while hacking, to reduce time to grow it back
-		const availableThreads = ns.getRunningScript().threads;
+		const availableThreads = ns.getRunningScript()?.threads ?? 0;
 		const maxHackThreads = (targetInfo) ? (0.5 / targetInfo.hackPercent) : Infinity;
 		const threadsToUse = Math.min(maxHackThreads, availableThreads);
 		// This means we won't hack at all until the target info has been set
@@ -76,6 +76,7 @@ export async function hackLoop(ns: NS): Promise<void> {
 
 
 async function attackLoop(ns: NS, attackFn: (s: string) => Promise<number>) {
+	// noinspection InfiniteLoopJS
 	while (true) {
 		const targetServer = receiveAttackTarget(ns)?.targetServer ?? "joesguns";
 		await attackFn(targetServer);

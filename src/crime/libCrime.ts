@@ -1,8 +1,8 @@
-import { NS } from '@ns';
+import {CrimeType, NS} from '@ns';
 
-export function findMostLucrativeCrime(ns: NS, crimes: string[]): string {
-	const incomeRateFn = (c: string) => {
-		const stats = ns.getCrimeStats(c);
+export function findMostLucrativeCrime(ns: NS, crimes: CrimeType[]): string {
+	const incomeRateFn = (c: CrimeType) => {
+		const stats = ns.singularity.getCrimeStats(c);
 		return stats.money / stats.time;
 	}
 	const lucrativeCrimes = crimes.sort((a, b) => incomeRateFn(a) - incomeRateFn(b)).reverse();
@@ -10,20 +10,9 @@ export function findMostLucrativeCrime(ns: NS, crimes: string[]): string {
 }
 
 export function listPlausibleCrimes(ns: NS): string[] {
-	return listCrimes().filter(c => ns.getCrimeChance(c) > 0.9);
+	return listCrimes().filter(c => ns.singularity.getCrimeChance(c) > 0.9);
 }
 
-export function listCrimes(): string[] {
-	return ["Shoplift",
-			"Rob Store", 
-			"Mug", 
-			"Larceny",
-			"Deal Drugs",
-			"Bond Forgery",
-			"Traffick Arms",
-			"Homicide",
-			"Grand Theft Auto",
-			"Kidnap",
-			"Assassination",
-			"Heist"];
+export function listCrimes(): CrimeType[] {
+	return Object.values(CrimeType) as CrimeType[];
 }

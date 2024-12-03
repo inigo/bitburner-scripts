@@ -44,8 +44,8 @@ export async function* realStockValues(ns: NS, limit = 0): AsyncGenerator<Tick[]
 export function getTick(ns: NS, sym: string): Tick {
 	const askPrice = ns.stock.getAskPrice(sym);
 	const bidPrice = ns.stock.getBidPrice(sym);
-	const volatility = (ns.getPlayer().has4SDataTixApi) ? ns.stock.getVolatility(sym) : undefined;
-	const forecast = (ns.getPlayer().has4SDataTixApi) ? ns.stock.getForecast(sym) : undefined;
+	const volatility = (ns.stock.has4SDataTIXAPI()) ? ns.stock.getVolatility(sym) : undefined;
+	const forecast = (ns.stock.has4SDataTIXAPI()) ? ns.stock.getForecast(sym) : undefined;
 	return { sym, askPrice, bidPrice, volatility, forecast };
 }
 type Tick = { sym: string, askPrice: number, bidPrice: number, volatility?: number, forecast?: number };
@@ -105,6 +105,7 @@ export async function* replayStoredStockValues(ns: NS, db: DB, storeName: string
 
 abstract class IStockChooser { 
 	abstract recordValue(tick: Tick): void;
+	abstract recordValues(ticks: Tick[]): void;
 	abstract getBestStocks(): string[];
 	abstract getGoodStocks(): string[];
  } 
@@ -119,6 +120,9 @@ export class StockChooser extends IStockChooser {
 	}
 	recordValue(tick: Tick): void {
 		this.predictors.forEach(p => { if (p.getSym()==tick.sym) { p.recordValue(tick) } });
+	}
+	recordValues(ticks: Tick[]): void {
+		// Ignore
 	}
 	getBestStocks(): string[] {
 		return this.predictors
@@ -144,6 +148,9 @@ export class WixStockChooser extends IStockChooser {
 	recordValue(tick: Tick): void { 
 		// Does nothing
 	}
+	recordValues(ticks: Tick[]): void {
+		// Ignore
+	}
 	getBestStocks(): string[] {
 		return this.ns.stock.getSymbols()
 							.sort((a, b) => this.ns.stock.getVolatility(a) - this.ns.stock.getVolatility(b) )
@@ -154,6 +161,37 @@ export class WixStockChooser extends IStockChooser {
 		return this.ns.stock.getSymbols().filter(s => this.ns.stock.getForecast(s) > 0.55)
 							.sort((a, b) => this.ns.stock.getForecast(a) - this.ns.stock.getForecast(b) )
 							.reverse();
+	}
+}
+
+export class FakeWixStockChooser extends IStockChooser {
+	ns: NS;
+	lastTicks: Tick[];
+	constructor(ns: NS) {
+		super();
+		this.ns = ns;
+		this.lastTicks = [];
+	}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	recordValue(tick: Tick): void {
+		// Does nothing
+	}
+	recordValues(ticks: Tick[]): void {
+		this.lastTicks = ticks;
+	}
+	getBestStocks(): string[] {
+		return this.lastTicks
+			.sort((a, b) => a.volatility! - b.volatility! )
+			.reverse()
+			.filter(s => s.forecast! > 0.6)
+			.map(s => s.sym);
+	}
+	getGoodStocks(): string[] {
+		return this.lastTicks
+			.filter(s => s.forecast! > 0.55)
+			.sort((a, b) => a.forecast! - b.forecast! )
+			.reverse()
+			.map(s => s.sym);
 	}
 }
 
@@ -336,6 +374,7 @@ export async function doTrading(ns: NS, valuesSourceFn: () => AsyncGenerator<Tic
 		}
 
 		ticks.forEach(tick => stockChooser.recordValue(tick));
+		stockChooser.recordValues(ticks);
 
 		tickMap = new Map<string, Tick>( ticks.map(t => [t.sym, t]) );
 
@@ -389,7 +428,7 @@ export async function doTrading(ns: NS, valuesSourceFn: () => AsyncGenerator<Tic
 	ns.print("Commission paid : "+formatMoney(ns,wallet.getCommissionPaid()));
 	ns.print("Starting money : "+formatMoney(ns,wallet.getStartingMoney()));
 	ns.print("Final money : "+formatMoney(ns,wallet.getMoney()));
-	return wallet.getMoney();
+	return count;
 }
 
 abstract class IStockmarket {
@@ -437,14 +476,14 @@ export class RealStockmarket extends IStockmarket {
 		const desiredAmount = Math.floor(amountToSpend / this.ns.stock.getAskPrice(sym));
 		const amount = Math.min(desiredAmount, this.ns.stock.getMaxShares(sym));
 		const cost = this.ns.stock.getPurchaseCost(sym, amount, "Long");
-		this.ns.stock.buy(sym, amount); 
+		this.ns.stock.buyStock(sym, amount);
 		return cost;
 	}
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	sellAllShares(sym: string, tick: Tick): number { 
 		const amount = this.ns.stock.getPosition(sym)[0];
 		const profit = this.ns.stock.getSaleGain(sym, amount, "Long");
-		this.ns.stock.sell(sym, amount); 
+		this.ns.stock.sellStock(sym, amount);
 		return profit;
 	}
 }
@@ -472,7 +511,7 @@ function sellAllOfShare(ns: NS, s: string): void {
 	const boughtPrice = ns.stock.getPosition(s)[1];
 	const profitPerShare = bidPrice - boughtPrice;
 	const totalProfit = Math.floor(profitPerShare * existingShares);
-	ns.stock.sell(s, existingShares);
+	ns.stock.sellStock(s, existingShares);
 	const soldMessage = "Sold "+existingShares+" of "+s+" at "+bidPrice+" (bought at "+boughtPrice+") for a profit of "+totalProfit;
 	ns.toast(soldMessage);
 	ns.print(soldMessage);
@@ -482,7 +521,7 @@ export async function reportShareStatus(ns: NS): Promise<void> {
 	const value = getOwnedShareValue(ns);
 	const longStocks = ns.stock.getSymbols().filter(s => ns.stock.getPosition(s)[0]>0);
 	const shortStocks = ns.stock.getSymbols().filter(s => ns.stock.getPosition(s)[2]>0);
-	const has4S = ns.getPlayer().has4SDataTixApi;	
+	const has4S = ns.stock.has4SDataTIXAPI();
 	const shareStatus: ShareStatus = { value, longStocks, shortStocks, has4S };
 	await ports.setPortValue(ns, ports.SHARETRADING_REPORTS_PORT, JSON.stringify(shareStatus));
 }
@@ -490,3 +529,10 @@ export async function reportShareStatus(ns: NS): Promise<void> {
 export async function pauseTrading(ns: NS, duration = 60): Promise<void> {
 	await ports.setPortValue(ns, ports.SHARETRADING_CONTROL_PORT, duration);	
 }
+
+
+export function dummy(ns: NS): (DummyShareStatus | null) {
+	return ports.checkPort(ns, ports.SHARETRADING_REPORTS_PORT, JSON.parse);
+}
+
+export type DummyShareStatus = { value: number, longStocks: string[], shortStocks: string[], has4S: boolean };

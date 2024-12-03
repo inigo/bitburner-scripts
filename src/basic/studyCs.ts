@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import {LocationName, NS, StudyTask, UniversityClassType} from '@ns'
 
 /**
  * Study CS at the university to improve hacking skill, if Singularity functions are available
@@ -6,9 +6,9 @@ import { NS } from '@ns'
 export async function main(ns : NS) : Promise<void> {
 	try {
 		while (ns.getHackingLevel() < 10) {
-			const player = ns.getPlayer();
-			if (player.workType != "Studying or Taking a class at university") {
-				ns.universityCourse("Rothman University", "Study Computer Science");
+			const studyTask: StudyTask | null = ns.singularity.getCurrentWork()?.type == "CLASS" ? ns.singularity.getCurrentWork() as StudyTask : null;
+			if (studyTask?.classType != UniversityClassType.computerScience || studyTask?.location != LocationName.Sector12RothmanUniversity) {
+				ns.singularity.universityCourse("Rothman University", UniversityClassType.computerScience);
 			}
 			await ns.sleep(2000);
 		}

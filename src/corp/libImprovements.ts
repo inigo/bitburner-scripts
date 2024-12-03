@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { NS } from '@ns'
+import {CityName, NS} from '@ns'
 import { doCount, findDivisionName, listCities, listEmployeeUpgrades, OfficeRole } from 'corp/libCorporation'
 import { OfficeControl } from 'corp/libOffice'
 
@@ -117,7 +117,7 @@ class AdVertImprovement implements Improvement {
 class EnlargeMainOfficeImprovement implements Improvement {
     private office: OfficeControl;
     constructor(private ns: NS, private division: string, private industry: string) { 
-        this.office = new OfficeControl(this.ns, "Sector-12", this.industry);
+        this.office = new OfficeControl(this.ns, CityName.Sector12, this.industry);
     }
     getCost(): number {  return this.office.increaseOfficeSizeCost(15); }
     async apply() { 
@@ -132,7 +132,7 @@ class EnlargeSecondaryOfficesImprovement implements Improvement {
     private offices: OfficeControl[];
     private sizeIncrease = 6;
     constructor(private ns: NS, private division: string, private industry: string) { 
-        const cities = listCities().filter(s => s != "Sector-12");
+        const cities = listCities().filter(s => s != CityName.Sector12);
         this.offices = cities.map(city => new OfficeControl(this.ns, city, this.industry));
     }
     getCost(): number { return this.offices.map(o => o.increaseOfficeSizeCost(this.sizeIncrease)).reduce((a,b) => a+b); }

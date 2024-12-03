@@ -29,11 +29,11 @@ export function buyCache(ns: NS): boolean {
 	if (totalHashCapacity < 600 && availableMoney > 100_000_000 && nodeCount > 0) {
 		ns.hacknet.upgradeCache(0, 3);
 		return true;
-	} else if (totalHashCapacity < 1000 && availableMoney > 750_000_000 && nodeCount > 0) {
+	} else if (totalHashCapacity < 1000 && availableMoney > 200_000_000 && nodeCount > 0) {
 		ns.hacknet.upgradeCache(0, 2);
 		return true;
-	} else if (totalHashCapacity < 2000 && availableMoney > 5_000_000_000 && nodeCount > 0) {
-		ns.hacknet.upgradeCache(0, 2);
+	} else if (totalHashCapacity < 2000 && availableMoney > 500_000_000 && nodeCount > 0) {
+		ns.hacknet.upgradeCache(0, 3);
 		return true;
 	} else {
 		return false;
@@ -76,8 +76,8 @@ function getUpgradeBenefits(ns: NS, serverIndex: number): HacknetPurchase[] {
 	
 	const calcImprovement = (incRam: number, incLevel: number, incCores: number) => {
 		const s = hn.getNodeStats(serverIndex);
-		const existingRate = fm.hashGainRate(s.level, 0, s.ram, s.cores, p.hacknet_node_money_mult);
-		const improvedRate = fm.hashGainRate(s.level+incLevel, 0, s.ram+incRam, s.cores+incCores, p.hacknet_node_money_mult);
+		const existingRate = fm.hashGainRate(s.level, 0, s.ram, s.cores, p.mults.hacknet_node_money);
+		const improvedRate = fm.hashGainRate(s.level+incLevel, 0, s.ram+incRam, s.cores+incCores, p.mults.hacknet_node_money);
 		return improvedRate - existingRate;
 	}
 	return [
@@ -99,15 +99,15 @@ function getPurchaseBenefit(ns: NS): HacknetPurchase {
 	const existingLevel = secondNode?.level ?? 1;
 	const existingRam = secondNode?.ram ?? 1;
 
-	const upgradeCost = fm.coreUpgradeCost(1, existingCores - 1, p.hacknet_node_core_cost_mult) 
-						+ fm.ramUpgradeCost(1, existingRam - 1, p.hacknet_node_ram_cost_mult) 
-						+ fm.levelUpgradeCost(1, existingLevel - 1, p.hacknet_node_level_cost_mult);
+	const upgradeCost = fm.coreUpgradeCost(1, existingCores - 1, p.mults.hacknet_node_core_cost)
+						+ fm.ramUpgradeCost(1, existingRam - 1, p.mults.hacknet_node_ram_cost)
+						+ fm.levelUpgradeCost(1, existingLevel - 1, p.mults.hacknet_node_level_cost);
 
 	return { name: "newServer", 
 			server: 0, 
 			cost: hn.getPurchaseNodeCost() + upgradeCost, 
 			upgradeFn: () => hn.purchaseNode(), 
-			benefit: fm.hashGainRate(existingLevel, 0, existingRam, existingCores, p.hacknet_node_money_mult) 
+			benefit: fm.hashGainRate(existingLevel, 0, existingRam, existingCores, p.mults.hacknet_node_money)
 			};
 }
 

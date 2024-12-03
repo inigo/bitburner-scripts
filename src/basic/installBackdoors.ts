@@ -50,7 +50,7 @@ export async function manuallyConnectTo(ns: NS, s: string): Promise<void> {
 	ns.tprint("Connecting to " + s + " via route "+route);
 	for (const r of route) {
 		ns.print("Connecting to "+r);
-		ns.connect(r);
+		ns.singularity.connect(r);
 	}
 }
 
@@ -58,12 +58,12 @@ async function connectAndInstallBackdoor(ns: NS, serverName: string, route: stri
 	ns.toast("Installing backdoor on  "+serverName);
 	for (const r of route) {
 		ns.print("Connecting to "+r);
-		ns.connect(r);
+		ns.singularity.connect(r);
 	}
-	await ns.installBackdoor();
+	await ns.singularity.installBackdoor();
 	for (const r of route.reverse()) {
 		ns.print("Connecting to "+r);
-		ns.connect(r);
+		ns.singularity.connect(r);
 	}	
 }
 

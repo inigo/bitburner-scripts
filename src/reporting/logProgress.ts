@@ -1,11 +1,12 @@
-import { NS } from '@ns'
-import { retrieveCompanyStatus } from "corp/libCorporation";
-import { retrieveSleeveTasks } from "sleeve/libSleeve";
-import { retrieveGangInfo } from "crime/libGangInfo";
+import {CrimeType, NS, SleeveCrimeTask} from '@ns'
+import {retrieveCompanyStatus} from "corp/libCorporation";
+import {retrieveSleeveTasks} from "sleeve/libSleeve";
+import {retrieveGangInfo} from "crime/libGangInfo";
 
 export async function main(ns : NS) : Promise<void> {
     const reporter = new Reporter(ns);
-    await reporter.logSignificantEvents();
+    const args = (ns.args.length > 0) ? ns.args[0] as string : "";
+    await reporter.logSignificantEvents(args);
     await reporter.regularLog();
 }
 
@@ -13,7 +14,7 @@ class Reporter {
     constructor(private ns: NS) {
     }
 
-    async logSignificantEvents(): Promise<void> {
+    async logSignificantEvents(explicitEvent = ""): Promise<void> {
         const gangInfo = retrieveGangInfo(this.ns);
         const corpInfo = retrieveCompanyStatus(this.ns);
         const sleeveInfo = retrieveSleeveTasks(this.ns);
@@ -28,8 +29,9 @@ class Reporter {
             , (corpInfo?.investmentRound ?? -1) == 1 ? "corporationFinishedStartup" : ""
             , (corpInfo?.investmentRound ?? -1) == 2 ? "corporationTakenSecondInvestment" : ""
             , corpInfo?.isPublic ? "corporationPublic" : ""
-            , sleeveInfo.every(s => s.crime=="Homicide") ? "sleevesMurdering" : ""
-            , this.ns.getPlayer().has4SDataTixApi ? "has4SData" : ""
+            , sleeveInfo.every(s => (s as SleeveCrimeTask)?.crimeType == CrimeType.homicide) ? "sleevesMurdering" : ""
+            , this.ns.stock.has4SDataTIXAPI() ? "has4SData" : ""
+            , explicitEvent
         ].filter(s => s.length > 0);
 
         this.ns.print("Current significant events are "+currentState);
@@ -69,7 +71,7 @@ class Reporter {
         const timeSinceStart = this.getTimeSinceStart()
         const fmtTimeSinceStart = this.ns.tFormat(timeSinceStart);
     
-        const timeSinceAug = this.ns.getPlayer().playtimeSinceLastAug;
+        const timeSinceAug = this.ns.getTimeSinceLastAug();
         const fmtTimeSinceAug = this.ns.tFormat(timeSinceAug);
         
         const bitNode = this.getBitNodeNumber();
@@ -102,10 +104,10 @@ class Reporter {
     
     private getBitNodeLevel() { 
         const bitNode = this.getBitNodeNumber();
-        return Math.max(... this.ns.getOwnedSourceFiles().filter(sf => sf.n == bitNode).map(sf => sf.lvl), 0) + 1; 
+        return Math.max(... this.ns.singularity.getOwnedSourceFiles().filter(sf => sf.n == bitNode).map(sf => sf.lvl), 0) + 1;
     }
-    private getBitNodeNumber() { return this.ns.getPlayer().bitNodeN; }
-    private getTimeSinceStart() { return this.ns.getPlayer().playtimeSinceLastBitnode; }
+    private getBitNodeNumber() { return this.ns.getResetInfo().currentNode; }
+    private getTimeSinceStart() { return new Date().getTime() - this.ns.getResetInfo().lastNodeReset; }
 
     // -- Store the current log state in local storage
 

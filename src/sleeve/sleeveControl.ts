@@ -1,7 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { studyCs, listSleeves, workout, studyCharisma, travelTo, reportSleeveTasks, recoverShock, commitCrime, SleeveNo
-		, setSleeveInstructions, SleeveInstructions } from "sleeve/libSleeve";
-import { NS } from '@ns'
+import {
+	commitCrime,
+	listSleeves,
+	recoverShock,
+	reportSleeveTasks,
+	setSleeveInstructions,
+	SleeveInstructions,
+	SleeveNo,
+	studyCharisma,
+	studyCs,
+	travelTo,
+	workout
+} from "sleeve/libSleeve";
+import {GymType, NS} from '@ns'
 
 export function autocomplete(): string[] {
     return ["spread", "strength", "agility", "dexterity", 
@@ -20,10 +31,10 @@ export async function main(ns: NS): Promise<void> {
 	const tasks = [
 		{ name: "Shock", fn: (i: SleeveNo) => recoverShock(ns, i) },		
 		{ name: "Study", fn: (i: SleeveNo) => studyCs(ns, i) },		
-		{ name: "Agility", fn: (i: SleeveNo) => workout(ns, i, "Agility") },
-		{ name: "Dexterity", fn: (i: SleeveNo) => workout(ns, i, "Dexterity") },
-		{ name: "Strength", fn: (i: SleeveNo) => workout(ns, i, "Strength") },
-		{ name: "Defense", fn: (i: SleeveNo) => workout(ns, i, "Defense") },
+		{ name: "Agility", fn: (i: SleeveNo) => workout(ns, i, GymType.agility) },
+		{ name: "Dexterity", fn: (i: SleeveNo) => workout(ns, i, GymType.dexterity) },
+		{ name: "Strength", fn: (i: SleeveNo) => workout(ns, i, GymType.strength) },
+		{ name: "Defense", fn: (i: SleeveNo) => workout(ns, i, GymType.defense) },
 		{ name: "Charisma", fn: (i: SleeveNo) => studyCharisma(ns, i) },
 		{ name: "Crime", fn: (i: SleeveNo) => commitCrime(ns, i) },
 		{ name: "Home", fn: (i: SleeveNo) => travelTo(ns, i, "Sector-12") },

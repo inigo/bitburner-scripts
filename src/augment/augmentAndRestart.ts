@@ -13,7 +13,7 @@ export async function restart(ns: NS, shouldForceRestart: boolean): Promise<void
 	ns.scriptKill("/tix/stockTrade.js", "home");
 	sellAllShares(ns);
 
-	if (ns.isBusy()) { ns.stopAction(); }
+	if (ns.singularity.isBusy()) { ns.singularity.stopAction(); }
 	await buyLastingPurchases(ns);
 	const shouldRestart = shouldForceRestart || await ns.prompt("Install augmentations and restart?")
 	if (shouldRestart) {
@@ -26,5 +26,5 @@ export async function restart(ns: NS, shouldForceRestart: boolean): Promise<void
 async function installAndRestart(ns: NS): Promise<void> {
 	ns.toast("Restarting in 10 seconds", "warning");
 	await ns.sleep(10000);
-	ns.installAugmentations("bootstrap.js");
+	ns.singularity.installAugmentations("bootstrap.js");
 }

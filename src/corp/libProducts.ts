@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { NS, Division, Product } from '@ns';
-import { listCities, findDivisionName } from 'corp/libCorporation';
+import {NS, Division, Product, CityName} from '@ns';
+import {listCities, findDivisionName, listDivisions} from 'corp/libCorporation';
 import { ProductNamer } from 'corp/libNamer';
 
 /**
@@ -15,12 +15,14 @@ export class ProductLauncher {
     }
 
     launchProducts(allowRetiring: boolean): void {
-        const divisionInfo: Division = this.ns.corporation.getCorporation().divisions.find(d => d.name == this.division)!;
+        const divisionInfo: Division = listDivisions(this.ns).find(d => d.name == this.division)!;
         const productNames = divisionInfo.products;
-        const existingProducts = productNames.map(p => this.ns.corporation.getProduct(this.division, p));
+        // @todo update - previously didn't need to pass in a city name - seems odd that developmentProgress is per city??? is it???
+        const existingProducts = productNames.flatMap(p => listCities().map(c => this.ns.corporation.getProduct(this.division, c, p)));
         const completeProducts = existingProducts.filter(p => p.developmentProgress >= 99.9);
     
         const allProductsComplete = (completeProducts.length == existingProducts.length);
+        // @todo update - haven't changed this, but since we're doing it per city, this number might be wrong?
         const maxProducts = this.getMaxProducts();
     
         if (allProductsComplete && completeProducts.length==maxProducts && allowRetiring) {
@@ -34,7 +36,7 @@ export class ProductLauncher {
             const funds = this.ns.corporation.getCorporation().funds;
             const productInvestment = Math.floor(funds / 10);
             const productName = this.productNamer.getUniqueName( completeProducts.map(p=>p.name) );
-            this.ns.corporation.makeProduct(this.division, "Sector-12", productName, productInvestment, productInvestment);
+            this.ns.corporation.makeProduct(this.division, CityName.Sector12, productName, productInvestment, productInvestment);
         }
     }
     
@@ -82,10 +84,11 @@ export class ProductPriceManager {
         return this.listProducts().filter(p => p.developmentProgress >= 99.99);
     }
 
+    // @todo update - products are now per division - what difference will this make?
     listProducts(): Product[] {
-        const divisionInfo: Division = this.ns.corporation.getCorporation().divisions.find(d => d.name == this.division)!;
+        const divisionInfo: Division = listDivisions(this.ns).find(d => d.name == this.division)!;
         const productNames = divisionInfo.products;
-        return productNames.map(p => this.ns.corporation.getProduct(this.division, p));
+        return productNames.flatMap(p => listCities().map(c => this.ns.corporation.getProduct(this.division, c, p)));
     }
 
     arePricesFairlyStable(): boolean {
@@ -119,7 +122,7 @@ class ProductPriceSetter {
         if (this.ns.corporation.hasResearched(this.division, "Market-TA.II")) {
             if (this.retrieveProductPriceInfo()==null) {
                 this.ns.print("Enabling TA.II for new product "+this.productName);
-                this.ns.corporation.sellProduct(this.division, "Sector-12", this.productName, "MAX", "MP*"+this.initialPriceMultiplier, true);
+                this.ns.corporation.sellProduct(this.division, CityName.Sector12, this.productName, "MAX", "MP*"+this.initialPriceMultiplier, true);
                 this.setProductPrice(this.initialPriceMultiplier);
                 this.updateProductPriceInfo(this.initialPriceMultiplier, false, false, this.initialRateOfChange);
             } else {
@@ -203,17 +206,15 @@ class ProductPriceSetter {
     setProductPrice(multiplier: number): void {
         // This works around large prices being represented in exponential form, which the product prices can't cope with
         const multiplierAsString = multiplier.toLocaleString().replaceAll(",","");
-        this.ns.corporation.sellProduct(this.division, "Sector-12", this.productName, "MAX", "MP*"+multiplierAsString, true);
+        this.ns.corporation.sellProduct(this.division, CityName.Sector12, this.productName, "MAX", "MP*"+multiplierAsString, true);
     }
 
     getSalesInfo(): ProductSaleInfo[] {
-        const cityData = this.ns.corporation.getProduct(this.division, this.productName).cityData;
         return listCities().map(city => {
-            const quantity = cityData[city][0];
-            const produced = cityData[city][1];
-            const sold = cityData[city][2];
-            return { city, quantity, produced, sold };
-        });
+            const pi = this.ns.corporation.getProduct(this.division, city, this.productName);
+            // @todo update - these were values from cityData - "quantity", "produced", "sold"
+            return { city, quantity: pi.stored, produced: pi.productionAmount, sold: pi.actualSellAmount };
+        })
     }
 
     isStillValid(info: ProductPriceInfo): boolean {

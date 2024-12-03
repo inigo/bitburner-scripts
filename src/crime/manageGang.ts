@@ -5,6 +5,7 @@ export async function main(ns: NS): Promise<void> {
 	ns.disableLog("ALL");
 
 	if (ns.gang.inGang()) {
+		// noinspection InfiniteLoopJS
 		while(true) {
 			const instructions = getGangInstructions(ns);
 			const goal = instructions?.goal ?? "general";

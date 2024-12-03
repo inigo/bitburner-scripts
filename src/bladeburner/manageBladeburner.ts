@@ -3,7 +3,8 @@ import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {
 	if (ns.bladeburner.joinBladeburnerDivision()) {
-		ns.stopAction();
+		ns.singularity.stopAction();
+		// noinspection InfiniteLoopJS
 		while(true) {
 			manageBladeburner(ns);
 			await ns.sleep(1000);

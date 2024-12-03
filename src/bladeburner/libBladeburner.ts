@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { NS } from '@ns';
+import {BladeburnerActionName, BladeburnerActionType, BladeburnerOperationName, BladeburnerSkillName, NS} from '@ns';
 
 export function manageBladeburner(ns: NS): void {
 	// pick city
 
 	const action = selectAction(ns);
-	const preferOverclock = action.type=="Operation" && action.meanSuccessChance > 0.8;
+	const preferOverclock = action.type==BladeburnerActionType.Operation && action.meanSuccessChance > 0.8;
 	upgradeSkills(ns, preferOverclock);
 
 	const currentAction = ns.bladeburner.getCurrentAction();
-	if (currentAction.name != action.name) {
+	if (!currentAction || currentAction.name != action.name) {
 		ns.bladeburner.startAction(action.type, action.name);
 	}
 }
@@ -34,10 +34,10 @@ export function upgradeSkills(ns: NS, preferOverclock: boolean): void {
 	}
 }
 
-function listInterestingSkills(): string[] {
-	return [ "Overclock", "Blade's Intuition", "Cloak", 
-			"Short-Circuit", "Digital Observer",  "Reaper", 
-			"Evasive System", "Tracer" ];
+function listInterestingSkills(): BladeburnerSkillName[] {
+	return [ BladeburnerSkillName.Overclock, BladeburnerSkillName.BladesIntuition, BladeburnerSkillName.Cloak,
+		BladeburnerSkillName.ShortCircuit, BladeburnerSkillName.DigitalObserver, BladeburnerSkillName.Reaper,
+		BladeburnerSkillName.EvasiveSystem, BladeburnerSkillName.Tracer ];
 }
 
 export function selectAction(ns: NS): BladeburnerAction {
@@ -59,10 +59,10 @@ export function selectAction(ns: NS): BladeburnerAction {
 	const isTooChaotic = currentChaos > 50;
 	const lackingInfo = (bestActions[0].maxSuccessChance - bestActions[0].minSuccessChance) > 0.01;
 	const usedUpActions = evaluateActions(ns).filter(a => a.remainingCount==0).map(a => a.name);
-	const noActionsRemaining = usedUpActions.includes("Sting Operation") &&
-								usedUpActions.includes("Stealth Retirement Operation") &&
-								usedUpActions.includes("Investigation") &&
-								usedUpActions.includes("Assassination");
+	const noActionsRemaining = usedUpActions.includes( BladeburnerOperationName.Sting) &&
+								usedUpActions.includes( BladeburnerOperationName.StealthRetirement) &&
+								usedUpActions.includes( BladeburnerOperationName.Investigation) &&
+								usedUpActions.includes( BladeburnerOperationName.Assassination);
 	
 
 	const action = !isTrained(ns) ? trainingAction :
@@ -82,18 +82,18 @@ function isHealthy(ns: NS): boolean {
 
 function isTrained(ns: NS): boolean {
 	const p = ns.getPlayer();
-	const stats = [ p.agility, p.defense, p.dexterity, p.strength, p.charisma ];
+	const stats = [ p.skills.agility, p.skills.defense, p.skills.dexterity, p.skills.strength, p.skills.charisma ];
 	return Math.min(... stats) >= 100;
 }
 
 export function evaluateActions(ns: NS): BladeburnerAction[] {
-	const general = ns.bladeburner.getGeneralActionNames().map(c => getActionStats(ns, "General", c));
-	const contracts = ns.bladeburner.getContractNames().map(c => getActionStats(ns, "Contract", c));
-	const operations = ns.bladeburner.getOperationNames().map(o => getActionStats(ns, "Operation", o));
+	const general = ns.bladeburner.getGeneralActionNames().map(c => getActionStats(ns, BladeburnerActionType.General, c));
+	const contracts = ns.bladeburner.getContractNames().map(c => getActionStats(ns, BladeburnerActionType.Contract, c));
+	const operations = ns.bladeburner.getOperationNames().map(o => getActionStats(ns, BladeburnerActionType.Operation, o));
 	return [... general, ... contracts, ... operations];
 }
 
-function getActionStats(ns: NS, type: string, name: string): BladeburnerAction {
+function getActionStats(ns: NS, type: BladeburnerActionType, name: BladeburnerActionName): BladeburnerAction {
 	const remainingCount = ns.bladeburner.getActionCountRemaining(type, name);
 	const [minSuccessChance, maxSuccessChance] = ns.bladeburner.getActionEstimatedSuccessChance(type, name);
 	const meanSuccessChance = (minSuccessChance + maxSuccessChance) / 2;
@@ -107,7 +107,7 @@ function getActionStats(ns: NS, type: string, name: string): BladeburnerAction {
 }
 
 type BladeburnerAction = { 
-	type: string, name: string, repGainRate: number, remainingCount: number,
+	type: BladeburnerActionType, name: BladeburnerActionName, repGainRate: number, remainingCount: number,
 	meanSuccessChance: number, minSuccessChance: number, maxSuccessChance: number, 
 	time: number, level: number, repGain: number
 }

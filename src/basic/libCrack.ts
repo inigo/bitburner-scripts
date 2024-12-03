@@ -15,8 +15,8 @@ export function crackAll(ns: NS): void {
 }
 
 export function buyCracks(ns: NS): void {
-	if (! ns.getPlayer().tor && ns.getServerMoneyAvailable("home") > 200000) {
-		ns.purchaseTor();	
+	if (! ns.hasTorRouter() && ns.getServerMoneyAvailable("home") > 200000) {
+		ns.singularity.purchaseTor();
 	}
 	while (attemptToBuyCrack(ns)) {
 		ns.print("Checking for more cracks to buy");
@@ -29,7 +29,7 @@ function attemptToBuyCrack(ns: NS): boolean {
 		.filter(c => c.cost <= availableMoney);
 	if (buyableCracks.length > 0) {
 		ns.toast("Buying crack "+buyableCracks[0].filename);
-		ns.purchaseProgram(buyableCracks[0].filename);
+		ns.singularity.purchaseProgram(buyableCracks[0].filename);
 		return true;
 	} else {
 		return false;

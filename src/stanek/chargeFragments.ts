@@ -23,7 +23,7 @@ export async function main(ns: NS): Promise<void> {
 		}
 		for (const f of fragsToBoost) {
 			try {
-				await ns.stanek.charge(f.x, f.y);
+				await ns.stanek.chargeFragment(f.x, f.y);
 			} catch (e) {
 				ns.print(fmt(ns)`Could not charge fragment ${f} - probably removed`);
 			}

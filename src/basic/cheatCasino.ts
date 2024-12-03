@@ -10,7 +10,7 @@ export async function main(ns : NS) : Promise<void> {
 
     ns.run("/casino/coinFlip.js");
     while (ns.getServerMaxRam("home") < 512) {
-        ns.upgradeHomeRam();
+        ns.singularity.upgradeHomeRam();
         while (anyScriptRunning(ns, "/casino/coinFlip.js")) {
             await ns.sleep(1000);
         }	
@@ -27,9 +27,9 @@ async function acquireMoneyToTravel(ns: NS):Promise<void>  {
         // Wait briefly in case we get enough money to travel e.g. via sleeves or a gang
         await ns.sleep(2000);
         while (money() < 200_000) {
-            const time = ns.commitCrime("Mug");
+            const time = ns.singularity.commitCrime("Mug");
             await ns.sleep(time);
-            while (ns.isBusy()) {
+            while (ns.singularity.isBusy()) {
                 await ns.sleep(100);
             }
         }            

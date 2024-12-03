@@ -51,7 +51,7 @@ export class TargetFinder {
         const servers = [... this.ns.getPurchasedServers(), "home"];
         const attackedServers = servers.flatMap(s => this.ns.ps(s).filter(p => p.filename=="/attack/attack.js").map(p => p.args[0]) );
         const distinctTargets = [...new Set(attackedServers)];
-        return distinctTargets;	
+        return distinctTargets.map(String);
     }
     
 }

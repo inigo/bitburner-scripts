@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { NS, Office } from '@ns'
+import {CityName, CorpEmployeePosition, NS, Office} from '@ns'
 import { findDivisionName, OfficeRole, listPositions, JobPosition, JobCounts, doCount, JWeight, TickGenerator } from 'corp/libCorporation'
 import { IndustryInfo } from 'corp/libIndustries'
 
 export class OfficeControl {
     private industryInfo: IndustryInfo;
     public readonly division: string;
-    constructor(private ns: NS, public readonly city: string, public readonly industry: string) {
+    constructor(private ns: NS, public readonly city: CityName, public readonly industry: string) {
         this.industryInfo = new IndustryInfo(industry);
         this.division = findDivisionName(ns, industry) !;
     }
@@ -21,7 +21,7 @@ export class OfficeControl {
 
     enableSmartSupply(): void {
         this.ns.corporation.setSmartSupply(this.division, this.city, true);
-        this.industryInfo.listInputs().forEach( m => this.ns.corporation.setSmartSupplyUseLeftovers(this.division, this.city, m, false));
+        this.industryInfo.listInputs().forEach( m => this.ns.corporation.setSmartSupplyOption(this.division, this.city, m, "leftovers"));
     }
 
     /** Set this office's warehouse size to be at least newSize, purchasing a warehouse if there isn't already one available. */
@@ -90,24 +90,26 @@ export class OfficeControl {
     /** Hire employees to fill all the available space in the office. */
     fillOffice(): void {
         const o = this.getInfo();
-        const employeesNeeded = o.size - o.employees.length;
+        const employeesNeeded = o.size - o.numEmployees;
         if (employeesNeeded<=0) return;
         doCount(employeesNeeded).forEach(() =>  this.ns.corporation.hireEmployee(this.division, this.city) );
     }
 
 
     async assignEmployees(weights: JWeight[]): Promise<void> {
-        const getJob = (name: string) => this.ns.corporation.getEmployee(this.division, this.city, name);
+        // @todo update - the whole process for managing employees has completely changed
+        // const getJob = (name: string) => this.ns.corporation.getEmployee(this.division, this.city, name);
 
-        const employees = this.getInfo().employees;
-        const jobs = employees.map(name => getJob(name));
-        const employeeCount = employees.length;
+        // const employees = this.getInfo().employees;
+        // const jobs = employees.map(name => getJob(name));
+        const employeeCount = this.getInfo().numEmployees;
+        const employeeJobs: Record<CorpEmployeePosition, number> = this.getInfo().employeeJobs;
 
         // Work out requested numbers from weights
         const totalWeight = weights.map(w => w.weight).reduce((a, b) => a+b);
         const counts: JobCounts[] = [];
         for (const position of listPositions().filter(p => p!="Unassigned")) {
-            const currentCount = jobs.filter(j => j.pos == position).length;
+            const currentCount: number = employeeJobs[position];
             const desiredWeight = weights.find(w => w.position == position);
             const desiredCount = (desiredWeight==null) ? 0 : Math.floor( employeeCount * desiredWeight.weight / totalWeight );
             const status: JobCounts = { position, currentCount, desiredCount };
@@ -122,18 +124,16 @@ export class OfficeControl {
             counts.find(j => j.position == JobPosition.RandD)!.desiredCount += unassignedEmployeeCount;
         }
 
-        // @todo This is wrong - is not unassigning things
-
         for (const count of counts) {
             if (count.currentCount!=count.desiredCount) {
                 this.ns.print("Setting position "+count.position+" to have "+count.desiredCount+" employees");
-                await this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
-                const afterAssignmentJobs = employees.map(name => getJob(name));
-                const jobCount = afterAssignmentJobs.filter(j => j.pos == count.position).length;
-                if (jobCount != count.desiredCount) {
-                    this.ns.print("Employees not successfully assigned to "+count.position);
-                    await this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
-                }
+                this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
+                // const afterAssignmentJobs = employees.map(name => getJob(name));
+                // const jobCount = afterAssignmentJobs.filter(j => j.pos == count.position).length;
+                // if (jobCount != count.desiredCount) {
+                //     this.ns.print("Employees not successfully assigned to "+count.position);
+                //     await this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
+                // }
             }
         }
     }
@@ -147,10 +147,10 @@ export class OfficeControl {
         for (const m of weights) {
             const requiredAmount = spaceToUse * m.pctOfWarehouse / (m.size * 5);
             const material = this.ns.corporation.getMaterial(this.division, this.city, m.material);
-            const existingAmount = material.qty;
+            const existingAmount = material.stored; // @todo update - this was "qty" - I think that was quantity? And stored is hopefully equivalent?
             if ((existingAmount*1.2) < requiredAmount) {
                 this.ns.print("Insufficient "+m.material+" in "+this.city+" for optimum product modifiers - buying more. Want "+requiredAmount+" but have "+existingAmount);
-                const boughtBySmartSupply = (-1 * material.prod);
+                const boughtBySmartSupply = (-1 * material.productionAmount);
                 const amountToBuy = boughtBySmartSupply + requiredAmount - existingAmount;
                 isBuying = true;
                 this.ns.corporation.setSmartSupply(this.division, this.city, false);

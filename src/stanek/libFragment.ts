@@ -4,7 +4,7 @@ import { NS, Fragment } from '@ns';
 
 /** Create a filename to save/load a Stanek configuration */
 export function toFilename(ns: NS, name: string): string {
-	const width = ns.stanek.width();
+	const width = ns.stanek.giftWidth();
 	return "/stanek/"+name+"-"+width+".txt"
 }
 
@@ -42,6 +42,8 @@ export interface CombinedFragment extends Fragment {
 	rotation: number;
 	x: number;
 	y: number;
+	id: number;
+	highestCharge: number;
  }
 export interface FullFragmentInfo extends CombinedFragment { name: string }
 export interface FragmentTypeDefinition {  type: number; name: string, emoji: string }

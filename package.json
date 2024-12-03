@@ -5,7 +5,7 @@
   "main": "index.js",
 
   "config": {
-    "bitburnerAuthToken": "REPLACE_THIS",
+    "bitburnerAuthToken": "qJPlh1CYpaRIsimB0se+y3q/ZemI3dlRS+vS867eaKFAPD8jgPpzpedA4p2jUGIG",
     "bitburnerScriptRoot": "./dist"
   },
 

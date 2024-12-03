@@ -1,19 +1,19 @@
 /// Continually commit a crime
-import { NS } from '@ns';
+import {CrimeType, NS} from '@ns';
 
 export async function main(ns: NS): Promise<void> {
 	const crime = (ns.args[0] as string) ?? "Homicide";
-	await loopCrime(ns, crime);
+	await loopCrime(ns, crime as CrimeType);
 }
 
 /** Repeatedly do a crime */
-async function loopCrime(ns: NS, crime: string): Promise<void> {
+async function loopCrime(ns: NS, crime: CrimeType): Promise<void> {
 	let startTime = new Date().getTime();
-	ns.commitCrime(crime);
+	ns.singularity.commitCrime(crime);
 	let notYetCancelled = true;
 	while(notYetCancelled) {
 
-		if (!ns.isBusy()) {
+		if (!ns.singularity.isBusy()) {
 			const endTime = new Date().getTime();
 			const timeTaken = endTime - startTime;
 			if (timeTaken<500) {
@@ -21,7 +21,7 @@ async function loopCrime(ns: NS, crime: string): Promise<void> {
 				notYetCancelled = false;
 			} else  {
 				startTime = new Date().getTime();
-				ns.commitCrime(crime);
+				ns.singularity.commitCrime(crime);
 			}
 		
 		}

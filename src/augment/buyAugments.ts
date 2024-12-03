@@ -12,6 +12,7 @@ import {
 } from "augment/libAugmentations";
 import { retrieveCompanyStatus } from "corp/libCorporation";
 import { fmt } from "libFormat";
+import { say } from "speech/libSpeech"
 
 
 export async function main(ns: NS): Promise<void> {
@@ -50,29 +51,30 @@ async function buyAugmentations(ns: NS, force: boolean): Promise<void> {
 
     if ((!savingForCorporation && (worthBuying || restartForFavor)) || isRedPillAvailable(ns) || force ) {
         sellAllShares(ns);
-        ns.stopAction(); // Makes the reputation from the current action available
+        ns.singularity.stopAction(); // Makes the reputation from the current action available // @todo update - No longer needed
 
         maybeBuyStanekAugmentation(ns);
         ns.tprint("Buying augmentations for "+faction);
+        say("Buying "+bestAugs.length+" augmentations from "+faction);
 
         bestAugs.forEach(a => ns.tprint("INFO Buying augmentation "+a.name));
         bestAugs.forEach(a => ns.toast("Buying augmentation "+a.name));
-        bestAugs.forEach(a => ns.purchaseAugmentation(faction, a.name));
+        bestAugs.forEach(a => ns.singularity.purchaseAugmentation(faction, a.name));
         await triggerRestart(ns);
     }
 }
 
 function willGetEnoughFavorForDonations(ns: NS, faction: string): boolean {
-    const favor = ns.getFactionFavor(faction);
+    const favor = ns.singularity.getFactionFavor(faction);
     const favorNeeded = ns.getFavorToDonate();
-    const favorGain = ns.getFactionFavorGain(faction);
+    const favorGain = ns.singularity.getFactionFavorGain(faction);
     return (favor<favorNeeded) && (favor + favorGain >= favorNeeded);
 }
 
 /** Restart as soon as the Red Pill is available, because that means the end is nigh */
 function isRedPillAvailable(ns: NS): boolean {
     return (ns.getPlayer().factions.includes("Daedalus")) &&
-            (ns.getAugmentationRepReq("The Red Pill") <= calculateReputation(ns, "Daedalus"));
+            (ns.singularity.getAugmentationRepReq("The Red Pill") <= calculateReputation(ns, "Daedalus"));
 }
 
 /** A corp is a much more effective way of raising money, so don't interrupt progress towards it */

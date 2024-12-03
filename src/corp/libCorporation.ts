@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {  NS } from '@ns'
+import {CityName, CorpEmployeePosition, Division, NS} from '@ns'
 import * as ports from 'libPorts';
 
 export async function* waitForNextCorporationTick(ns: NS): TickGenerator {
-    const getState = () => ns.corporation.getCorporation().state;
+    // @todo update - options are prevState or nextState - was just state before
+    const getState = () => ns.corporation.getCorporation().prevState;
     // States are "START", "PURCHASE", "PRODUCTION", "SALE", "EXPORT"
     const weightTime = 200;
 
@@ -22,12 +23,12 @@ export async function* waitForNextCorporationTick(ns: NS): TickGenerator {
 
 export type TickGenerator = AsyncGenerator<undefined, void, unknown>
 
-export function listPositions(): string[] {
-    return ["Operations", "Engineer", "Management", "Business", "Research & Development", "Training", "Unassigned" ];
+export function listPositions(): CorpEmployeePosition[] {
+    return ["Operations", "Engineer", "Management", "Business", "Research & Development", "Intern", "Unassigned" ];
 }
 
-export function listCities(): string[] {
-    return [ "Sector-12", "Volhaven", "Chongqing", "New Tokyo", "Ishima", "Aevum" ];
+export function listCities(): CityName[] {
+    return Object.values(CityName);
 }
 
 export function doCount(i: number): number[] {
@@ -39,8 +40,12 @@ export function listEmployeeUpgrades(): string[] {
 }
 
 export function findDivisionName(ns: NS, industry: string): string {
-    const divisions = ns.corporation.getCorporation().divisions;
-    return divisions.filter(d => d.type == industry).map(d => d.name).at(0) !;
+    return listDivisions(ns).filter(d => d.type == industry).map(d => d.name).at(0) !;
+}
+
+export function listDivisions(ns: NS): Division[]  {
+    const divisionNames = ns.corporation.getCorporation().divisions;
+    return divisionNames.map(ns.corporation.getDivision);
 }
 
 export type JobCounts = { position: string, currentCount: number, desiredCount: number };
@@ -52,7 +57,7 @@ export enum JobPosition {
     Management = "Management",
     Business = "Business",
     RandD = "Research & Development",
-    Training = "Training",
+    Intern = "Intern",
     Unassigned = "Unassigned"
 }
 

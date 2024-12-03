@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { formatMoney } from "libFormat";
+import {formatMoney} from "libFormat";
 import * as ports from "libPorts";
-import { lookupHashIcons, HashUpgrade } from "hacknet/libHashes";
-import { lookupSleeveIcon, retrieveSleeveTasks } from "sleeve/libSleeve";
-import { lookupFragmentTypeIcon, CombinedFragment } from "stanek/libFragment";
-import { receiveAttackTarget } from "spread/libSpread";
-import { retrieveCompanyStatus, CorporationStatus } from "corp/libCorporation";
-import { retrieveShareStatus, ShareStatus } from "tix/libShareInfo";
-import { retrieveGangInfo, lookupGangTaskIcon } from "crime/libGangInfo";
-import { AugReport, retrieveAugInfo} from "augment/libAugmentations";
-import { NS } from '@ns'
+import {HashUpgrade, lookupHashIcons} from "hacknet/libHashes";
+import {lookupSleeveIcon, retrieveSleeveTasks} from "sleeve/libSleeve";
+import {CombinedFragment, lookupFragmentTypeIcon} from "stanek/libFragment";
+import {receiveAttackTarget} from "spread/libSpread";
+import {CorporationStatus, retrieveCompanyStatus} from "corp/libCorporation";
+import {retrieveShareStatus, ShareStatus} from "tix/libShareInfo";
+import {lookupGangTaskIcon, retrieveGangInfo} from "crime/libGangInfo";
+import {AugReport, retrieveAugInfo} from "augment/libAugmentationInfo";
+import {NS} from '@ns'
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
@@ -29,11 +29,11 @@ export async function main(ns: NS): Promise<void> {
             const headers = []
             const values = [];
 
-            const income = formatMoney(ns, ns.getScriptIncome()[0]) + '/s';
+            const income = formatMoney(ns, ns.getTotalScriptIncome()[0]) + '/s';
             headers.push("Income: ");
             values.push(income);
 
-            const hackExp = ns.nFormat(ns.getScriptExpGain(), "0.00a");
+            const hackExp = ns.nFormat(ns.getTotalScriptExpGain(), "0.00a");
             headers.push("Hack exp: ");
             values.push(hackExp + '/s');
 
@@ -149,8 +149,7 @@ function getSleeveIcons(ns: NS): (string | null) {
     const sleeveTasks = retrieveSleeveTasks(ns);
     if (sleeveTasks.length==0) return null;
 
-    const icons = sleeveTasks.map(o => o.task).map(lookupSleeveIcon).join("");
-    return icons;
+    return sleeveTasks.map(o => o.type).map(lookupSleeveIcon).join("");
 }
 
 function getGangInfo(ns: NS): (GangInfo | null) {

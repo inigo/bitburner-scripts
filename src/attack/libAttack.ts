@@ -55,7 +55,7 @@ export function log(ns: NS, message: string): void {
 export function killMatchingScripts(ns: NS, host: string, filenames: string[], target: string): number {
 	const matchesTargetFn = (args: string[]) => (target=="all") ? true : args.includes(target);
 	return ns.ps(host).filter(p => filenames.includes(p.filename))
-            .filter(p => matchesTargetFn(p.args))
+            .filter(p => matchesTargetFn(p.args.map(arg => String(arg))))
             .map(p => ns.kill(p.pid)).length;
 }
 
@@ -112,7 +112,7 @@ export async function reportAttackStatus(ns: NS): Promise<void> {
     const potentialAttackers = ["home", ... ns.getPurchasedServers()];
     const targets: AttackScriptStatus[] = potentialAttackers.flatMap(s => listAttackTargets(s).filter(s => s).map(t => [s, t]))
             .map(st => {
-                const [source, target] = st;
+                const [source, target] = st.map(String);
                 const income = ns.getScriptIncome(filename, source, target );
                 return { source, target, income };
              });

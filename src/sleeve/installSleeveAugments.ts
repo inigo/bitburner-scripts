@@ -10,7 +10,7 @@ export async function main(ns : NS) : Promise<void> {
 
     const moneyToRetain = 600_000_000_000;
     const enoughMoney = ns.getServerMoneyAvailable("home") > moneyToRetain;
-    const unshockedSleeves = listSleeves(ns).filter(s => ns.sleeve.getSleeveStats(s).shock == 0);
+    const unshockedSleeves = listSleeves(ns).filter(s => ns.sleeve.getSleeve(s).shock == 0);
 
     if (!enoughMoney) {
         ns.print("Not enough money to be worth installing augments - doing nothing");

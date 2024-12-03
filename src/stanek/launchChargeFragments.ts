@@ -5,7 +5,7 @@ import { loadFragments } from "stanek/loadFragments";
 export async function main(ns: NS): Promise<void> {
 	const maxIterations = ns.args.find(arg => Number.isInteger(arg)) ?? 100;
 
-	const hasStanek = ns.getOwnedAugmentations().includes("Stanek's Gift - Genesis");
+	const hasStanek = ns.singularity.getOwnedAugmentations().includes("Stanek's Gift - Genesis");
 	if (!hasStanek) {
 		ns.print("Does not have Stanek's Gift - nothing to do")
 		return;

@@ -1,5 +1,5 @@
-import { NS } from '@ns'
-import { sellAllShares, getOwnedShareValue, reportShareStatus, pauseTrading } from "tix/libTix"; 
+import {FactionWorkType, NS} from '@ns'
+import {getOwnedShareValue, pauseTrading, reportShareStatus, sellAllShares} from "tix/libTix";
 
 export async function main(ns : NS) : Promise<void> {
 
@@ -21,15 +21,15 @@ export async function main(ns : NS) : Promise<void> {
 }
 
 function isMemberOrInvited(ns: NS, faction: string): boolean {
-	return ns.checkFactionInvitations().includes(faction) || ns.getPlayer().factions.includes(faction);
+	return ns.singularity.checkFactionInvitations().includes(faction) || ns.getPlayer().factions.includes(faction);
 }
 
 function joinFaction(ns: NS, faction: string) {
-	if (ns.checkFactionInvitations().includes(faction)) {
+	if (ns.singularity.checkFactionInvitations().includes(faction)) {
 		ns.toast("Joining preferred faction "+faction);
-		ns.joinFaction(faction);
+		ns.singularity.joinFaction(faction);
 
-		ns.workForFaction(faction, "Hacking Contracts");
-		ns.setFocus(true);
+		ns.singularity.workForFaction(faction, FactionWorkType.hacking);
+		ns.singularity.setFocus(true);
 	}
 }

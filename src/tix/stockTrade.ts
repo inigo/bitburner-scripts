@@ -8,7 +8,7 @@ export async function main(ns: NS): Promise<void> {
 
 	const isLive = (ns.args[0] as string) == "live";
 
-	if (! ns.getPlayer().hasTixApiAccess) {
+	if (! ns.stock.hasTIXAPIAccess()) {
 		ns.tprint("Must have TIX API access before this script will work");
 		ns.exit();
 	}
@@ -22,7 +22,7 @@ export async function main(ns: NS): Promise<void> {
 	const symbols = ns.stock.getSymbols();
 	const predictors = symbols.map(s => new SmoothingStockPredictor(ns, new OngoingStockPredictor(s, 90), 25));
 
-	const stockChooser = (ns.getPlayer().has4SDataTixApi && isLive) ? new WixStockChooser(ns) : new StockChooser(ns, predictors);
+	const stockChooser = (ns.stock.has4SDataTIXAPI() && isLive) ? new WixStockChooser(ns) : new StockChooser(ns, predictors);
 
 	// const realValuesSourceFn = () => realStockValues(ns, 0);
 	// const replayValuesSourceFn = () => replayStoredStockValues(ns, db, storeName, 0);

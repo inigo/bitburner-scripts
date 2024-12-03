@@ -7,7 +7,7 @@ export async function main(ns: NS): Promise<void> {
 		if (ns.heart.break() < -54000) {
 			const gangFactions = [ "Speakers for the Dead", "Tetrads", "Slum Snakes" ];
 			gangFactions.filter(g => !ns.getPlayer().factions.includes(g))
-						.forEach(g => ns.joinFaction(g));
+						.forEach(g => ns.singularity.joinFaction(g));
 
 			const gangName = gangFactions.find(f => ns.getPlayer().factions.includes(f));
 			if (gangName==null) {

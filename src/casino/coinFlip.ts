@@ -8,9 +8,9 @@ export async function main(ns: NS): Promise<void> {
 	const doc = dom.getDocument();
 
 	if (ns.getPlayer().city!="Aevum") {
-		ns.travelToCity("Aevum");
+		ns.singularity.travelToCity("Aevum");
 	}
-	ns.stopAction();
+	ns.singularity.stopAction();
 	await ns.sleep(100);
 	dom.selectSidebarOption(doc, "City");
 	dom.goToLocationInCity(doc, "Iker Molina Casino");

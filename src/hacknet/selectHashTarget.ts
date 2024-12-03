@@ -1,8 +1,9 @@
-import { NS } from '@ns'
+import {GymType, NS, SleeveClassTask, SleeveTask} from '@ns'
 import { retrieveCompanyStatus } from "corp/libCorporation";
 import { setHashSpend, spendHashesOnPurchases } from "hacknet/libHashes";
 import { retrieveSleeveTasks } from "sleeve/libSleeve";
 import { retrieveAttackStatus } from "attack/libAttack";
+import { retrieveGangInfo } from "crime/libGangInfo";
 
 /**
  * Choose an appropriate objective to spend Hacknet hashes on, based on the reports from various
@@ -14,11 +15,18 @@ export async function main(ns : NS) : Promise<void> {
     const corpInfo = retrieveCompanyStatus(ns);
     const investmentRound = (corpInfo?.investmentRound ?? -1);
     const sleeveInfo = retrieveSleeveTasks(ns);
-    const allSleevesAtGym = sleeveInfo.every(s => s.task=="Gym");
+
+    const isGymClass = (s: SleeveTask): boolean => s.type === "CLASS" && Object.values(GymType).includes(s.classType as GymType);
+    const allSleevesAtGym = sleeveInfo.every(s => isGymClass(s));
+
     const homeAttackTarget = retrieveAttackStatus(ns).filter(a => a.source=="home").map(a => a.target)[0] ?? null;
     const hashes = ns.hacknet.numHashes();
     const hashCapacity = ns.hacknet.hashCapacity();
     const hashesNeededForServerWeakening = 700;
+    const gangInfo = retrieveGangInfo(ns);
+    const gangFaction = gangInfo?.gangInfo?.faction ?? null;
+    const factionsToIgnore = ["Church of the Machine God", gangFaction ].filter(f => f!=null);
+    const inInterestingFaction = ns.getPlayer().factions.filter(f => !factionsToIgnore.includes(f)).length > 0;
 
     if (level("Generate Coding Contract")<1) {
         ns.print("No contracts generated, so generating one");
@@ -29,10 +37,10 @@ export async function main(ns : NS) : Promise<void> {
     } else if (investmentRound == 0) {
         ns.print("New corporation startup, so providing funds to be used for growth");
         await setHashSpend(ns, [ { name: "Sell for Corporation Funds" } ]);
-    } else if (allSleevesAtGym) {
+    } else if (allSleevesAtGym && (level("Improve Gym Training") < 20)) {
         ns.print("All sleeves are at the gym, so improving gym training to support them");
         await setHashSpend(ns, [ { name: "Improve Gym Training" } ]);
-    } else if (level("Generate Coding Contract")<3) {
+    } else if (level("Generate Coding Contract")<3 && inInterestingFaction) {
         ns.print("Less than three coding contracts, so generating another one");
         await setHashSpend(ns, [ { name: "Generate Coding Contract" } ]);
     } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes < hashesNeededForServerWeakening && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {
@@ -47,6 +55,9 @@ export async function main(ns : NS) : Promise<void> {
     } else if (investmentRound >= 1) {
         ns.print("Providing research to corporation");
         await setHashSpend(ns, [ { name: "Exchange for Corporation Research" } ]);
+    } else if (level("Generate Coding Contract")<6 && inInterestingFaction) {
+        ns.print("Less than five coding contracts, so generating another one");
+        await setHashSpend(ns, [ { name: "Generate Coding Contract" } ]);
     } else if (hashes > hashCapacity*0.6) {
         ns.print("No other objectives and plenty spare, so converting to cash");
         await setHashSpend(ns, [ { name: "Sell for Money" } ]);

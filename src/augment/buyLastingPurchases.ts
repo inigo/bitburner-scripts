@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import {CityName, NS} from '@ns'
 import { listSleeves, installSleeveAugments } from "sleeve/libSleeve";
 import { buyAugmentations } from "crime/libGang";
 import {sellAllShares} from "/tix/libTix";
@@ -20,7 +20,7 @@ export async function buyLastingPurchases(ns: NS): Promise<void> {
 }
 
 function buyStockmarketAccess(ns: NS): void {
-	if (ns.getPlayer().has4SDataTixApi) {
+	if (ns.stock.has4SDataTIXAPI()) {
 		ns.print("Already have access to stock market");
 	} else {
 		const purchased = ns.stock.purchase4SMarketDataTixApi();
@@ -29,7 +29,7 @@ function buyStockmarketAccess(ns: NS): void {
 }
 
 function buyRam(ns: NS): void {
-	while (ns.upgradeHomeRam()) {
+	while (ns.singularity.upgradeHomeRam()) {
 		ns.toast("Upgrading RAM");
 	}
 }
@@ -37,7 +37,7 @@ function buyRam(ns: NS): void {
 function buyNeurofluxGovernors(ns: NS): void {
 	const favouriteFaction = getFavouriteFaction(ns);
 	if (favouriteFaction==null) return;
-	while (ns.purchaseAugmentation(favouriteFaction, "NeuroFlux Governor")) {
+	while (ns.singularity.purchaseAugmentation(favouriteFaction, "NeuroFlux Governor")) {
 		ns.toast("Buying NeuroFlux Governor");
 	}
 }
@@ -45,14 +45,15 @@ function buyNeurofluxGovernors(ns: NS): void {
 function getFavouriteFaction(ns: NS): (string | null) {
 	const gangFaction = ns.gang.inGang() ? ns.gang.getGangInformation().faction : null;
 	const factions = ns.getPlayer().factions
+						.filter(f => f!="Church of the Machine God")
 						.filter(f => f!=gangFaction)
-						.sort((a, b) => ns.getFactionRep(a) - ns.getFactionRep(b)).reverse();
+						.sort((a, b) => ns.singularity.getFactionRep(a) - ns.singularity.getFactionRep(b)).reverse();
 	const favouriteFaction = (factions.length > 0) ? factions[0] : null;
 	return favouriteFaction;
 }
 
 function buyCores(ns: NS): void {
-	while (ns.upgradeHomeCores()) {
+	while (ns.singularity.upgradeHomeCores()) {
 		ns.toast("Upgrading cores");
 	}
 }
@@ -66,7 +67,7 @@ async function buyGangAugments(ns: NS): Promise<void> {
 }
 
 function buySleeveAugments(ns: NS): void {
-	const unshockedSleeves = listSleeves(ns).filter(s => ns.sleeve.getSleeveStats(s).shock == 0);
+	const unshockedSleeves = listSleeves(ns).filter(s => ns.sleeve.getSleeve(s).shock == 0);
 	unshockedSleeves.forEach(s => installSleeveAugments(ns, s, 0));
 }
 
@@ -79,20 +80,20 @@ function tryToBuyAugmentations(ns: NS, faction: string, augments?: string[]): vo
 	const inFaction = ns.getPlayer().factions.includes(faction);
 	if (!inFaction) { return; }
 
-	ns.getAugmentationsFromFaction(faction)
+	ns.singularity.getAugmentationsFromFaction(faction)
 		.filter(f => augments==null ? true : augments.includes(f) )
-		.forEach(f => ns.purchaseAugmentation(faction, f) );
+		.forEach(f => ns.singularity.purchaseAugmentation(faction, f) );
 }
 
 /** This provides Intelligence experience - although not very much */
 async function travelAroundWorld(ns: NS): Promise<void> {
-	ns.travelToCity("Chongqing"); // Make sure we're not in Sector-12 to begin with
+	ns.singularity.travelToCity("Chongqing"); // Make sure we're not in Sector-12 to begin with
 	outerloop:
 	for (let i = 0 ; i < 100000; i++) {
 		for (const c of listCities()) {
 			if (ns.getServerMoneyAvailable("home")<200_000) break;
 			try {
-				const travelledSuccessfully = ns.travelToCity(c);
+				const travelledSuccessfully = ns.singularity.travelToCity(c as CityName);
 				if (!travelledSuccessfully) {
 					break outerloop;
 				}

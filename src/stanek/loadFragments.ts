@@ -25,6 +25,6 @@ export function loadFragments(ns: NS, filename: string) {
 		ns.exit();
 	}
 	const frags: SimpleFragment[] = JSON.parse(fragsJson)
-	ns.stanek.clear();
-	frags.forEach(f => ns.stanek.place(f.x, f.y, f.rotation, f.id) );
+	ns.stanek.clearGift();
+	frags.forEach(f => ns.stanek.placeFragment(f.x, f.y, f.rotation, f.id) );
 }

@@ -4,15 +4,18 @@ import { listSleeves, travelTo } from "sleeve/libSleeve";
 
 export async function main(ns : NS) : Promise<void> {
     const requiredHacking = ns.getBitNodeMultipliers().WorldDaemonDifficulty * 3000;
-    const currentHacking = ns.getPlayer().hacking;
-    const hasRedPill = ns.getOwnedAugmentations(true).includes("The Red Pill");
+    const currentHacking = ns.getPlayer().skills.hacking;
+    const hasRedPill = ns.singularity.getOwnedAugmentations(true).includes("The Red Pill");
     const enoughPortsOpen = ns.getServer("w0r1d_d43m0n").openPortCount == 5;
 
     if (hasRedPill && enoughPortsOpen && currentHacking >= requiredHacking) {
+
+        ns.run("/reporting/logProgress.js", 1, "completeBitnode")
+
         // Work round the current bug that sleeves don't reset location when starting a new Bitnode - can remove once that is deployed
         listSleeves(ns).forEach(s => travelTo(ns, s, "Sector-12"));
         await manuallyConnectTo(ns, "w0r1d_d43m0n");
-        await ns.installBackdoor();
+        await ns.singularity.installBackdoor();
 
         // Gives some time for the "Bitnode completed" scroll to complete
         window.setTimeout(() => startNewNode(), 12_000);        

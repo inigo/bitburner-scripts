@@ -22,7 +22,7 @@ async function buyServerWithAttack(ns: NS, ignoreLimit: boolean) {
 						(existingCount < 6 || hackLevel < 1500) ? 65536 :
 						524288;
 	const targetFinder = new TargetFinder(ns);
-	const viableTargets = targetFinder.listBestTargets(60, ramSize).filter(t => t.isAttacked == false);
+	const viableTargets = targetFinder.listBestTargets(60, ramSize).filter(t => !t.isAttacked);
 
 	if (viableTargets.length==0) {
 		ns.print("No suitable targets to attack");
@@ -62,7 +62,7 @@ function sellServerSmallerThan(ns: NS, ram: number) {
 						.sort((a, b) => ns.getServerMaxRam(a) - ns.getServerMaxRam(b));
 	if (sellableServers.length>0) {
 		const toSell = sellableServers[0];						
-		ns.tprint(`Selling ${toSell} with RAM ${ns.getServerRam(toSell)} GB`);
+		ns.tprint(`Selling ${toSell} with RAM ${ns.getServerMaxRam(toSell)} GB`);
 		ns.deleteServer(toSell);
 		return true;
 	} else {

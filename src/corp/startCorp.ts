@@ -19,7 +19,7 @@ export async function main(ns : NS) : Promise<void> {
         
         return;
     } 
-    const selfFund = (ns.getPlayer().bitNodeN!=3);
+    const selfFund = (ns.getResetInfo().currentNode!=3);
     const cost = selfFund ? 150_000_000_000 : 0;
     const corp = eval("ns.corporation");
     const started = await buyWithShares(ns, cost, () => corp.createCorporation("Bats Inc", selfFund));
