@@ -59,7 +59,8 @@ function flight(ns: NS): void {
 function isPreparedForFlight(ns: NS): boolean {
 	return (ns.getHackingLevel() >= 2500 
 			&& ns.getServerMoneyAvailable("home") > 100_000_000_000 
-			&& ns.singularity.getOwnedAugmentations(false).length >= 30);
+			&& ns.singularity.getOwnedAugmentations(false).length >= 30)
+			&& ns.fileExists("fl1ght.exe");
 }
 
 function isAvailable(ns: NS) {
