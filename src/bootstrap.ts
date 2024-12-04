@@ -66,7 +66,8 @@ export async function main(ns: NS): Promise<void> {
 							, "/hacknet/selectHashTarget.js"							
 							, "/hacknet/sellHashes.js"
 							, "/hacknet/upgradeNodes.js"
-							, "/contracts/solveContracts.js"
+				// @todo update - temporarily disabled - was causing hang.
+							// , "/contracts/solveContracts.js"
 							, "/sleeve/selectSleeveTask.js"
 							, "/reporting/logProgress.js"
 							];
@@ -102,7 +103,9 @@ function launchHackLocal(ns: NS): void {
 	const maxMoney = ns.getServerMaxMoney(hackTarget);
 	const minSecurity = ns.getServerMinSecurityLevel(hackTarget);	
 	ns.print(`Launching hack script to hack ${hackTarget}`);
-	ns.run(hackScript, threads, hackTarget, maxMoney, minSecurity, "stopAfterDelay");
+	// @todo update - temporarily disabled, because this doesn't seem to be working
+	ns.tprint(`Want to launch: ${hackScript} with threads ${threads}, hacktarget ${hackTarget}, maxMoney ${maxMoney}, minSecurity ${minSecurity}, and "stopAfterDelay"`);
+	// ns.run(hackScript, threads, hackTarget, maxMoney, minSecurity, "stopAfterDelay");
 }
 
 function anyScriptRunning(ns: NS, filename: string): boolean {
