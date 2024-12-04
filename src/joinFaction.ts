@@ -66,7 +66,16 @@ function isPreparedForFlight(ns: NS): boolean {
 function isAvailable(ns: NS) {
 	const currentWork = ns.singularity.getCurrentWork();
 	const isStudying = currentWork?.type == "CLASS";
-	return !(ns.singularity.isBusy() || ns.bladeburner.getCurrentAction() != null) || isStudying;
+	let isBladeburning = false;
+	try {
+		if (ns.bladeburner.inBladeburner() && ns.bladeburner.getCurrentAction() != null) {
+			isBladeburning = true;
+		}
+	} catch (e) {
+		ns.print("Cannot check whether there is a bladeburner action because not a bladeburner")
+	}
+
+	return !(ns.singularity.isBusy() || isBladeburning) || isStudying;
 }
 
 function joinPreferredFaction(ns: NS, inGang: boolean): void {
