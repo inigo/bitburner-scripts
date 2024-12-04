@@ -60,7 +60,7 @@ export function selectAction(ns: NS): BladeburnerAction {
 	const currentChaos = ns.bladeburner.getCityChaos(ns.bladeburner.getCity());
 	const isTooChaotic = currentChaos > 50;
 	const lackingInfo = (bestActions[0].maxSuccessChance - bestActions[0].minSuccessChance) > 0.01;
-	const usedUpActions = evaluateActions(ns).filter(a => a.remainingCount==0).map(a => a.name);
+	const usedUpActions = evaluateActions(ns).filter(a => a.remainingCount<1).map(a => a.name);
 	const noActionsRemaining = usedUpActions.includes( "Sting Operation" as BladeburnerActionName) &&
 								usedUpActions.includes( "Stealth Retirement Operation" as BladeburnerActionName) &&
 								usedUpActions.includes( "Investigation" as BladeburnerActionName) &&
@@ -68,7 +68,7 @@ export function selectAction(ns: NS): BladeburnerAction {
 	
 
 	const action = !isTrained(ns) ? trainingAction :
-					!isHealthy(ns) ? healAction :
+					isTired(ns) ? healAction :
 					isTooChaotic ? diplomacyAction :
 					noActionsRemaining ? inciteAction : 
 					lackingInfo ? researchAction : 
@@ -76,10 +76,9 @@ export function selectAction(ns: NS): BladeburnerAction {
 	return action !;
 }
 
-function isHealthy(ns: NS): boolean {
+function isTired(ns: NS): boolean {
 	const [currentStamina, maxStamina ] = ns.bladeburner.getStamina();
-	const isTired = (currentStamina / maxStamina) < 0.7;
-	return !isTired;
+	return (currentStamina / maxStamina) < 0.7;
 }
 
 function isTrained(ns: NS): boolean {
@@ -96,7 +95,7 @@ export function evaluateActions(ns: NS): BladeburnerAction[] {
 }
 
 function getActionStats(ns: NS, type: `${BladeburnerActionType}`, name: `${BladeburnerActionName}`): BladeburnerAction {
-	const remainingCount = ns.bladeburner.getActionCountRemaining(type, name);
+	const remainingCount = Math.floor(ns.bladeburner.getActionCountRemaining(type, name));
 	const [minSuccessChance, maxSuccessChance] = ns.bladeburner.getActionEstimatedSuccessChance(type, name);
 	const meanSuccessChance = (minSuccessChance + maxSuccessChance) / 2;
 	const time = ns.bladeburner.getActionTime(type, name);
