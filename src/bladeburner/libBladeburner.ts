@@ -10,6 +10,7 @@ export function manageBladeburner(ns: NS): void {
 
 	const currentAction = ns.bladeburner.getCurrentAction();
 	if (!currentAction || currentAction.name != action.name) {
+		ns.print("Best action is "+action.name+" - switching to that from former action "+(currentAction?.name ?? "none"));
 		ns.bladeburner.startAction(action.type, action.name);
 	}
 }
@@ -20,7 +21,7 @@ export function upgradeSkills(ns: NS, preferOverclock: boolean): void {
 	const maxedOverclock = (ns.bladeburner.getSkillLevel("Overclock")>=90);
 	const cheapestSkills = skills
 			.filter(s => s != "Overclock" || !maxedOverclock)
-			.filter(s => s != "Tracer" || ns.bladeburner.getSkillLevel("Tracer") <= 15 )
+			.filter(s => s != "Tracer" || ns.bladeburner.getSkillLevel("Tracer") <= 15 ) // Tracer more than 15 provides diminishing returns
 			.sort((a, b) => ns.bladeburner.getSkillUpgradeCost(a) - ns.bladeburner.getSkillUpgradeCost(b));
 	
 	const overclockBias = (preferOverclock && !maxedOverclock) ? 3 : 1;
@@ -29,6 +30,7 @@ export function upgradeSkills(ns: NS, preferOverclock: boolean): void {
 		const skillCost = ns.bladeburner.getSkillUpgradeCost(skill) * (skill=="Overclock" ? 1 : overclockBias);
 		if (skillCost <= ns.bladeburner.getSkillPoints()) {
 			ns.toast("Upgrading "+skill);
+			ns.print("Upgrading "+skill+" - it is the cheapest of the interesting skills (including Overclock bias)");
 			ns.bladeburner.upgradeSkill(skill);
 		}
 	}
@@ -98,7 +100,7 @@ function getActionStats(ns: NS, type: `${BladeburnerActionType}`, name: `${Blade
 	const [minSuccessChance, maxSuccessChance] = ns.bladeburner.getActionEstimatedSuccessChance(type, name);
 	const meanSuccessChance = (minSuccessChance + maxSuccessChance) / 2;
 	const time = ns.bladeburner.getActionTime(type, name);
-	const level = ns.bladeburner.getActionCurrentLevel(type, name);
+	const level = (type=="General") ? 0 : ns.bladeburner.getActionCurrentLevel(type, name); // Cannot get the level for non-levellable actions
 	const repGain = ns.bladeburner.getActionRepGain(type, name, level);
 	
 	const repGainRate = (repGain / (time / 1000)) * meanSuccessChance;

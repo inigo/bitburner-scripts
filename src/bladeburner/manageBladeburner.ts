@@ -2,6 +2,7 @@ import { manageBladeburner } from "bladeburner/libBladeburner";
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {
+	ns.disableLog("sleep");
 	if (ns.bladeburner.joinBladeburnerDivision()) {
 		ns.singularity.stopAction();
 		// noinspection InfiniteLoopJS
