@@ -375,7 +375,7 @@ function getNewName(ns: NS): string {
 	const possibleNames = listNames().map(m => fixCase(m));
 	const availableNames = possibleNames.filter(m => ! existingMembers.includes(m));
 	const names = (availableNames.length==0) ? possibleNames : availableNames;
-	const prefix = (availableNames.length>0) ? "" : " "+namePrefixes()[ randomInt(namePrefixes().length) ];
+	const prefix = (availableNames.length>0 && Math.random() < 0.7) ? namePrefixes()[ randomInt(namePrefixes().length) ]+" " : "";
 	const randomName = names[ randomInt(names.length) ];
 
 	return prefix + randomName;
@@ -386,7 +386,7 @@ function randomInt(outOf: number): number {
 }
 
 function namePrefixes(): string[] {
-	return [ "Big", "L'il", "Scary", "Nice", "Stabby"];
+	return [ "Big", "L'il", "Scary", "Nice", "Stabby", "Monkey", "One-eyed", "Pegleg", "Fierce", "Bloody", "Cap'n", "Scurvy", "Shifty", "Diamond", "Jolly"];
 }
 
 function listNames(): string[] {
