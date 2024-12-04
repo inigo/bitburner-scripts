@@ -65,7 +65,8 @@ export async function manageGang(ns: NS, goal = "general", stage="early"): Promi
 		} else if (Math.random() <= (1/7)) {
 			// This helps even out tasks that just train specific stats
 			preferredTask = (Math.random() <= (1/5)) ? "Train Charisma" : "Train Combat";
-			reason = "one day of the week is for professional development";			
+			reason = "one day of the week is for professional development";
+		// If territoryClashChance is higher, then the gang member might be killed if doing warfare (although unlikely)
 		} else if ((goal=="territory") && currentGang.territoryClashChance<0.01) {
 			preferredTask = "Territory Warfare";
 			reason = "the goal is territory and not currently fighting";
