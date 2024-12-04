@@ -84,7 +84,7 @@ function isHealthy(ns: NS): boolean {
 
 function isTrained(ns: NS): boolean {
 	const p = ns.getPlayer();
-	const stats = [ p.skills.agility, p.skills.defense, p.skills.dexterity, p.skills.strength, p.skills.charisma ];
+	const stats = [ p.skills.agility, p.skills.defense, p.skills.dexterity, p.skills.strength ];
 	return Math.min(... stats) >= 100;
 }
 
