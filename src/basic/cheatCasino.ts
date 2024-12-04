@@ -29,9 +29,6 @@ async function acquireMoneyToTravel(ns: NS):Promise<void>  {
         while (money() < 200_000) {
             const time = ns.singularity.commitCrime("Mug");
             await ns.sleep(time);
-            while (ns.singularity.isBusy()) {
-                await ns.sleep(100);
-            }
         }            
     }
 }
