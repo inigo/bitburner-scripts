@@ -16,7 +16,7 @@ export async function main(ns : NS) : Promise<void> {
     const investmentRound = (corpInfo?.investmentRound ?? -1);
     const sleeveInfo = retrieveSleeveTasks(ns);
 
-    const isGymClass = (s: SleeveTask) => s.type === "CLASS" && ["str","def", "dex", "agi"].includes(s.classType);
+    const isGymClass = (s: SleeveTask) => s?.type === "CLASS" ? ["str","def", "dex", "agi"].includes(s.classType) : false;
     const allSleevesAtGym = sleeveInfo.every(s => isGymClass(s));
 
     const homeAttackTarget = retrieveAttackStatus(ns).filter(a => a.source=="home").map(a => a.target)[0] ?? null;
