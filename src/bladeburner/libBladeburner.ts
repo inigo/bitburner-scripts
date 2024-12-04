@@ -46,13 +46,14 @@ export function selectAction(ns: NS): BladeburnerAction {
 	// Find action with highest rank gain
 	const bestActions = evaluateActions(ns)
 							.filter(a => a.remainingCount>=1)
-							.filter(a => a.meanSuccessChance >= 0.7)
+							.filter(a => (a.type!="Black Operations" && a.meanSuccessChance >= 0.7) || (a.type=="Black Operations" && a.meanSuccessChance >= 0.99))
 							.filter(a => a.name != "Incite Violence") // Generates too much chaos
 							.filter(a => a.name != "Raid") // Generates too much chaos, kills too many people
 							.sort((a, b) => a.repGainRate - b.repGainRate).reverse();
 
-	const trainingAction = bestActions.find(a => a.name=="Training"); 
-	const researchAction = bestActions.find(a => a.name=="Field Analysis"); 
+	const blackOpAction = bestActions.find(a => a.type=="Black Operations");
+	const trainingAction = bestActions.find(a => a.name=="Training");
+	const researchAction = bestActions.find(a => a.name=="Field Analysis");
 	const healAction = bestActions.find(a => a.name=="Hyperbolic Regeneration Chamber");
 	const diplomacyAction = bestActions.find(a => a.name=="Stealth Retirement Operation") ?? bestActions.find(a => a.name=="Diplomacy");
 	const inciteAction = evaluateActions(ns).find(a => a.name=="Incite Violence");
@@ -70,7 +71,8 @@ export function selectAction(ns: NS): BladeburnerAction {
 	const action = !isTrained(ns) ? trainingAction :
 					isTired(ns) ? healAction :
 					isTooChaotic ? diplomacyAction :
-					noActionsRemaining ? inciteAction : 
+					blackOpAction ? blackOpAction :
+					noActionsRemaining ? inciteAction :
 					lackingInfo ? researchAction : 
 					bestActions[0];
 	return action !;
@@ -91,7 +93,9 @@ export function evaluateActions(ns: NS): BladeburnerAction[] {
 	const general = ns.bladeburner.getGeneralActionNames().map(c => getActionStats(ns, "General", c));
 	const contracts = ns.bladeburner.getContractNames().map(c => getActionStats(ns, "Contracts", c));
 	const operations = ns.bladeburner.getOperationNames().map(o => getActionStats(ns, "Operations", o));
-	return [... general, ... contracts, ... operations];
+	const nextBlackOp = ns.bladeburner.getNextBlackOp();
+	const blackOp = nextBlackOp && nextBlackOp.rank<=ns.bladeburner.getRank() ? [ getActionStats(ns, "Black Operations", nextBlackOp.name)] : [];
+	return [...general, ...contracts, ...operations, ...blackOp];
 }
 
 function getActionStats(ns: NS, type: `${BladeburnerActionType}`, name: `${BladeburnerActionName}`): BladeburnerAction {
@@ -99,7 +103,7 @@ function getActionStats(ns: NS, type: `${BladeburnerActionType}`, name: `${Blade
 	const [minSuccessChance, maxSuccessChance] = ns.bladeburner.getActionEstimatedSuccessChance(type, name);
 	const meanSuccessChance = (minSuccessChance + maxSuccessChance) / 2;
 	const time = ns.bladeburner.getActionTime(type, name);
-	const level = (type=="General") ? 0 : ns.bladeburner.getActionCurrentLevel(type, name); // Cannot get the level for non-levellable actions
+	const level = (type=="General" || type == "Black Operations") ? 0 : ns.bladeburner.getActionCurrentLevel(type, name); // Cannot get the level for non-levellable actions
 	const repGain = ns.bladeburner.getActionRepGain(type, name, level);
 	
 	const repGainRate = (repGain / (time / 1000)) * meanSuccessChance;
