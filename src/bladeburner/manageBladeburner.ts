@@ -11,6 +11,6 @@ export async function main(ns: NS): Promise<void> {
 			await ns.sleep(1000);
 		}
 	} else {
-		ns.print("Not in the bitburner division - nothing to do");
+		ns.print("Not in the bladeburner division - nothing to do");
 	}
 }
