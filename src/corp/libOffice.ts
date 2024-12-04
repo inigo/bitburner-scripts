@@ -127,8 +127,13 @@ export class OfficeControl {
         for (const count of counts) {
             if (count.currentCount!=count.desiredCount) {
                 this.ns.print("Setting position "+count.position+" to have "+count.desiredCount+" employees");
-                this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
-                // const afterAssignmentJobs = employees.map(name => getJob(name));
+                // @todo update - this is regularly failing - claiming there aren't unassigned employees when there are (does it take a while to unassign them??)
+                try {
+                    this.ns.corporation.setAutoJobAssignment(this.division, this.city, count.position, count.desiredCount);
+                } catch (e) {
+                    this.ns.tprint("Corporation assignation failed : " + e);
+                    this.ns.print("Corporation assignation failed : " + e);
+                }                // const afterAssignmentJobs = employees.map(name => getJob(name));
                 // const jobCount = afterAssignmentJobs.filter(j => j.pos == count.position).length;
                 // if (jobCount != count.desiredCount) {
                 //     this.ns.print("Employees not successfully assigned to "+count.position);
