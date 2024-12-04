@@ -1,6 +1,6 @@
 import {getUsefulAugmentations} from "augment/libAugmentations";
 import {retrieveGangInfo} from "crime/libGangInfo";
-import {CityName, FactionWorkType, StudyTask, UniversityClassType} from "@ns";
+import {CityName} from "@ns";
 
 export async function main(ns : NS) : Promise<void> {
 	await travelForFactions(ns);
@@ -9,13 +9,12 @@ export async function main(ns : NS) : Promise<void> {
 	joinPreferredFaction(ns, inGang);
 
 	const currentWork = ns.singularity.getCurrentWork();
-	// @todo update - not sure if this is correct
-	const isAtUniversity = Object.values(UniversityClassType).includes((currentWork as StudyTask).classType as UniversityClassType)
-	const available = !ns.singularity.isBusy() || isAtUniversity;
+	const isStudying = currentWork?.type=="CLASS";
+	const available = !ns.singularity.isBusy() || isStudying;
 	if (available) {
 		const preferredFaction = findPreferredFaction(ns, inGang);
 		if (preferredFaction!=null) {
-			ns.singularity.workForFaction(preferredFaction, FactionWorkType.hacking);
+			ns.singularity.workForFaction(preferredFaction, "hacking");
 		}
 	} 
 
@@ -71,7 +70,7 @@ function joinPreferredFaction(ns: NS, inGang: boolean): void {
 	if (preferredFaction!=null && ns.singularity.checkFactionInvitations().includes(preferredFaction)) {
 		ns.toast("Joining preferred faction "+preferredFaction);
 		ns.singularity.joinFaction(preferredFaction);
-		ns.singularity.workForFaction(preferredFaction, FactionWorkType.hacking);
+		ns.singularity.workForFaction(preferredFaction, "hacking");
 		// ns.setFocus(true);
 	}
 }
