@@ -8,13 +8,10 @@ export async function main(ns : NS) : Promise<void> {
 	const inGang = retrieveGangInfo(ns) != null;
 	joinPreferredFaction(ns, inGang);
 
-	const currentWork = ns.singularity.getCurrentWork();
-	const isStudying = currentWork?.type=="CLASS";
-	const available = !ns.singularity.isBusy() || isStudying;
-	if (available) {
+	if (isAvailable(ns)) {
 		const preferredFaction = findPreferredFaction(ns, inGang);
 		if (preferredFaction!=null) {
-			ns.singularity.workForFaction(preferredFaction, "hacking");
+			ns.singularity.workForFaction(preferredFaction, "hacking", false);
 		}
 	} 
 
@@ -65,13 +62,21 @@ function isPreparedForFlight(ns: NS): boolean {
 			&& ns.singularity.getOwnedAugmentations(false).length >= 30);
 }
 
+function isAvailable(ns: NS) {
+	const currentWork = ns.singularity.getCurrentWork();
+	const isStudying = currentWork?.type == "CLASS";
+	return !(ns.singularity.isBusy() || ns.bladeburner.getCurrentAction() != null) || isStudying;
+}
+
 function joinPreferredFaction(ns: NS, inGang: boolean): void {
 	const preferredFaction = findPreferredFaction(ns, inGang);
 	if (preferredFaction!=null && ns.singularity.checkFactionInvitations().includes(preferredFaction)) {
 		ns.toast("Joining preferred faction "+preferredFaction);
 		ns.singularity.joinFaction(preferredFaction);
-		ns.singularity.workForFaction(preferredFaction, "hacking");
-		// ns.setFocus(true);
+		const available = isAvailable(ns);
+		if (available) {
+			ns.singularity.workForFaction(preferredFaction, "hacking", false);
+		}
 	}
 }
 
