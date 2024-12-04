@@ -25,13 +25,13 @@ export async function main(ns: NS): Promise<void> {
 
 	ns.run("/stanek/launchChargeFragments.js", 1, 25);
 	await ns.sleep(200);
-	while (anyScriptRunning(ns, "/stanek/chargeFragments.js")) {
+	while (anyScriptRunning(ns, "stanek/chargeFragments.js")) {
 		await ns.sleep(1000);
 	}
 
 	ns.run("/basic/studyCs.js");
 	await ns.sleep(200);
-	while (anyScriptRunning(ns, "/basic/studyCs.js")) {
+	while (anyScriptRunning(ns, "basic/studyCs.js")) {
 		await ns.sleep(1000);
 	}
 
@@ -40,7 +40,7 @@ export async function main(ns: NS): Promise<void> {
 
 	ns.run("/corp/manageStartup.js");
 	await ns.sleep(200);
-	ns.run("/corp/manageCorp.js");
+	// ns.run("/corp/manageCorp.js");
 	await ns.sleep(200);
 	// This will abort if not in a gang
 	ns.run("/crime/manageGang.js");
@@ -89,7 +89,7 @@ export async function main(ns: NS): Promise<void> {
 
 function isPhaseTwo(ns: NS): boolean {
 	const allCracksBought = (ports.checkPort(ns, ports.CRACKS_BOUGHT_COUNT, parseInt)==5);
-	const cheatingCasino = anyScriptRunning(ns, "/basic/cheatCasino.js") || anyScriptRunning(ns, "/casino/coinFlip.js");
+	const cheatingCasino = anyScriptRunning(ns, "basic/cheatCasino.js") || anyScriptRunning(ns, "casino/coinFlip.js");
 	return ns.getServerMaxRam("home") >= 1024 && ns.getServerMoneyAvailable("home") > 1_000_000 && allCracksBought && !cheatingCasino;
 }
 
@@ -103,11 +103,10 @@ function launchHackLocal(ns: NS): void {
 	const maxMoney = ns.getServerMaxMoney(hackTarget);
 	const minSecurity = ns.getServerMinSecurityLevel(hackTarget);	
 	ns.print(`Launching hack script to hack ${hackTarget}`);
-	// @todo update - temporarily disabled, because this doesn't seem to be working
-	ns.tprint(`Want to launch: ${hackScript} with threads ${threads}, hacktarget ${hackTarget}, maxMoney ${maxMoney}, minSecurity ${minSecurity}, and "stopAfterDelay"`);
-	// ns.run(hackScript, threads, hackTarget, maxMoney, minSecurity, "stopAfterDelay");
+	ns.run(hackScript, threads, hackTarget, maxMoney, minSecurity, "stopAfterDelay");
 }
 
 function anyScriptRunning(ns: NS, filename: string): boolean {
-	return ns.ps().some(p => p.filename == filename);
+	const cleanFilename = filename.startsWith('/') ? filename.substring(1) : filename;
+	return ns.ps().some(p => p.filename === cleanFilename);
 }

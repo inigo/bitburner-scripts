@@ -9,7 +9,7 @@ export async function main(ns: NS): Promise<void> {
 
 	ns.tprint("Updated version");
 
-	if (ns.getServerMaxRam("home") > 128 && !anyScriptRunning(ns, "/tix/stockTrade.js")) {
+	if (ns.getServerMaxRam("home") > 128 && !anyScriptRunning(ns, "tix/stockTrade.js")) {
 		ns.run("/tix/stockTrade.js", 1, "live");
 	}
 
@@ -17,14 +17,14 @@ export async function main(ns: NS): Promise<void> {
 	ns.run("/crime/manageGang.js");
 	ns.run("/crime/intermittentWarfare.js");
 
-	// ns.run("/bladeburner/manageBladeburner.js");
+	ns.run("/bladeburner/manageBladeburner.js");
 
 	ns.run("uiDashboard.js");
 	
 	while(true) {
 		const scripts = [
-						"/augment/completeBitnode.js" // This needs to be at the beginning, so it triggers before any restarts
-						, "/basic/upgradeMemory.js"
+						// "/augment/completeBitnode.js" // This needs to be at the beginning, so it triggers before any restarts
+						"/basic/upgradeMemory.js"
 						, "/basic/buyCracks.js"
 						, "/basic/crackAll.js" 
 						, "/spread/spreadAttackController.js"
@@ -37,8 +37,9 @@ export async function main(ns: NS): Promise<void> {
 						, "/stanek/reportFragments.js"
 						, "/crime/startGang.js"
 						, "/crime/reportGangStatus.js"
-						// , "/corp/startCorp.js"
-						, "/contracts/solveContracts.js"
+						// , "/corp/startCorp.js" // @todo Don't start a corp because corp code is bad
+						// @todo update - was causing hangs
+						// , "/contracts/solveContracts.js"
 						, "/attack/launchAttackFromHome.js"						
 						, "/attack/purchaseAndAttack.js"																	
 						, "/attack/launchAttacksFromPurchasedServers.js"	
@@ -74,5 +75,6 @@ function shouldRestart(ns: NS): boolean {
 }
 
 function anyScriptRunning(ns: NS, filename: string): boolean {
-	return ns.ps().some(p => p.filename == filename);
+	const cleanFilename = filename.startsWith('/') ? filename.substring(1) : filename;
+	return ns.ps().some(p => p.filename === cleanFilename);
 }

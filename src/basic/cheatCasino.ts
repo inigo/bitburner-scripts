@@ -11,7 +11,7 @@ export async function main(ns : NS) : Promise<void> {
     ns.run("/casino/coinFlip.js");
     while (ns.getServerMaxRam("home") < 512) {
         ns.singularity.upgradeHomeRam();
-        while (anyScriptRunning(ns, "/casino/coinFlip.js")) {
+        while (anyScriptRunning(ns, "casino/coinFlip.js")) {
             await ns.sleep(1000);
         }	
         ns.run("/casino/coinFlip.js");

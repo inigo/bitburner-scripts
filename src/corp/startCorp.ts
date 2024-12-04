@@ -6,7 +6,7 @@ export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");
 
     if (isInCorporation(ns)) {
-        const isScriptRunning = () => ns.ps("home").some(p => p.filename=="/corp/manageStartup.js" || p.filename=="/corp/manageCorp.js");
+        const isScriptRunning = () => ns.ps("home").some(p => p.filename=="corp/manageStartup.js" || p.filename=="corp/manageCorp.js");
         if (isScriptRunning()) {
             ns.print("Already in corporation - nothing to do");
         } else {
