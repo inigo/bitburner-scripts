@@ -13,8 +13,12 @@ export function checkReportedFragments(ns: NS): FullFragmentInfo[] {
 }
 
 export async function reportFragments(ns: NS): Promise<void> {
-	const frags = ns.stanek.activeFragments().map(f => addFragmentInfo(f as CombinedFragment));
-	await ports.setPortValue(ns, ports.ACTIVE_FRAGMENTS_PORT, JSON.stringify(frags));
+	try {
+		const frags = ns.stanek.activeFragments().map(f => addFragmentInfo(f as CombinedFragment));
+		await ports.setPortValue(ns, ports.ACTIVE_FRAGMENTS_PORT, JSON.stringify(frags));
+	} catch (e) {
+		ns.print("Report fragments is failing - perhaps Stanek's Gift is not allowed in this bitnode?")
+	}
 }
 
 export function addFragmentInfo(f: CombinedFragment): FullFragmentInfo {
