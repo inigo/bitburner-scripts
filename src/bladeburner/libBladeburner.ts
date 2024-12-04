@@ -45,7 +45,7 @@ function listInterestingSkills(): `${BladeburnerSkillName}`[] {
 export function selectAction(ns: NS): BladeburnerAction {
 	// Find action with highest rank gain
 	const bestActions = evaluateActions(ns)
-							.filter(a => a.remainingCount>0)
+							.filter(a => a.remainingCount>=1)
 							.filter(a => a.meanSuccessChance >= 0.7)
 							.filter(a => a.name != "Incite Violence") // Generates too much chaos
 							.filter(a => a.name != "Raid") // Generates too much chaos, kills too many people
