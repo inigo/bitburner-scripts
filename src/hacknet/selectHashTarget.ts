@@ -27,6 +27,7 @@ export async function main(ns : NS) : Promise<void> {
     const gangFaction = gangInfo?.gangInfo?.faction ?? null;
     const factionsToIgnore = ["Church of the Machine God", gangFaction ].filter(f => f!=null);
     const inInterestingFaction = ns.getPlayer().factions.filter(f => !factionsToIgnore.includes(f)).length > 0;
+    const inBladeburner = ns.bladeburner.inBladeburner();
 
     if (level("Generate Coding Contract")<1) {
         ns.print("No contracts generated, so generating one");
@@ -40,6 +41,12 @@ export async function main(ns : NS) : Promise<void> {
     } else if (allSleevesAtGym && (level("Improve Gym Training") < 20)) {
         ns.print("All sleeves are at the gym, so improving gym training to support them");
         await setHashSpend(ns, [ { name: "Improve Gym Training" } ]);
+    } else if (inBladeburner && (level("Exchange for Bladeburner SP") < 4)) {
+        ns.print("In Bladeburner, so improving Bladeburner skills");
+        await setHashSpend(ns, [ { name: "Exchange for Bladeburner SP" } ]);
+    } else if (inBladeburner && (level("Exchange for Bladeburner Rank") < 4)) {
+        ns.print("In Bladeburner, and already have skills, so improving Bladeburner rank");
+        await setHashSpend(ns, [ { name: "Exchange for Bladeburner Rank" } ]);
     } else if (level("Generate Coding Contract")<3 && inInterestingFaction) {
         ns.print("Less than three coding contracts, so generating another one");
         await setHashSpend(ns, [ { name: "Generate Coding Contract" } ]);
