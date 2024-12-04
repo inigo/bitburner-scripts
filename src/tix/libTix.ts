@@ -3,7 +3,7 @@
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { openDB } from "https://cdn.jsdelivr.net/npm/idb@7/+esm";
+// import { openDB } from "https://cdn.jsdelivr.net/npm/idb@7/+esm";
 import { formatMoney } from 'libFormat';
 import * as ports from "libPorts";
 import { NS } from '@ns';
@@ -55,14 +55,14 @@ type Tick = { sym: string, askPrice: number, bidPrice: number, volatility?: numb
 
 
 export async function setupDatabase(ns: NS, storeName: string, version: number): Promise<DB> {
-	const db = await openDB(dbName, version, {
+/*	const db = await openDB(dbName, version, {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		upgrade(newdb: any, oldVersion: any, newVersion: any, transaction: any) {
 			newdb.createObjectStore(storeName, { keyPath: ['datetime', 'sym'] } );
 			// https://stackoverflow.com/questions/33852508/how-to-create-an-indexeddb-composite-key
 		}
 	});
-	return db;
+	return db;*/
 }
 
 type DB = any;

@@ -1,4 +1,4 @@
-import { StockChooser, WixStockChooser, FakeStockmarket, RealStockmarket, doTrading, setupDatabase, replayStoredStockValues, realStockValues, OngoingStockPredictor, SmoothingStockPredictor, RealWallet, FakeWallet } from 'tix/libTix';
+import { StockChooser, WixStockChooser, FakeStockmarket, RealStockmarket, doTrading, realStockValues, OngoingStockPredictor, SmoothingStockPredictor, RealWallet, FakeWallet } from 'tix/libTix';
 import { formatMoney } from 'libFormat';
 import { NS } from '@ns';
 
