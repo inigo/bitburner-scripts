@@ -71,7 +71,7 @@ class Reporter {
         const timeSinceStart = this.getTimeSinceStart()
         const fmtTimeSinceStart = this.ns.tFormat(timeSinceStart);
     
-        const timeSinceAug = this.ns.getTimeSinceLastAug();
+        const timeSinceAug = Date.now() - this.ns.getResetInfo().lastAugReset;
         const fmtTimeSinceAug = this.ns.tFormat(timeSinceAug);
         
         const bitNode = this.getBitNodeNumber();
