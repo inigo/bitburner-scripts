@@ -2,7 +2,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { listContracts } from "contracts/libContracts"; 
 import { NS } from '@ns'
-import {solveArrayJumpingII, solveHammingCode, solveLempelZiv, solveRleCompression, solveVigenereCipher} from "./moreContracts";
+import {
+	solveArrayJumpingII,
+	solveCaesarCipher,
+	solveHammingCode,
+	solveLempelZiv,
+	solveLzCompression,
+	solveRleCompression,
+	solveTotalWaysToSum,
+	solveVigenereCipher
+} from "./moreContracts";
 
 export async function main(ns: NS): Promise<void> {
 	solveAllContracts(ns);
@@ -37,6 +46,9 @@ export function solveContract(ns: NS, contract: Contract): void {
 		, ["Array Jumping Game II", (input: number[]) => solveArrayJumpingII(ns, input)]
 		, ["HammingCodes: Integer to Encoded Binary", (input: string) => solveHammingCode(ns, input)]
 		, ["Compression I: RLE Compression", (input: string) => solveRleCompression(ns, input)]
+		, ["Encryption I: Caesar Cipher", (input: any[]) => solveCaesarCipher(ns, input)]
+		, ["Compression III: LZ Compression", (input: any[]) => solveLzCompression(ns, input)]
+		, ["Total Ways to Sum II", (input: [number, number[]]) => solveTotalWaysToSum(ns, input)]
 
 		, ["Algorithmic Stock Trader I", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 1) ]
 		, ["Algorithmic Stock Trader II", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 20) ]

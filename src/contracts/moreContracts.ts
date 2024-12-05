@@ -149,3 +149,137 @@ export function solveRleCompression(ns: NS, data: string): string {
 
     return result;
 }
+
+export function solveCaesarCipher(ns: NS, data: any[]): string {
+    const text = data[0];
+    const shift = data[1];
+
+    // Helper function to shift a single character
+    function shiftChar(char: string): string {
+        // If it's a space, return it unchanged
+        if (char === ' ') return char;
+
+        // Convert to ASCII code (A = 65, Z = 90)
+        const code = char.charCodeAt(0);
+
+        // Apply the shift with wrapping
+        // We add 26 before the modulo to handle negative shifts
+        const newCode = ((code - 65 - shift + 26) % 26) + 65;
+
+        // Convert back to character
+        return String.fromCharCode(newCode);
+    }
+
+    // Process each character in the input string
+    return text
+        .split('')
+        .map(shiftChar)
+        .join('');
+}
+
+export function solveTotalWaysToSum(ns: NS, data: [number, number[]]): number {
+    // Extract target sum and available numbers from input
+    const [target, numbers] = data;
+
+    // Create DP array to store number of ways to make each sum
+    const dp = new Array(target + 1).fill(0);
+    dp[0] = 1; // Base case: one way to make sum of 0
+
+    // For each available number
+    for (const num of numbers) {
+        // For each possible sum from num to target
+        for (let sum = num; sum <= target; sum++) {
+            // Add the number of ways to make (sum - num) to current sum
+            dp[sum] += dp[sum - num];
+        }
+    }
+
+    // Return the number of ways to make the target sum
+    return dp[target];
+}
+
+/** DOES NOT WORK */
+export function solveLzCompression(ns: NS, data: string): string {
+    // Find all possible references at a position with a maximum recursion depth
+    function findReferences(str: string, pos: number): [number, number][] {
+        const refs: [number, number][] = [];
+        const maxLen = Math.min(9, str.length - pos);
+
+        for (let offset = 1; offset <= Math.min(9, pos); offset++) {
+            let maxMatch = 0;
+            for (let i = 0; i < maxLen; i++) {
+                if (str[pos + i] === str[pos - offset + i]) {
+                    maxMatch++;
+                } else {
+                    break;
+                }
+            }
+            if (maxMatch > 0) {
+                refs.push([maxMatch, offset]);
+            }
+        }
+        return refs.sort((a, b) => b[0] - a[0]); // Sort by length descending
+    }
+
+    // Cache to store previous results
+    const cache = new Map<string, string>();
+
+    function compress(startPos: number, isLiteral: boolean, depth: number = 0): string {
+        if (depth > 100) return ''; // Prevent deep recursion
+        if (startPos === data.length) return '';
+
+        const key = `${startPos},${isLiteral}`;
+        if (cache.has(key)) return cache.get(key)!;
+
+        let bestResult = '';
+        let bestLen = Infinity;
+
+        if (isLiteral) {
+            // Try different literal lengths
+            for (let len = 1; len <= Math.min(9, data.length - startPos); len++) {
+                const chunk = len.toString() + data.substr(startPos, len);
+                const rest = compress(startPos + len, false, depth + 1);
+                if (chunk.length + rest.length < bestLen) {
+                    bestLen = chunk.length + rest.length;
+                    bestResult = chunk + rest;
+                }
+            }
+        } else {
+            // Try references
+            const refs = findReferences(data, startPos);
+            if (refs.length > 0) {
+                for (const [len, offset] of refs) {
+                    const chunk = len.toString() + offset.toString();
+                    const rest = compress(startPos + len, true, depth + 1);
+                    if (chunk.length + rest.length < bestLen) {
+                        bestLen = chunk.length + rest.length;
+                        bestResult = chunk + rest;
+                    }
+                }
+            }
+            // If no references work, switch back to literal
+            if (!bestResult) {
+                bestResult = compress(startPos, true, depth + 1);
+            }
+        }
+
+        cache.set(key, bestResult);
+        return bestResult;
+    }
+
+    // Try each possible initial literal length to find the shortest valid encoding
+    let bestResult = '';
+    let bestLen = Infinity;
+
+    for (let firstLen = 1; firstLen <= Math.min(9, data.length); firstLen++) {
+        const initialChunk = firstLen.toString() + data.substr(0, firstLen);
+        const rest = compress(firstLen, false);
+        const result = initialChunk + rest;
+        if (result.length < bestLen) {
+            bestLen = result.length;
+            bestResult = result;
+        }
+    }
+
+    return bestResult;
+}

@@ -1,12 +1,13 @@
 import { NS } from '@ns'
-import {solveArrayJumpingII, solveHammingCode, solveLempelZiv, solveRleCompression, solveVigenereCipher} from "/contracts/moreContracts";
+import {solveArrayJumpingII, solveHammingCode, solveLempelZiv, solveLzCompression, solveRleCompression, solveVigenereCipher} from "/contracts/moreContracts";
 
 export async function main(ns: NS): Promise<void> {
     // testVigenereCipher(ns);
     // testLempelZiv(ns);
     // testArrayJumpingII(ns);
     // testHammingCode(ns);
-    testRleCompression(ns);
+    // testRleCompression(ns);
+    testLzCompression(ns);
 }
 
 export function testVigenereCipher(ns: NS): void {
@@ -91,3 +92,24 @@ export function testRleCompression(ns: NS): void {
     checkAnswer(ns, "zzzzzzzzzzzzzzzzzzz", "9z9z1z");
 }
 
+
+export function testLzCompression(ns: NS): void {
+    function checkAnswer(ns: NS, data: string, correctAnswer: string) {
+        const answer = solveLzCompression(ns, data);
+        if (answer === correctAnswer) {
+            ns.tprint("Correct answer for "+data+" was '"+answer+"'");
+        } else {
+            ns.tprint("Incorrect answer for "+data+" was '"+answer+"' but expected '"+correctAnswer+"'");
+        }
+    }
+
+    checkAnswer(ns, "abracadabra", "7abracad47");
+    checkAnswer(ns, "mississippi", "4miss433ppi");
+    checkAnswer(ns, "aAAaAAaAaAA", "3aAA53035");
+    checkAnswer(ns, "2718281828", "627182844");
+    checkAnswer(ns, "abcdefghijk", "9abcdefghi02jk");
+    checkAnswer(ns, "2718281828", "627182844");
+    checkAnswer(ns, "aaaaaaaaaaaa", "3aaa91");
+    checkAnswer(ns, "aaaaaaaaaaaaa", "1a91031");
+    checkAnswer(ns, "aaaaaaaaaaaaaa", "1a91041");
+}
