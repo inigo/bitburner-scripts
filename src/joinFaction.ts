@@ -9,7 +9,7 @@ export async function main(ns : NS) : Promise<void> {
 	joinPreferredFaction(ns, inGang);
 
 	if (isAvailable(ns)) {
-		const preferredFaction = findPreferredFaction(ns, inGang);
+		const preferredFaction = findPreferredFaction(ns, inGang, null);
 		if (preferredFaction!=null) {
 			ns.singularity.workForFaction(preferredFaction, "hacking", false);
 		}
@@ -79,7 +79,7 @@ function isAvailable(ns: NS) {
 }
 
 function joinPreferredFaction(ns: NS, inGang: boolean): void {
-	const preferredFaction = findPreferredFaction(ns, inGang);
+	const preferredFaction = findPreferredFaction(ns, inGang, null);
 	if (preferredFaction!=null && ns.singularity.checkFactionInvitations().includes(preferredFaction)) {
 		ns.toast("Joining preferred faction "+preferredFaction);
 		ns.singularity.joinFaction(preferredFaction);
@@ -90,9 +90,8 @@ function joinPreferredFaction(ns: NS, inGang: boolean): void {
 	}
 }
 
-export function findPreferredFaction(ns: NS, inGang: boolean): string {
-	const gangFactions = ["NiteSec", "The Black Hand"];
-	const factionsToExclude = inGang ? gangFactions : [];
+export function findPreferredFaction(ns: NS, inGang: boolean, currentGangFaction: string | null): string {
+	const factionsToExclude = currentGangFaction ? [ currentGangFaction ] : [];
 	const interestingFactions = listInterestingFactions().filter(f => !factionsToExclude.includes(f));
 	const allPotentialFactions = listPotentialFactions(ns);
 	const potentialInterestingFactions = interestingFactions.filter( f => allPotentialFactions.includes(f));

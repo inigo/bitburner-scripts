@@ -25,7 +25,7 @@ export async function main(ns: NS): Promise<void> {
 async function buyAugmentations(ns: NS, force: boolean): Promise<void> {
     const gangFaction = getGangFaction(ns);
     const inGang = gangFaction!=null;
-    const nonGangFaction = findPreferredFaction(ns, inGang);
+    const nonGangFaction = findPreferredFaction(ns, inGang, gangFaction);
     if (gangFaction==null && nonGangFaction==null) {
         await reportAugInfo(ns, []);
         return;
