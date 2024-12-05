@@ -20,6 +20,9 @@ export function getUsefulAugmentations(ns: NS, faction: string): FullAugmentatio
 			.filter(a => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation)
 			.filter(a => !a.isNeuroflux);
     ns.print("There are "+augs.length+" useful augmentations available from "+faction);
+    // ns.print("They are: "+getOrderedAugmentations(ns, augs)
+    //     .map(a => `${a.name} (${a.isHackingAugmentation ? "hack " : ""}${a.isHacknetAugmentation ? "hacknet " : ""}${a.isReputationAugmentation ? "rep " : ""})`).join(", "));
+
     return getOrderedAugmentations(ns, augs);
 }
 
@@ -43,9 +46,10 @@ export function getAugmentationInfo(ns: NS, augName: string): FullAugmentationIn
     const cost = ns.singularity.getAugmentationPrice(augName);
     const reputationNeeded = ns.singularity.getAugmentationRepReq(augName);
 
-    const isHackingAugmentation: boolean = (stats.hacking_chance || stats.hacking_exp || stats.hacking_grow || stats.hacking_money || stats.hacking || stats.hacking_speed) != null;
-    const isReputationAugmentation: boolean = (stats.faction_rep != null);
-    const isHacknetAugmentation: boolean = (stats.hacknet_node_core_cost || stats.hacknet_node_level_cost || stats.hacknet_node_money || stats.hacknet_node_purchase_cost || stats.hacknet_node_ram_cost) != null;
+    const isHackingAugmentation: boolean = (stats.hacking_chance > 1 || stats.hacking_exp > 1 || stats.hacking_grow > 1 || stats.hacking_money > 1 || stats.hacking > 1 || stats.hacking_speed > 1);
+    const isReputationAugmentation: boolean = (stats.faction_rep > 1);
+    const isHacknetAugmentation: boolean = (stats.hacknet_node_core_cost > 1 || stats.hacknet_node_level_cost > 1 || stats.hacknet_node_money > 1 || stats.hacknet_node_purchase_cost > 1 || stats.hacknet_node_ram_cost > 1);
+
     const isNeuroflux: boolean = (augName == "NeuroFlux Governor");
     const reqs = ns.singularity.getAugmentationPrereq(augName);
 
