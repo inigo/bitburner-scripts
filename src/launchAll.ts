@@ -38,8 +38,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/crime/startGang.js"
 						, "/crime/reportGangStatus.js"
 						// , "/corp/startCorp.js" // @todo Don't start a corp because corp code is bad
-						// @todo update - was causing hangs
-						// , "/contracts/solveContracts.js"
+						, "/contracts/solveContracts.js"
 						, "/attack/launchAttackFromHome.js"						
 						, "/attack/purchaseAndAttack.js"																	
 						, "/attack/launchAttacksFromPurchasedServers.js"	

@@ -66,8 +66,7 @@ export async function main(ns: NS): Promise<void> {
 							, "/hacknet/selectHashTarget.js"							
 							, "/hacknet/sellHashes.js"
 							, "/hacknet/upgradeNodes.js"
-				// @todo update - temporarily disabled - was causing hang.
-							// , "/contracts/solveContracts.js"
+							, "/contracts/solveContracts.js"
 							, "/sleeve/selectSleeveTask.js"
 							, "/reporting/logProgress.js"
 							];
