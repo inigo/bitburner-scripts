@@ -49,8 +49,9 @@ async function findPowerInterval(ns: NS): Promise<PowerInterval> {
 type PowerInterval = { interval: number, timeOfNextTick: number };
 
 async function intermittentlyToggleWarfare(ns: NS, powerInterval: PowerInterval): Promise<void> {
-	// Bonus time sometimes goes up to a few milliseconds, so checking for "not 0" doesn't work
-	const originallyFast = ns.gang.getBonusTime() > 100;
+	// Bonus time sometimes goes up to thousands of milliseconds, so checking for "not 0" doesn't work
+	const originallyFast = ns.gang.getBonusTime() > 5000;
+
 	const waitForTickInterval = originallyFast ? 100 : 500;
 	const now = new Date().getTime();
 	const timeToWait = powerInterval.timeOfNextTick - now;
@@ -60,7 +61,8 @@ async function intermittentlyToggleWarfare(ns: NS, powerInterval: PowerInterval)
 	while (true) {
 		const loopStart = new Date().getTime();
 		const otherGangs = ns.gang.getOtherGangInformation();
-		const isCurrentlyFast = ns.gang.getBonusTime() > 100;
+		const isCurrentlyFast = ns.gang.getBonusTime() > 5000;
+
 
 		if (isCurrentlyFast != originallyFast) {
 			ns.print("WARN Bonus time has started or finished - need to adjust timing");
