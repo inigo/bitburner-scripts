@@ -23,6 +23,6 @@ export async function launchAttack(ns: NS, server: string): Promise<void> {
 
     const serverToAttack = viableTargets[0].name;
     ns.print("Launching attack from "+server+" on "+serverToAttack)
-    await ns.scp(filesNeededForAttack(), "home", server);
+    await ns.scp(filesNeededForAttack(), server, "home");
 	ns.exec("/attack/attack.js", server, 1, serverToAttack);
 }

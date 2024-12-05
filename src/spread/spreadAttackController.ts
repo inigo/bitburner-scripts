@@ -96,8 +96,8 @@ function getServersWithFreeMemory(ns: NS, smallestScriptMem: number): string[] {
 
 async function copyFiles(ns: NS, servers: string[]): Promise<void> {
 	for (const s of servers) {
-		const filesToCopy = [ "/spread/spreadHack.js", "/spread/spreadGrow.js", "/spread/spreadWeaken.js", "/spread/libSpread.js", "libPorts.js" ]; 
-		await ns.scp(filesToCopy, "home", s);			
+		const filesToCopy = [ "spread/spreadHack.js", "spread/spreadGrow.js", "spread/spreadWeaken.js", "spread/libSpread.js", "libPorts.js" ];
+		await ns.scp(filesToCopy, s, "home");
 	}	
 }
 
