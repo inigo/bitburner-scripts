@@ -25,6 +25,7 @@ export async function restart(ns: NS, shouldForceRestart: boolean): Promise<void
 
 async function installAndRestart(ns: NS): Promise<void> {
 	ns.toast("Restarting in 10 seconds", "warning");
+	ns.tprint("Restarting in 10 seconds", "warning");
 	await ns.sleep(10000);
 	ns.singularity.installAugmentations("bootstrap.js");
 }
