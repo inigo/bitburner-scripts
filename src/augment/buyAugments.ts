@@ -79,6 +79,9 @@ function isRedPillAvailable(ns: NS): boolean {
 
 /** A corp is a much more effective way of raising money, so don't interrupt progress towards it */
 function isSavingForCorporation(ns: NS, faction: string): boolean {
+    // @todo update - not saving for corps until they work better
+    return false;
+
     const isInCorporation = retrieveCompanyStatus(ns) != null;
     // Already in a corp, so clearly not saving up for one
     if (isInCorporation) return false;

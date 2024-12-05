@@ -249,19 +249,20 @@ class AgricultureStrategy implements StartupStrategy {
             o.sellAllMaterials(1);            
         }        
 
-        ns.print("Waiting for an increased offer, and will then accept it");
-        ns.print("Before tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));
-
+        // @todo update - Corporation does not work as it did before
+        // ns.print("Waiting for an increased offer, and will then accept it");
+        // ns.print("Before tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));
+        //
         await waitForTicks.next();
-        ns.print("After first tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));
-        await waitForTicks.next();    
-        ns.print("After second tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));    
-        // await waitForTicks.next();    
-        // ns.print("After third tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));    
-
-        while (ns.corporation.getInvestmentOffer().funds < offerBeforeAdverts * 10) {
-            await ns.sleep(50);
-        }
+        // ns.print("After first tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));
+        // await waitForTicks.next();
+        // ns.print("After second tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));
+        // // await waitForTicks.next();
+        // // ns.print("After third tick, offer is " + formatMoney(ns, ns.corporation.getInvestmentOffer().funds));
+        //
+        // while (ns.corporation.getInvestmentOffer().funds < offerBeforeAdverts * 10) {
+        //     await ns.sleep(50);
+        // }
         const message = "Accepting corporation offer of "+formatMoney(ns, ns.corporation.getInvestmentOffer().funds);
         ns.print(message);
         ns.tprint(message);
