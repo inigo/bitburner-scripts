@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { listContracts } from "contracts/libContracts"; 
 import { NS } from '@ns'
-import {solveVigenereCipher} from "./moreContracts";
+import {solveLempelZiv, solveVigenereCipher} from "./moreContracts";
 
 export async function main(ns: NS): Promise<void> {
 	solveAllContracts(ns);
@@ -33,6 +33,7 @@ export function solveContract(ns: NS, contract: Contract): void {
 		, ["Minimum Path Sum in a Triangle", (input: number[][]) => solveMinimumPathSumTriangle(ns, input)]
 		, ["Find All Valid Math Expressions", (input: any[]) => solveFindAllValidMathExpressions(ns, input)]
 		, ["Encryption II: Vigenère Cipher", (input: any[]) => solveVigenereCipher(ns, input)]
+		, ["Compression II: LZ Decompression", (input: any[]) => solveLempelZiv(ns, input)]
 
 		, ["Algorithmic Stock Trader I", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 1) ]
 		, ["Algorithmic Stock Trader II", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 20) ]

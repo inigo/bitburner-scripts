@@ -6,7 +6,7 @@ export function solveVigenereCipher(ns: NS, data: string[]): string {
     const keyword = data[1];
     const encryptionKey = (keyword.length < plainText.length) ? keyword.repeat(50).substring(0, plainText.length) : keyword;
 
-    ns.tprint("Encrypting "+plainText+" with key "+encryptionKey);
+    ns.print("Encrypting "+plainText+" with key "+encryptionKey);
 
     const answer = [];
     for (let i = 0; i < encryptionKey.length; i++) {
@@ -16,4 +16,41 @@ export function solveVigenereCipher(ns: NS, data: string[]): string {
         answer.push(e);
     }
     return answer.join("");
+}
+
+export function solveLempelZiv(ns: NS, data: string): string {
+    let result = '';
+    let pos = 0;
+    let isDirectCopy = true;
+
+    while (pos < data.length) {
+        // Get length digit
+        const length = parseInt(data[pos]);
+        pos++;
+
+        // Length of 0 means skip to next chunk
+        if (length === 0) {
+            isDirectCopy = !isDirectCopy;
+            continue;
+        }
+
+        if (isDirectCopy) {
+            // Type 1: Direct copy of next L characters
+            result += data.slice(pos, pos + length);
+            pos += length;
+        } else {
+            // Type 2: Reference copy
+            const offset = parseInt(data[pos]);
+            pos++;
+
+            // Copy L characters from offset positions back
+            for (let i = 0; i < length; i++) {
+                result += result[result.length - offset];
+            }
+        }
+
+        isDirectCopy = !isDirectCopy;
+    }
+
+    return result;
 }
