@@ -17,7 +17,8 @@ export async function main(ns: NS): Promise<void> {
 	ns.run("/crime/manageGang.js");
 	ns.run("/crime/intermittentWarfare.js");
 
-	ns.run("/bladeburner/manageBladeburner.js");
+	// @todo update - currently not joining automatically? or failing gracefully
+	// ns.run("/bladeburner/manageBladeburner.js");
 
 	ns.run("uiDashboard.js");
 	
