@@ -43,6 +43,7 @@ export async function main(ns : NS) : Promise<void> {
         ns.print("Player hacking level is too low - helping to train it");
         sleeves.forEach(i => studyCs(ns, i));
     } else if (sleevesUntrained) {
+        // @todo Homicide is affected 4 times as much by strength and defence, as by agility and dexterity - so we should train those stats preferentially
         ns.print("Sleeves are not buff enough - training them so they can commit crimes well");
         if (enoughMoneyForTravelling) { sleeves.forEach(i => travelTo(ns, i, "Sector-12")); }
         trainCombat(ns, sleeves);
