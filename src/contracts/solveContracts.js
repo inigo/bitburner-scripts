@@ -49,6 +49,7 @@ export function solveContract(ns: NS, contract: Contract): void {
 		, ["Encryption I: Caesar Cipher", (input: any[]) => solveCaesarCipher(ns, input)]
 		, ["Compression III: LZ Compression", (input: any[]) => solveLzCompression(ns, input)]
 		, ["Total Ways to Sum II", (input: [number, number[]]) => solveTotalWaysToSum(ns, input)]
+		, ["Total Ways to Sum", (input: number) => solveTotalWaysToSumOne(ns, input)]
 
 		, ["Algorithmic Stock Trader I", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 1) ]
 		, ["Algorithmic Stock Trader II", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 20) ]

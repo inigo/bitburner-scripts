@@ -198,6 +198,38 @@ export function solveTotalWaysToSum(ns: NS, data: [number, number[]]): number {
     return dp[target];
 }
 
+export function solveTotalWaysToSumOne(ns: NS, data: number): number {
+    const target = data;
+
+    // Create DP array to store number of ways to make each sum
+    // dp[i][j] represents ways to sum to i using at least j numbers
+    const dp: number[][] = Array(target + 1).fill(0)
+        .map(() => Array(target + 1).fill(0));
+
+    // Base case: one way to make 0 with 0 numbers
+    dp[0][0] = 1;
+
+    // For each number we could use (1 to target-1)
+    for (let num = 1; num < target; num++) {
+        // For each possible sum from num to target
+        for (let sum = num; sum <= target; sum++) {
+            // For each count of numbers used
+            for (let count = 1; count <= sum && count <= target; count++) {
+                // Add ways to make (sum - num) using (count - 1) numbers
+                dp[sum][count] += dp[sum - num][count - 1];
+            }
+        }
+    }
+
+    // Sum up all ways using 2 or more numbers
+    let totalWays = 0;
+    for (let count = 2; count <= target; count++) {
+        totalWays += dp[target][count];
+    }
+
+    return totalWays;
+}
+
 /** DOES NOT WORK */
 export function solveLzCompression(ns: NS, data: string): string {
     // Find all possible references at a position with a maximum recursion depth
