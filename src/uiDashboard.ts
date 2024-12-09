@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {formatMoney} from "libFormat";
 import * as ports from "libPorts";
-import {HashUpgrade, lookupHashIcons} from "hacknet/libHashes";
+import {HashSpendReport, HashUpgrade, lookupHashIcons, retrieveHashNumber} from "hacknet/libHashes";
 import {lookupSleeveIcon, retrieveSleeveTasks} from "sleeve/libSleeve";
 import {CombinedFragment, lookupFragmentTypeIcon} from "stanek/libFragment";
 import {receiveAttackTarget} from "spread/libSpread";
@@ -61,10 +61,12 @@ export async function main(ns: NS): Promise<void> {
             }
 
             const hashnetExchange = getHashnetExchangeIcons(ns);
+            const hashCount = retrieveHashNumber(ns);
             if (hashnetExchange!=null) {
                 headers.push("Hashes: ");
-                values.push(hashnetExchange);
-            }            
+                const hashForDisplay = (Math.round(hashCount / 100) * 100).toString().padStart(6, ' '); // Avoids spurious precision
+                values.push(`${hashnetExchange} ${hashForDisplay}`);
+            }
 
             const sleeveIcons = getSleeveIcons(ns);
             if (sleeveIcons!=null) {
@@ -138,7 +140,7 @@ function getShareStatus(ns: NS): (ShareStatus | null) {
 }
 
 function getHashnetExchangeIcons(ns: NS): (string | null) {
-    const exchangeTargets = ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as (HashUpgrade[] | null);
+    const exchangeTargets = (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as (HashSpendReport | null))?.targets ?? null;
     if (exchangeTargets==null) return null;
 
     const names = exchangeTargets.map(o => o.name);

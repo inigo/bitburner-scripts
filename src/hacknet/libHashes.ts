@@ -31,10 +31,19 @@ export function lookupHashAlias(alias: string): (HashInfo | null) {
 }
 
 export function retrieveHashSpends(ns: NS): HashUpgrade[] {
-	return (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as HashUpgrade[]) ?? [];
+	return (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as HashSpendReport)?.targets ?? [];
+}
+export function retrieveHashNumber(ns: NS): number {
+	return (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as HashSpendReport)?.numHashes ?? 0;
+}
+
+export type HashSpendReport = {
+	targets: HashUpgrade[],
+	numHashes: number
 }
 
 export async function setHashSpend(ns: NS, targets: HashUpgrade[]): Promise<void> {
+	const numHashes = ns.hacknet.numHashes();
 	const existingHashSpends = retrieveHashSpends(ns);
 	if (targets.length==0) { 
 		if (existingHashSpends.length > 0) {
@@ -43,7 +52,8 @@ export async function setHashSpend(ns: NS, targets: HashUpgrade[]): Promise<void
 	} else if (JSON.stringify(targets)!=JSON.stringify(existingHashSpends)) {
 		ns.toast("Hash spend target: "+targets.map(t => t.name).join(", "));
 	}
-	await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(targets));
+	const spendReport = {targets: targets, numHashes: numHashes};
+	await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(spendReport));
 }
 
 export function spendHashesOnPurchases(ns: NS, purchases: HashUpgrade[], maxPurchases = 100): boolean {

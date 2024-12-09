@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /// Sell hashes for the specified result - expected to be called regularly
 import { NS } from '@ns'
-import { spendHashesOnPurchases, lookupHashAlias, setHashSpend } from "hacknet/libHashes";
+import {spendHashesOnPurchases, lookupHashAlias, setHashSpend, retrieveHashSpends} from "hacknet/libHashes";
 import * as ports from "libPorts";
 
 export async function main(ns: NS): Promise<void> {
@@ -13,7 +13,7 @@ export async function main(ns: NS): Promise<void> {
 		await setHashSpend(ns, targets);
 	}
 
-	const exchangeTargets = ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse);
+	const exchangeTargets = retrieveHashSpends(ns);
 	if (exchangeTargets) {
 		while(spendHashesOnPurchases(ns, exchangeTargets, 20)) {
 			// Continuing to buy
