@@ -19,7 +19,7 @@ export async function main(ns : NS) : Promise<void> {
 
     const isGymClass = (s: SleeveTask) => s?.type === "CLASS" ? ["str","def", "dex", "agi"].includes(s.classType) : false;
     const allSleevesAtGym = sleeveInfo.every(s => isGymClass(s));
-    const someSleevesAtGym = sleeveInfo.map(s => isGymClass(s)).length > 2;
+    const someSleevesAtGym = sleeveInfo.filter(s => isGymClass(s)).length > 2;
     const sleeveCompany = sleeveInfo.map(s => (s as SleeveCompanyTask).companyName)[0] ?? null;
 
     const homeAttackTarget = retrieveAttackStatus(ns).filter(a => a.source=="home").map(a => a.target)[0] ?? null;
