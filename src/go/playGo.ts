@@ -6,8 +6,8 @@ export async function main(ns: NS): Promise<void> {
     await startGame(ns);
 }
 
-async function startGame(ns: NS) {
-    ns.go.resetBoardState(Opponent.Netburners, 7);
+export async function startGame(ns: NS) {
+    ns.go.resetBoardState(Opponent.Daedalus, 7);
 
     let newState: MoveResults = { type: null, x: -1, y: -1};
     while (newState.type!=='gameOver') {
@@ -23,10 +23,12 @@ async function startGame(ns: NS) {
                 newState = await ns.go.passTurn()
             }
         }
+        ns.print("------");
+        ns.print(ns.go.getBoardState().join("\n"));
     }
     const result = ns.go.getGameState();
     const score = result.blackScore - result.whiteScore;
-    const scoreText = (score > 0) ? `We won, by ${score} points` : `We lost, by ${Math.abs(score)} points`;
+    const scoreText = (score > 0) ? `Won Go, by ${score} points, with ${result.blackScore} nodes captured` : `Lost Go, by ${Math.abs(score)} points, with ${result.blackScore} nodes captured`;
     ns.toast("Game finished: " + scoreText);
     ns.print("Game finished: " + scoreText);
     return score;
@@ -69,11 +71,15 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
             const node = board[x][y];
             if (node.isValidMove) {
                 const adjacentNodes = getAdjacentNodes(node);
-                const hasVulnerableWhite = adjacentNodes.some(node => node.liberties === 1 && node.owner === "white");
-                const hasVulnerableBlack = adjacentNodes.some(node => node.liberties === 1 && node.owner === "black");
+                const vulnerableWhite = adjacentNodes.map(node => (node.liberties === 1 && node.owner === "white") ? 1000 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
+                const vulnerableBlack = adjacentNodes.map(node => (node.liberties === 1 && node.owner === "black") ? 1000 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
+                const okayWhite = adjacentNodes.map(node => (node.liberties === 2 && node.owner === "white") ? 100 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
+                const okayBlack = adjacentNodes.map(node => (node.liberties === 2 && node.owner === "black") ? 100 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
                 const isPossiblyOwnEye = node.isEye=="black" || (node.isEmpty && node.isControlled=="black");
 
-                const score = (hasVulnerableBlack ? 5 : 0) + (hasVulnerableWhite ? 5 : 0) + (isPossiblyOwnEye ? -1000 : 0);
+                const score = vulnerableWhite +
+                    vulnerableBlack + okayWhite + okayBlack +
+                    (isPossiblyOwnEye ? -1000 : 0);
                 const move: Move = [x, y];
                 if (score > 0) {
                     const scoredMove: ScoredMove = { score, move  }
@@ -82,9 +88,10 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
             }
         }
     }
-
-    // @todo Sort scored moves and return highest
-
+    const bestMove = moveOptions
+        .sort((a, b) => b.score - a.score)
+        .at(0) ?? null;
+    return bestMove?.move ?? null;
 }
 
 function getRandomMove(ns: NS, board: Board, validMoves: ValidMoves): Move | null {
@@ -130,6 +137,7 @@ function toRichBoard(ns: NS, board: Board): RichBoard {
         for (let y = 0; y < board[x].length; y++) {
             const liberty = liberties[x][y];
             const chainId = chains[x][y];
+            const chainSize = chainId!=null ? board.join("").split(chainId.toString()).length - 1 : 0;
             const piece = board[x][y] as "X" | "O" | "." | "#";
             const isDead = piece == "#";
             const isValidMove = validMoves[x][y]; // @todo This is only evaluating one board, so might miss ko's
@@ -138,7 +146,7 @@ function toRichBoard(ns: NS, board: Board): RichBoard {
             const isControlled = (owner!="empty") ? owner : (control === 'X') ? "black" : (control === 'O') ? "white" : "no";
             const isEmpty = piece == ".";
             const isEye = "unknown";
-            richNodes[x][y] = {x, y, owner, liberties: liberty, chainId, isValidMove, isDead, isEmpty, isControlled, isEye, piece};
+            richNodes[x][y] = {x, y, owner, liberties: liberty, chainId, chainSize, isValidMove, isDead, isEmpty, isControlled, isEye, piece};
         }
     }
     return richNodes;
@@ -194,6 +202,7 @@ type RichNode = {
     owner: "black" | "white" | "empty" | "dead";
     liberties: number;
     chainId: number | null;
+    chainSize: number;
     isValidMove: boolean;
     isDead: boolean;
     isEmpty: boolean;
