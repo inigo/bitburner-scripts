@@ -50,8 +50,7 @@ export async function main(ns: NS): Promise<void> {
 
 	// In early stages, before money production is high via other means, gamble in the casino for starting cash
 	await ns.sleep(10_000);	
-	const moneyAvailable = ns.getServerMoneyAvailable("home");
-	while (moneyAvailable < 300_000_000 || ns.getServerMaxRam("home") < 512) {
+	if (ns.getServerMoneyAvailable("home") < 300_000_000 || ns.getServerMaxRam("home") < 512) {
 		await ns.sleep(1000);
 		ns.run("/basic/cheatCasino.js");
 	}

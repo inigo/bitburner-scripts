@@ -9,7 +9,7 @@ export async function main(ns : NS) : Promise<void> {
     await acquireMoneyToTravel(ns);
 
     await ns.sleep(1000);
-    
+
     ns.run("/casino/coinFlip.js");
     while (ns.getServerMaxRam("home") < 512) {
         ns.singularity.upgradeHomeRam();
