@@ -14,8 +14,6 @@ export async function main(ns : NS) : Promise<void> {
 			ns.singularity.workForFaction(preferredFaction, "hacking", false);
 		}
 	} 
-
-	flight(ns);
 }
 
 
@@ -48,19 +46,6 @@ async function travelForFactions(ns: NS): Promise<void> {
 		await ns.asleep(30000);
 	}
 	if (ns.getPlayer().city != originalCity) { ns.singularity.travelToCity(originalCity); }
-}
-
-function flight(ns: NS): void {
-	if (isPreparedForFlight(ns)) {
-		ns.run("fl1ght.exe");
-	}
-}
-
-function isPreparedForFlight(ns: NS): boolean {
-	return (ns.getHackingLevel() >= 2500 
-			&& ns.getServerMoneyAvailable("home") > 100_000_000_000 
-			&& ns.singularity.getOwnedAugmentations(false).length >= 30)
-			&& ns.fileExists("fl1ght.exe");
 }
 
 function isAvailable(ns: NS) {
