@@ -99,9 +99,11 @@ export async function main(ns: NS): Promise<void> {
                 headers.push("Gang: ");
                 values.push(gangInfo.icons);
             }  else {
+                const requiredGangKarma = -54000;
                 const karma = Math.floor(ns.heart.break());
+                const karmaMsg = (karma > requiredGangKarma) ? ` (want ${requiredGangKarma})` : " (enough)";
                 headers.push("Karma: ");
-                values.push(karma);
+                values.push(karma+karmaMsg);
             }
             
             const companyStatus = getCorpStatus(ns);
