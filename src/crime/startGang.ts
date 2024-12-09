@@ -5,7 +5,7 @@ export async function main(ns: NS): Promise<void> {
 		return;
 	} else {
 		if (ns.heart.break() < -54000) {
-			const gangFactions = [ "Speakers for the Dead", "Tetrads", "Slum Snakes" ];
+			const gangFactions = [ "Speakers for the Dead", "Slum Snakes", "Tetrads",  ];
 			gangFactions.filter(g => !ns.getPlayer().factions.includes(g))
 						.forEach(g => ns.singularity.joinFaction(g));
 
