@@ -12,7 +12,7 @@ export async function main(ns: NS): Promise<void> {
         Opponent.Illuminati,
     ];
 
-    while (n < 10) {
+    while (n < 100) {
         const opponent = availableOpponents[n % availableOpponents.length];
         await startGame(ns, opponent, 13);
         n++;
