@@ -315,3 +315,34 @@ export function solveLzCompression(ns: NS, data: string): string {
 
     return bestResult;
 }
+
+
+export function solveSquareRoot(ns: NS, dataAsNo: number): string {
+    const data = dataAsNo.toString();
+    if (!data.match(/^\d+$/)) throw new Error("Invalid input");
+    if (data === "0" || data === "1") return data;
+
+    let left = BigInt(1);
+    let right = BigInt("1" + "0".repeat(Math.ceil(data.length / 2))); // Efficient initial upper bound
+
+    while (left <= right) {
+        const mid = (left + right) / BigInt(2);
+        const square = mid * mid;
+        const compare = square - BigInt(data);
+
+        if (compare === BigInt(0)) {
+            return mid.toString();
+        }
+
+        if (compare < BigInt(0)) {
+            if ((mid + BigInt(1)) * (mid + BigInt(1)) > BigInt(data)) {
+                return mid.toString();
+            }
+            left = mid + BigInt(1);
+        } else {
+            right = mid - BigInt(1);
+        }
+    }
+
+    return right.toString();
+}
