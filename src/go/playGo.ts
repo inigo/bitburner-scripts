@@ -3,11 +3,11 @@
 import {NS} from '@ns'
 
 export async function main(ns: NS): Promise<void> {
-    await startGame(ns);
+    await startGame(ns, Opponent.TheBlackHand, 13);
 }
 
-export async function startGame(ns: NS) {
-    ns.go.resetBoardState(Opponent.Daedalus, 7);
+export async function startGame(ns: NS, opponent: Opponent, boardSize: (5 | 7 | 9 | 13) ): Promise<number> {
+    ns.go.resetBoardState(opponent, boardSize);
 
     let newState: MoveResults = { type: null, x: -1, y: -1};
     while (newState.type!=='gameOver') {
@@ -65,6 +65,16 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
 
     const moveOptions: ScoredMove[] = [];
     const size = board[0].length;
+    const isFirstMove = ! board.some(row => row.some(node => node.piece === 'X'));
+
+    // For the first move, go in one of the corners
+    if (isFirstMove) {
+        const max = board.length-1;
+        const startingMoves = [board[2][2], board[max - 2][2], board[2][max - 2], board[max][max]];
+        const validStartingMove = startingMoves.find(n => n.isValidMove);
+        if (validStartingMove) { return [validStartingMove.x, validStartingMove.y] }
+    }
+
     // Look through all the points on the board
     for (let x = 0; x < size; x++) {
         for (let y = 0; y < size; y++) {
@@ -211,7 +221,7 @@ type RichNode = {
     piece: "X" | "O" | "." | "#";
 };
 
-enum Opponent {
+export enum Opponent {
     Netburners = "Netburners",
     SlumSnakes = "Slum Snakes",
     TheBlackHand = "The Black Hand",

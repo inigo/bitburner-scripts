@@ -1,10 +1,20 @@
 import {NS} from '@ns'
-import {startGame} from "/go/playGo";
+import {Opponent, startGame} from "/go/playGo";
 
 export async function main(ns: NS): Promise<void> {
     let n = 0;
-    while (n < 100) {
-        await startGame(ns);
+
+    const availableOpponents = [
+        Opponent.Tetrads,
+        Opponent.Netburners,
+        Opponent.Daedalus,
+        Opponent.TheBlackHand,
+        Opponent.Illuminati,
+    ];
+
+    while (n < 10) {
+        const opponent = availableOpponents[n % availableOpponents.length];
+        await startGame(ns, opponent, 13);
         n++;
     }
 }
