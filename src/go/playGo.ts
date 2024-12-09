@@ -3,15 +3,22 @@
 import {NS} from '@ns'
 
 export async function main(ns: NS): Promise<void> {
-    await startGame(ns, Opponent.TheBlackHand, 13);
+    await startGame(ns, Opponent.Netburners, 13);
 }
 
 export async function startGame(ns: NS, opponent: Opponent, boardSize: (5 | 7 | 9 | 13) ): Promise<number> {
     ns.go.resetBoardState(opponent, boardSize);
 
+    let turnsOpponentPassed = 0;
+
     let newState: MoveResults = { type: null, x: -1, y: -1};
     while (newState.type!=='gameOver') {
-        if (newState.type == 'pass' && noHelpfulMoves(ns)) {
+        if (newState.type=='pass') {
+            turnsOpponentPassed++;
+        } else {
+            turnsOpponentPassed = 0;
+        }
+        if (newState.type=='pass' && turnsOpponentPassed > 5 && noHelpfulMoves(ns)) {
             newState = await ns.go.passTurn()
         } else {
             const board = ns.go.getBoardState();
@@ -113,9 +120,8 @@ function getRandomMove(ns: NS, board: Board, validMoves: ValidMoves): Move | nul
         for (let y = 0; y < size; y++) {
             // Make sure the point is a valid move
             const isValidMove = validMoves[x][y];
-            // Leave some spaces to make it harder to capture our pieces.
-            // We don't want to run out of empty node connections!
-            const isNotReservedSpace = x % 2 === 1 || y % 2 === 1;
+            // Fill in a diagonal grid
+            const isNotReservedSpace = (x + (y % 2)) % 2 === 1 || y % 2 === 1;
 
             if (isValidMove && isNotReservedSpace) {
                 moveOptions.push([x, y]);
