@@ -28,18 +28,19 @@ export async function main(ns : NS) : Promise<void> {
     const sleeveStats = sleeves.map(i => ns.sleeve.getSleeve(i));
 
     const anyVeryShocked = sleeveStats.some(ss => ss.shock > 96);
-    const playerHackTooLow = ns.getPlayer().skills.hacking < 10;
+    const playerHackVeryLow = ns.getPlayer().skills.hacking < 20;
+    const playerHackLow = ns.getPlayer().skills.hacking < 100;
     const sleevesUntrained = sleeves.map(s => getMeanCombatStat(ns, s)).some(combat => combat < 90);
     const tooMuchKarma = ns.heart.break() > -54000;
     const notYetInGang = ! ns.gang.inGang();
     const playerStatsTooLowForGang = getLowestPlayerCombatStat(ns).value < 75;
     const enoughMoneyForTravelling = ns.getServerMoneyAvailable("home") > 50_000_000;
-    const lotsOfMoney = ns.getServerMoneyAvailable("home") > 500_000_000_000;
+    const lotsOfMoney = ns.getServerMoneyAvailable("home") > 2_000_000_000;
 
     if (anyVeryShocked) {
         ns.print("Sleeves are very shocked - recovering");
         sleeves.forEach(i => recoverShock(ns, i));
-    } else if (playerHackTooLow) {
+    } else if (playerHackVeryLow) {
         ns.print("Player hacking level is too low - helping to train it");
         sleeves.forEach(i => studyCs(ns, i));
     } else if (sleevesUntrained) {
@@ -76,9 +77,18 @@ export async function main(ns : NS) : Promise<void> {
 
         const remainingSleeves = sleeves.slice(nextAvailableSleeve);
         if (lotsOfMoney) {
-            ns.print("Setting "+remainingSleeves.length+" other sleeves to study Computer Science to improve player hacking");
-            remainingSleeves.forEach(i => travelTo(ns, i, "Volhaven"));
-            remainingSleeves.forEach(i => studyCs(ns, i));
+            for (const i of remainingSleeves) {
+                if (playerHackLow) {
+                    ns.print("Setting sleeve "+i+" to study Computer Science to improve player hacking");
+                    travelTo(ns, i, "Volhaven");
+                    studyCs(ns, i);
+                } else if (sleeveStats[i].shock > 0) {
+                    ns.print("Setting sleeve "+i+" to recover shock");
+                    recoverShock(ns, i);
+                } else {
+                    commitCrime(ns, i);
+                }
+            }
         } else {
             remainingSleeves.forEach(i => commitCrime(ns, i));
         }        
