@@ -29,7 +29,7 @@ class Reporter {
             , (corpInfo?.investmentRound ?? -1) == 1 ? "corporationFinishedStartup" : ""
             , (corpInfo?.investmentRound ?? -1) == 2 ? "corporationTakenSecondInvestment" : ""
             , corpInfo?.isPublic ? "corporationPublic" : ""
-            , sleeveInfo.every(s => (s as SleeveCrimeTask)?.crimeType == "Homicide") ? "sleevesMurdering" : ""
+            , sleeveInfo.every(s => s !=null && (s as SleeveCrimeTask)?.crimeType == "Homicide") ? "sleevesMurdering" : ""
             , this.ns.stock.has4SDataTIXAPI() ? "has4SData" : ""
             , explicitEvent
         ].filter(s => s.length > 0);

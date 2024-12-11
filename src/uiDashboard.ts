@@ -129,7 +129,8 @@ export async function main(ns: NS): Promise<void> {
             labelCell.innerText = headers.join(" \n");
             valueCell.innerText = values.join("\n");
         } catch (error) { 
-            ns.print("Failed to update: " + error);
+            // @ts-ignore
+            ns.print("Failed to update: " + error+" at "+error.stack);
         }
 
         await ns.sleep(1000);
@@ -153,7 +154,7 @@ function getSleeveIcons(ns: NS): (string | null) {
     const sleeveTasks = retrieveSleeveTasks(ns);
     if (sleeveTasks.length==0) return null;
 
-    return sleeveTasks.map(o => o.type).map(lookupSleeveIcon).join("");
+    return sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("");
 }
 
 function getGangInfo(ns: NS): (GangInfo | null) {

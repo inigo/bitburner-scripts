@@ -121,7 +121,7 @@ export async function reportSleeveTasks(ns: NS): Promise<void> {
 	await ports.setPortValue(ns, ports.SLEEVE_REPORTS_PORT, JSON.stringify(tasks));
 }
 
-export function retrieveSleeveTasks(ns: NS): SleeveTask[] {
+export function retrieveSleeveTasks(ns: NS): (SleeveTask | null)[] {
 	const sleeveTasks = ports.checkPort(ns, ports.SLEEVE_REPORTS_PORT, JSON.parse) as (SleeveTask[] | null);
 	return sleeveTasks ?? [];
 }
