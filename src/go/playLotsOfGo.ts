@@ -18,6 +18,7 @@ export async function main(ns: NS): Promise<void> {
         } catch (e) {
             ns.print("Attempting to play unknown opponent - expecting to fail if not yet unlocked");
         }
+        n++;
     }
 
     while (n < 100) {
