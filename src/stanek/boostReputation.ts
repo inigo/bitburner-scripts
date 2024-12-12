@@ -1,4 +1,5 @@
 import { NS } from '@ns';
+import {reportFragments} from "/stanek/libFragment";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function autocomplete(data : AutocompleteData, args : string[]) : string[] {
@@ -8,6 +9,8 @@ export function autocomplete(data : AutocompleteData, args : string[]) : string[
 export async function main(ns: NS): Promise<void> {
     const server = (ns.args[0] as string);
 
+    await reportFragments(ns);
+
     await ns.scp([ "libFormat.js", "/stanek/libFragment.js", "/stanek/chargeFragments.js"], server)
     ns.killall(server);
 
@@ -15,5 +18,5 @@ export async function main(ns: NS): Promise<void> {
     const scriptRam = ns.getScriptRam("/stanek/chargeFragments.js", server);
 
     const threads = Math.floor(ram / scriptRam);
-    ns.exec("/stanek/chargeFragments.js", server, threads, "reputation");
+    ns.exec("/stanek/chargeFragments.js", server, threads);
 }
