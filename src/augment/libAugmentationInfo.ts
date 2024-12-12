@@ -7,7 +7,6 @@ export function retrieveAugInfo(ns: NS): (AugReport | null) {
 
 export type AugReport = { augCount: number, installableAugs: FullAugmentationInfo[], neurofluxCount: number  }
 
-// @todo update - was extending AugmentationStats not Multipliers, but that no longer exists
 export interface FullAugmentationInfo extends Multipliers {
     name: string;
     reqs: string[];
@@ -17,4 +16,7 @@ export interface FullAugmentationInfo extends Multipliers {
     isReputationAugmentation: boolean;
     isHacknetAugmentation: boolean;
     isNeuroflux: boolean;
+    isPhysicalAugmentation: boolean;
+    isBladeburnerAugmentation: boolean;
+    isCharismaAugmentation: boolean;
 }

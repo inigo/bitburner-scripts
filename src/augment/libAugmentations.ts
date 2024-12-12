@@ -14,10 +14,19 @@ export function getCostMultiplier(ns: NS): number {
 export function getUsefulAugmentations(ns: NS, faction: string): FullAugmentationInfo[] {
 	const ownedAugmentations = ns.singularity.getOwnedAugmentations(true);
 	const availableAugmentations = ns.singularity.getAugmentationsFromFaction(faction);
+
+    // @todo - Pass this in from higher level goals
+    const focus = "bitburner";
+    // We still care about hacking for bitburner, because that's still our primary source of cash for augmentations
+    // (but maybe only up to a certain point - once we have enough income, we don't need more?? )
+    const relevanceFilter = (focus === "bitburner")
+        ? (a: FullAugmentationInfo) => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation || a.isBladeburnerAugmentation || a.isPhysicalAugmentation || a.isCharismaAugmentation
+        : (a: FullAugmentationInfo) => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation;
+
 	const augs = availableAugmentations
 			.map(a => getAugmentationInfo(ns, a))
 			.filter(a => ! ownedAugmentations.includes(a.name))
-			.filter(a => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation)
+			.filter(relevanceFilter)
 			.filter(a => !a.isNeuroflux);
     ns.print("There are "+augs.length+" useful augmentations available from "+faction);
     // ns.print("They are: "+getOrderedAugmentations(ns, augs)
@@ -49,11 +58,15 @@ export function getAugmentationInfo(ns: NS, augName: string): FullAugmentationIn
     const isHackingAugmentation: boolean = (stats.hacking_chance > 1 || stats.hacking_exp > 1 || stats.hacking_grow > 1 || stats.hacking_money > 1 || stats.hacking > 1 || stats.hacking_speed > 1);
     const isReputationAugmentation: boolean = (stats.faction_rep > 1);
     const isHacknetAugmentation: boolean = (stats.hacknet_node_core_cost > 1 || stats.hacknet_node_level_cost > 1 || stats.hacknet_node_money > 1 || stats.hacknet_node_purchase_cost > 1 || stats.hacknet_node_ram_cost > 1);
+    const isPhysicalAugmentation: boolean = (stats.agility > 1 || stats.agility_exp > 1 || stats.defense > 1 || stats.defense_exp > 1 || stats.strength > 1 || stats.strength_exp > 1 || stats.dexterity > 1 || stats.dexterity_exp > 1 );
+    const isBladeburnerAugmentation: boolean = (stats.bladeburner_analysis > 1 || stats.bladeburner_max_stamina > 1 || stats.bladeburner_stamina_gain > 1 || stats.bladeburner_success_chance > 1);
+    const isCharismaAugmentation: boolean = (stats.charisma > 1 || stats.charisma_exp > 1);
+    // Not including company rep or work, or crime
 
     const isNeuroflux: boolean = (augName == "NeuroFlux Governor");
     const reqs = ns.singularity.getAugmentationPrereq(augName);
 
-    return { name: augName, ...stats, reqs, cost, reputationNeeded, isHackingAugmentation, isReputationAugmentation, isHacknetAugmentation, isNeuroflux }
+    return { name: augName, ...stats, reqs, cost, reputationNeeded, isHackingAugmentation, isReputationAugmentation, isHacknetAugmentation, isNeuroflux, isPhysicalAugmentation, isBladeburnerAugmentation, isCharismaAugmentation }
 }
 
 
