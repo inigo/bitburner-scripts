@@ -1,5 +1,7 @@
 import { NS } from '@ns'
 import * as ports from "libPorts";
+import {getGoal} from "/goal/libGoal";
+import {anyScriptRunning, launchIfNotRunning} from "/libLaunch";
 
 // The second phase control script, launched by bootstrap once we've reached sufficient memory and money
 
@@ -7,23 +9,27 @@ export async function main(ns: NS): Promise<void> {
 	ns.disableLog("ps");
 	ns.disableLog("sleep");
 
-	ns.tprint("Updated version");
+	ns.run("/goal/selectGoal.js");
+	await ns.sleep(100);
+
+	const goal = getGoal(ns);
 
 	if (ns.getServerMaxRam("home") > 128 && !anyScriptRunning(ns, "tix/stockTrade.js")) {
 		ns.run("/tix/stockTrade.js", 1, "live");
 	}
 
 	// This will abort if not in a gang
-	ns.run("/crime/manageGang.js");
-	ns.run("/crime/intermittentWarfare.js");
+	await launchIfNotRunning(ns, "/crime/manageGang.js");
+	await launchIfNotRunning(ns, "/crime/intermittentWarfare.js");
 
-	ns.run("/go/playLotsOfGo.js");
+	await launchIfNotRunning(ns, "/go/playLotsOfGo.js");
 
-	// @todo update - currently not joining automatically? or failing gracefully
-	// ns.run("/bladeburner/manageBladeburner.js");
+	if (goal=="bladeburner") {
+		await launchIfNotRunning(ns, "/bladeburner/manageBladeburner.js");
+	}
 
-	ns.run("uiDashboard.js");
-	
+	await launchIfNotRunning(ns, "uiDashboard.js");
+
 	while(true) {
 		const scripts = [
 						// "/augment/completeBitnode.js" // This needs to be at the beginning, so it triggers before any restarts
@@ -55,10 +61,9 @@ export async function main(ns: NS): Promise<void> {
 		for (const script of scripts) {
 			ns.run(script);
 			while (anyScriptRunning(ns, script)) {
-				await ns.sleep(100);
+				await ns.sleep(50);
 			}				
 		}
-
 
 		// This is created by buyAugmentations and buyAugmentationsFromGang
 		if (shouldRestart(ns)) {
@@ -74,9 +79,4 @@ export async function main(ns: NS): Promise<void> {
 
 function shouldRestart(ns: NS): boolean {
 	return ports.checkPort(ns, ports.AUGMENT_AND_RESTART, (v) => v === "true") ?? false;
-}
-
-function anyScriptRunning(ns: NS, filename: string): boolean {
-	const cleanFilename = filename.startsWith('/') ? filename.substring(1) : filename;
-	return ns.ps().some(p => p.filename === cleanFilename);
 }

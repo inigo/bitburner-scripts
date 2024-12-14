@@ -1,5 +1,6 @@
 import { NS } from '@ns'
 import * as ports from "libPorts";
+import {anyScriptRunning, launchIfNotRunning} from "/libLaunch";
 
 /// Most basic control script - runs on a minimal server, and runs simple upgrades
 
@@ -17,8 +18,10 @@ export async function main(ns: NS): Promise<void> {
 	ns.run("/reporting/logProgress.js");
 	await ns.sleep(100);
 
-	ns.run("uiDashboard.js");
-	await ns.sleep(200);
+	await launchIfNotRunning(ns, "uiDashboard.js");
+
+	ns.run("/goal/selectGoal.js");
+	await ns.sleep(100);
 
 	ns.run("/sleeve/sleeveControl.js", 1, "study");
 	await ns.sleep(1000);
@@ -38,18 +41,15 @@ export async function main(ns: NS): Promise<void> {
 	ns.run("/sleeve/sleeveControl.js", 1, "clear");
 	await ns.sleep(1000);
 
-	ns.run("/corp/manageStartup.js");
-	await ns.sleep(200);
-	// ns.run("/corp/manageCorp.js");
-	await ns.sleep(200);
-	// This will abort if not in a gang
-	ns.run("/crime/manageGang.js");
-	await ns.sleep(200);
-	ns.run("/crime/intermittentWarfare.js");
-	await ns.sleep(200);
+	await launchIfNotRunning(ns, "/corp/manageStartup.js");
+	// await launchIfNotRunning(ns, "/corp/manageCorp.js");
+
+	// These will abort if not in a gang
+	await launchIfNotRunning(ns, "/crime/manageGang.js", 200);
+	await launchIfNotRunning(ns, "/crime/intermittentWarfare.js", 200);
 
 	// In early stages, before money production is high via other means, gamble in the casino for starting cash
-	await ns.sleep(10_000);	
+	await ns.sleep(10_000);
 	if (ns.getServerMoneyAvailable("home") < 300_000_000 || ns.getServerMaxRam("home") < 512) {
 		await ns.sleep(1000);
 		ns.run("/basic/cheatCasino.js");
@@ -103,9 +103,4 @@ function launchHackLocal(ns: NS): void {
 	const minSecurity = ns.getServerMinSecurityLevel(hackTarget);	
 	ns.print(`Launching hack script to hack ${hackTarget}`);
 	ns.run(hackScript, threads, hackTarget, maxMoney, minSecurity, "stopAfterDelay");
-}
-
-function anyScriptRunning(ns: NS, filename: string): boolean {
-	const cleanFilename = filename.startsWith('/') ? filename.substring(1) : filename;
-	return ns.ps().some(p => p.filename === cleanFilename);
 }
