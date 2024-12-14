@@ -1,6 +1,7 @@
 import { NS } from '@ns'
 import * as ports from "libPorts";
 import {anyScriptRunning, launchIfNotRunning} from "/libLaunch";
+import {getGoal} from "/goal/libGoal";
 
 /// Most basic control script - runs on a minimal server, and runs simple upgrades
 
@@ -22,6 +23,13 @@ export async function main(ns: NS): Promise<void> {
 
 	ns.run("/goal/selectGoal.js");
 	await ns.sleep(100);
+
+	const goal = getGoal(ns);
+
+	if (goal=="stocks") {
+		await bootstrapStocks(ns);
+		return;
+	}
 
 	ns.run("/sleeve/sleeveControl.js", 1, "study");
 	await ns.sleep(1000);
@@ -103,4 +111,38 @@ function launchHackLocal(ns: NS): void {
 	const minSecurity = ns.getServerMinSecurityLevel(hackTarget);	
 	ns.print(`Launching hack script to hack ${hackTarget}`);
 	ns.run(hackScript, threads, hackTarget, maxMoney, minSecurity, "stopAfterDelay");
+}
+
+
+/**
+ * For Bitnode 8, we only make money from stocks, so there aren't many other scripts to run.
+ */
+async function bootstrapStocks(ns: NS) {
+	if (!anyScriptRunning(ns, "tix/stockTrade.js")) {
+		ns.run("/tix/stockTrade.js", 1, "live");
+	}
+
+	ns.run("/basic/studyCs.js");
+	await ns.sleep(200);
+	while (anyScriptRunning(ns, "basic/studyCs.js")) {
+		await ns.sleep(1000);
+	}
+
+	// noinspection InfiniteLoopJS
+	while(true) {
+		if (!anyScriptRunning(ns, hackScript)) {
+			const scripts = [
+				"basicCrackAll.js"
+				, "spread/attackShareholdings.js"
+			];
+			for (const script of scripts) {
+				ns.run(script);
+				while (anyScriptRunning(ns, script)) {
+					await ns.sleep(200);
+				}
+			}
+		}
+
+		await ns.sleep(60000);
+	}
 }
