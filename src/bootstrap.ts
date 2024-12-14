@@ -3,7 +3,7 @@ import * as ports from "libPorts";
 import {anyScriptRunning, launchIfNotRunning} from "/libLaunch";
 import {getGoal} from "/goal/libGoal";
 
-/// Most basic control script - runs on a minimal server, and runs simple upgrades
+/// Most basic control script - runs on a minimal server, and runs simple upgrades. RUN THIS FIRST!
 
 const hackScript = "/basic/timedHack.js";
 
@@ -118,6 +118,7 @@ function launchHackLocal(ns: NS): void {
  * For Bitnode 8, we only make money from stocks, so there aren't many other scripts to run.
  */
 async function bootstrapStocks(ns: NS) {
+	ns.tprint("Bootstrapping in stocks mode - this will not do most normal actions...");
 	if (!anyScriptRunning(ns, "tix/stockTrade.js")) {
 		ns.run("/tix/stockTrade.js", 1, "live");
 	}
@@ -134,6 +135,13 @@ async function bootstrapStocks(ns: NS) {
 			const scripts = [
 				"basicCrackAll.js"
 				, "spread/attackShareholdings.js"
+				, "spread/spreadAttackController.js"
+				, "basic/buyStockmarket.js"
+				, "basic/installBackdoors.js"
+				, "joinDaedalus.js"
+				, "sleeve/reportSleeveTasks.js"
+				, "crime/reportGangStatus.js"
+				, "contracts/solveContracts.js"
 			];
 			for (const script of scripts) {
 				ns.run(script);
