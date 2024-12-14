@@ -1,15 +1,17 @@
 import {getUsefulAugmentations} from "augment/libAugmentations";
 import {retrieveGangInfo} from "crime/libGangInfo";
 import {CityName} from "@ns";
+import {getGoal, Goal} from "/goal/libGoal";
 
 export async function main(ns : NS) : Promise<void> {
 	await travelForFactions(ns);
 
+	const goal = getGoal(ns);
 	const inGang = retrieveGangInfo(ns) != null;
-	joinPreferredFaction(ns, inGang);
+	joinPreferredFaction(ns, goal, inGang);
 
 	if (isAvailable(ns)) {
-		const preferredFaction = findPreferredFaction(ns, inGang, null);
+		const preferredFaction = findPreferredFaction(ns, goal, inGang, null);
 		if (preferredFaction!=null) {
 			ns.singularity.workForFaction(preferredFaction, "hacking", false);
 		}
@@ -63,8 +65,8 @@ function isAvailable(ns: NS) {
 	return !(ns.singularity.isBusy() || isBladeburning) || isStudying;
 }
 
-function joinPreferredFaction(ns: NS, inGang: boolean): void {
-	const preferredFaction = findPreferredFaction(ns, inGang, null);
+function joinPreferredFaction(ns: NS, goal: Goal, inGang: boolean): void {
+	const preferredFaction = findPreferredFaction(ns, goal, inGang, null);
 	if (preferredFaction!=null && ns.singularity.checkFactionInvitations().includes(preferredFaction)) {
 		ns.toast("Joining preferred faction "+preferredFaction);
 		ns.singularity.joinFaction(preferredFaction);
@@ -75,7 +77,7 @@ function joinPreferredFaction(ns: NS, inGang: boolean): void {
 	}
 }
 
-export function findPreferredFaction(ns: NS, inGang: boolean, currentGangFaction: string | null): string {
+export function findPreferredFaction(ns: NS, goal: Goal, inGang: boolean, currentGangFaction: string | null): string {
 	const factionsToExclude = currentGangFaction ? [ currentGangFaction ] : [];
 	const interestingFactions = listInterestingFactions().filter(f => !factionsToExclude.includes(f));
 	const allPotentialFactions = listPotentialFactions(ns);
@@ -85,7 +87,7 @@ export function findPreferredFaction(ns: NS, inGang: boolean, currentGangFaction
 	if (potentialInterestingFactions.includes("Daedalus")) { return "Daedalus"; }
 	
 	const preferredFactions = potentialInterestingFactions
-		.filter(f => getUsefulAugmentations(ns, f).length > 1);
+		.filter(f => getUsefulAugmentations(ns, f, goal).length > 1);
 	ns.print("Preferred factions are "+preferredFactions);
 	return preferredFactions[0];
 }

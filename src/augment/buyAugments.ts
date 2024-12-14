@@ -13,19 +13,21 @@ import {
 import { retrieveCompanyStatus } from "corp/libCorporation";
 import { fmt } from "libFormat";
 import { say } from "speech/libSpeech"
+import {getGoal, Goal} from "/goal/libGoal";
 
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
 
     const force = (ns.args.includes("force"));
-    await buyAugmentations(ns, force);
+    const goal = getGoal(ns);
+    await buyAugmentations(ns, goal, force);
 }
 
-async function buyAugmentations(ns: NS, force: boolean): Promise<void> {
+async function buyAugmentations(ns: NS, goal: Goal, force: boolean): Promise<void> {
     const gangFaction = getGangFaction(ns);
     const inGang = gangFaction!=null;
-    const nonGangFaction = findPreferredFaction(ns, inGang, gangFaction);
+    const nonGangFaction = findPreferredFaction(ns, goal, inGang, gangFaction);
     if (gangFaction==null && nonGangFaction==null) {
         await reportAugInfo(ns, []);
         return;
@@ -33,16 +35,16 @@ async function buyAugmentations(ns: NS, force: boolean): Promise<void> {
 
     const requiredAugCount = 8; // How many augs should we aim to install at once? (not counting Neuroflux)
 
-    const gangAugs = inGang ? getBestInstallableAugmentations(ns, gangFaction) : [];
-    const nonGangAugs = nonGangFaction!=null ? getBestInstallableAugmentations(ns, nonGangFaction) : [];
+    const gangAugs = inGang ? getBestInstallableAugmentations(ns, goal, gangFaction) : [];
+    const nonGangAugs = nonGangFaction!=null ? getBestInstallableAugmentations(ns, goal, nonGangFaction) : [];
     const allAugsAvailableFromGang = nonGangAugs.map(a => a.name).every(a => gangAugs.map(g => g.name).includes(a) );
     const gangAugsBetter = allAugsAvailableFromGang ||
-        (gangAugs.length >= nonGangAugs.length && !evaluateAugmentationPurchase(ns, nonGangFaction, nonGangAugs, requiredAugCount));
+        (gangAugs.length >= nonGangAugs.length && !evaluateAugmentationPurchase(ns, goal, nonGangFaction, nonGangAugs, requiredAugCount));
     const [ bestAugs, faction ] = gangAugsBetter ? [ gangAugs, gangFaction! ] : [ nonGangAugs, nonGangFaction! ];
     ns.print(`Gang has ${gangAugs.length} augs available, vs ${nonGangAugs.length} augs from ${nonGangFaction} - preferred faction is ${faction}`);
     await reportAugInfo(ns, bestAugs);
 
-    const worthBuying = evaluateAugmentationPurchase(ns, faction, bestAugs, requiredAugCount);
+    const worthBuying = evaluateAugmentationPurchase(ns, goal, faction, bestAugs, requiredAugCount);
     const restartForFavor = ((gangFaction==null && (bestAugs.length>=3)) || faction=="Daedalus") && willGetEnoughFavorForDonations(ns, faction);
     const savingForCorporation = isSavingForCorporation(ns, faction);
 

@@ -4,6 +4,7 @@ import {retrieveGangInfo} from "/crime/libGangInfo";
 import * as ports from "libPorts";
 import {getOwnedShareValue} from "/tix/libTix";
 import {AugReport, FullAugmentationInfo} from "/augment/libAugmentationInfo";
+import {Goal} from "/goal/libGoal";
 
 export function getCostMultiplier(ns: NS): number {
     const sf11Count = ns.singularity.getOwnedSourceFiles().filter(sf => sf.n == 11).length;
@@ -11,15 +12,13 @@ export function getCostMultiplier(ns: NS): number {
     return 1.9 * sf11Modifier;
 }
 
-export function getUsefulAugmentations(ns: NS, faction: string): FullAugmentationInfo[] {
+export function getUsefulAugmentations(ns: NS, faction: string, goal: Goal): FullAugmentationInfo[] {
 	const ownedAugmentations = ns.singularity.getOwnedAugmentations(true);
 	const availableAugmentations = ns.singularity.getAugmentationsFromFaction(faction);
 
-    // @todo - Pass this in from higher level goals
-    const focus = "bitburner";
     // We still care about hacking for bitburner, because that's still our primary source of cash for augmentations
     // (but maybe only up to a certain point - once we have enough income, we don't need more?? )
-    const relevanceFilter = (focus === "bitburner")
+    const relevanceFilter = (goal === "bladeburner")
         ? (a: FullAugmentationInfo) => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation || a.isBladeburnerAugmentation || a.isPhysicalAugmentation || a.isCharismaAugmentation
         : (a: FullAugmentationInfo) => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation;
 
@@ -138,10 +137,10 @@ export async function reportAugInfo(ns: NS, augs: FullAugmentationInfo[]): Promi
 
 // ----------
 
-export function evaluateAugmentationPurchase(ns: NS, faction: string, augsToBuy: FullAugmentationInfo[], requiredCount: number): boolean {
+export function evaluateAugmentationPurchase(ns: NS, goal: Goal, faction: string, augsToBuy: FullAugmentationInfo[], requiredCount: number): boolean {
     if (augsToBuy.length==0) return false;
 
-    const usefulAugmentations = getUsefulAugmentations(ns, faction);
+    const usefulAugmentations = getUsefulAugmentations(ns, faction, goal);
 
     const isGangFaction = (faction == getGangFaction(ns));
     if (!isGangFaction) {
@@ -151,11 +150,11 @@ export function evaluateAugmentationPurchase(ns: NS, faction: string, augsToBuy:
     }
 }
 
-export function getBestInstallableAugmentations(ns: NS, faction: string): FullAugmentationInfo[] {
+export function getBestInstallableAugmentations(ns: NS, goal: Goal, faction: string): FullAugmentationInfo[] {
     const money = calculateAllAvailableMoney(ns);
     const reputation = calculateReputation(ns, faction);
 
-    const availableAugmentations = getAvailableAugmentations(ns, faction, money, reputation);
+    const availableAugmentations = getAvailableAugmentations(ns, goal, faction, money, reputation);
 
     for (const i of doCount(availableAugmentations.length)) {
         const candidates = availableAugmentations.slice(i);
@@ -197,8 +196,8 @@ export function calculateAllAvailableMoney(ns: NS): number {
 
 // -----------
 
-function getAvailableAugmentations(ns: NS, faction: string, availableMoney: number, rep: number): FullAugmentationInfo[] {
-    return getUsefulAugmentations(ns, faction)
+function getAvailableAugmentations(ns: NS, goal: Goal, faction: string, availableMoney: number, rep: number): FullAugmentationInfo[] {
+    return getUsefulAugmentations(ns, faction, goal)
         .filter(a => a.reputationNeeded < rep)
         .filter(a => a.cost < availableMoney);
 }
