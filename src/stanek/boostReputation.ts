@@ -1,6 +1,8 @@
 import { NS } from '@ns';
 import {reportFragments} from "/stanek/libFragment";
 
+/// On a specified server, run nothing but a continuous charge of Stanek's Gift
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function autocomplete(data : AutocompleteData, args : string[]) : string[] {
     return [...data.servers];

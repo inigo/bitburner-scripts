@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/// Cheat at the casino - by exploiting the repetition in the random number generator
+/// Cheat at the casino - by exploiting the repetition in the random number generator - to earn $2b
 import { fmt } from "libFormat";
 import * as dom from "casino/libDom";
 import { NS } from '@ns';

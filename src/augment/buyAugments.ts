@@ -15,6 +15,7 @@ import { fmt } from "libFormat";
 import { say } from "speech/libSpeech"
 import {getGoal, Goal} from "/goal/libGoal";
 
+/// Buy available augmentations, as efficiently as possible, and then trigger a restart
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
