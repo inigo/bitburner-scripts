@@ -28,3 +28,22 @@ function bitNode(ns: NS): [number, number] {
     const level = Math.max(... ownedSourceFiles.filter((sf: SourceFileLvl) => sf.n == bitNodeNo).map((sf: SourceFileLvl) => sf.lvl), 0) + 1;
     return [bitNodeNo, level];
 }
+
+export function selectGoal(ns: NS): void {
+    if (isCurrentGoalValid(ns)) return;
+
+    const [bitNodeNo, ] = bitNode(ns);
+
+    let goal: Goal;
+    if (bitNodeNo == 8) {
+        goal = "stocks";
+    } else if (bitNodeNo == 6 || bitNodeNo == 7) {
+        goal = "bladeburner";
+        // Would bladeburner be a good choice in later BN12s?
+    } else {
+        goal = "hacking";
+    }
+    const msg = `Setting Bitnode goal to ${goal}`;
+    ns.tprint(msg);
+    setGoal(ns, goal);
+}
