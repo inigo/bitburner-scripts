@@ -1,6 +1,9 @@
 import { NS } from '@ns'
 import { say } from "speech/libSpeech"
 
+/// Say a specified message
+
 export async function main(ns : NS) : Promise<void> {
-    say("Hello, I am Daniel and I am a fish");
+    const msg = ns.args[0] ?? "Hello, I am a fish and I like to play Bitburner";
+    say(msg as string);
 }
