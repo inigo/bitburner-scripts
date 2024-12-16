@@ -1,4 +1,5 @@
 import { NS } from '@ns';
+import {React} from "/react/libReact";
 
 export function autocomplete(data : AutocompleteData) : string[] {
     return [...data.scripts];
@@ -12,7 +13,7 @@ export async function main(ns: NS): Promise<void> {
 
     if (ns.scriptRunning(targetScript, server)) {
         ns.scriptKill(targetScript, server);
-        ns.tprint(`Killed existing instance`);
+        ns.tprintRaw(<div>Killed existing instance</div>);
     }
 
     const isTail = remainingArgs.includes("tail"); // Cannot be --tail, since that's treated specially
@@ -21,7 +22,7 @@ export async function main(ns: NS): Promise<void> {
     const threadCount = 1;
     const pid = ns.exec(targetScript, server, threadCount, ...nonTailArgs);
     const argText = (nonTailArgs.length > 0) ? " with arguments: " + nonTailArgs.join(", ") : "";
-    ns.tprint(`PID: ${pid} - ${targetScript}${argText}`);
+    ns.tprintRaw(<div>PID: <b>{pid}</b> - <code>{targetScript}</code>{argText}</div>);
     if (isTail) {
         ns.tail(pid);
     }
