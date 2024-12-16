@@ -20,7 +20,7 @@
     "baseUrl": "src/",
     "paths": {
       "/*": [
-        "*"
+        "home/*"
       ],
       "@ns": [
         "../NetscriptDefinitions.d.ts"
