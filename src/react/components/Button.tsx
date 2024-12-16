@@ -1,15 +1,13 @@
-import { useOnHover } from "react/hooks/useOnHover";
 import {React} from "/react/libReact";
 
 
-export const Button = ({ bg, title, onButtonClick }: { bg: string; title: string; onButtonClick: () => void }) => {
-    const buttonRef = React.useRef<HTMLDivElement>(null);
-
-    const buttonHovered = useOnHover(buttonRef);
+export function Button({ bg, title, onButtonClick, disabled = false }: { bg: string; title: string; onButtonClick: () => void, disabled?: boolean  }) {
+    // const buttonRef = React.useRef<HTMLDivElement>(null);
+    const nullFn = () => { return; };
     return (
         <div
-            ref={buttonRef}
-            onClick={onButtonClick}
+            // ref={buttonRef}
+            onClick={ (!disabled) ? onButtonClick : nullFn }
             style={{
                 backgroundColor: bg,
                 border: "none",
@@ -24,7 +22,7 @@ export const Button = ({ bg, title, onButtonClick }: { bg: string; title: string
                 borderRadius: "5px",
                 fontFamily: "Arial Black",
                 transition: "filter 0.1s ease-out",
-                filter: buttonHovered ? "saturate(100%)" : "saturate(50%)",
+                filter: !disabled ? "saturate(100%)" : "saturate(10%)"
             }}
         >
             {title}
