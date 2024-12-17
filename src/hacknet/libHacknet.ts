@@ -35,6 +35,12 @@ export function buyCache(ns: NS): boolean {
 	} else if (totalHashCapacity < 2000 && availableMoney > 500_000_000 && nodeCount > 0) {
 		ns.hacknet.upgradeCache(0, 3);
 		return true;
+	} else if (totalHashCapacity < 17000 && availableMoney > 20_000_000_000 && nodeCount > 0) {
+		ns.hacknet.upgradeCache(0, 3);
+		return true;
+	} else if (totalHashCapacity < 33000 && availableMoney > 100_000_000_000 && nodeCount > 0) {
+		ns.hacknet.upgradeCache(0, 2);
+		return true;
 	} else {
 		return false;
 	}
