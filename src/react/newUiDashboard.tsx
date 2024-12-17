@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {formatMoney} from "libFormat";
 import * as ports from "libPorts";
-import {HashSpendReport, HashUpgrade, lookupHashIcons, retrieveHashNumber} from "hacknet/libHashes";
+import {HashSpendReport, lookupHashIcons, retrieveHashNumber} from "hacknet/libHashes";
 import {lookupSleeveIcon, retrieveSleeveTasks} from "sleeve/libSleeve";
 import {CombinedFragment, lookupFragmentTypeIcon} from "stanek/libFragment";
 import {receiveAttackTarget} from "spread/libSpread";
@@ -11,11 +11,12 @@ import {lookupGangTaskIcon, retrieveGangInfo} from "crime/libGangInfo";
 import {AugReport, retrieveAugInfo} from "augment/libAugmentationInfo";
 import {NS, SleeveTask} from '@ns'
 import {domDocument, domWindow, React, ReactDOM} from "/react/libReact";
-import {Button} from "/react/components/Button";
 
 const {useState, useEffect} = React;
-const requiredGangKarma = -54000;
 
+const requiredGangKarma = -54000;
+const sleeveActions = ["-", "spread", "strength", "agility", "dexterity", "charisma", "defense", "study", "crime", "shock", "home", "volhaven", "clear", "gym"];
+const hashActions = ["-", "contracts", "corpResearch", "corpFunds", "gym", "study", "bladeburnerSkill", "bladeburnerRank", "money"];
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
@@ -40,7 +41,6 @@ export async function main(ns: NS): Promise<void> {
         domWindow.dispatchEvent(new Event(eventName));
         await ns.asleep(1000);
     }
-
 }
 
 
@@ -62,9 +62,6 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
     const [gangInfo, setGangInfo] = useState<GangInfo | null>(null);
     const [karma, setKarma] = useState(0);
     const [companyStatus, setCompanyStatus] = useState<CorporationStatus | null>(null);
-
-    const sleeveActions = ["-", "spread", "strength", "agility", "dexterity", "charisma", "defense", "study", "crime", "shock", "home", "volhaven", "clear", "gym"];
-    const hashActions = ["-", "contracts", "corpResearch", "corpFunds", "gym", "study", "bladeburnerSkill", "bladeburnerRank", "money"];
 
     const handleTick = () => {
         setIncome(ns.getTotalScriptIncome()[0]);
