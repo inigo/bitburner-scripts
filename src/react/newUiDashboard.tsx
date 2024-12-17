@@ -9,83 +9,13 @@ import {CorporationStatus, retrieveCompanyStatus} from "corp/libCorporation";
 import {retrieveShareStatus, ShareStatus} from "tix/libShareInfo";
 import {lookupGangTaskIcon, retrieveGangInfo} from "crime/libGangInfo";
 import {AugReport, retrieveAugInfo} from "augment/libAugmentationInfo";
-import {NS} from '@ns'
+import {NS, SleeveTask} from '@ns'
 import {domDocument, domWindow, React, ReactDOM} from "/react/libReact";
 import {Button} from "/react/components/Button";
-import {pauseTrading, reportShareStatus, sellAllShares} from "/tix/libTix";
 
 const { useState, useEffect } = React;
+const requiredGangKarma = -54000;
 
-
-function doSomething(ns: NS) {
-    ns.tprint("Message!");
-}
-
-async function maybeSellShares(ns: NS) {
-    ns.tprint("Selling shares!");
-    sellAllShares(ns);
-    await reportShareStatus(ns);
-    await pauseTrading(ns);
-}
-
-function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
-
-    const [count, setCount] = useState(0);
-    const [income, setIncome] = useState("");
-    const [hackExp, setHackExp] = useState("");
-
-
-    const [hasShares, setHasShares] = useState(false);
-    const [shareValue, setShareValue] = useState(0);
-    const [has4s, setHas4s] = useState(false);
-
-
-    // const shareInfo = getShareStatus(ns);
-    // if (shareInfo!=null) {
-    //     const shareValue = formatMoney(ns, shareInfo.value);
-    //     headers.push((shareInfo.has4S ?  "Shares (4S): " : "Shares: "));
-    //     values.push(shareValue);
-    //
-    //     const totalMoney = formatMoney(ns, ns.getServerMoneyAvailable("home") + shareInfo.value);
-    //     headers.push("Total money: ");
-    //     values.push(totalMoney);
-    // }
-
-    const handleTick = () => {
-        setCount(prev => prev + 1);
-        setIncome(formatMoney(ns, ns.getTotalScriptIncome()[0]));
-        setHackExp(ns.nFormat(ns.getTotalScriptExpGain(), "0.00a"));
-
-        const shareInfo = getShareStatus(ns);
-        if (shareInfo!=null) {
-            setHasShares(true);
-            setShareValue(shareInfo.value);
-            setHas4s(shareInfo.has4S);
-        }
-    };
-
-    useEffect(() => {
-        domWindow.addEventListener(eventName, handleTick);
-        // Clean up event listener when component unmounts
-        return () => domWindow.removeEventListener(eventName, handleTick);
-    }, [eventName]); // Add eventName to dependency array since we're using it in the effect
-
-    return (
-        <div>
-            <p>Seconds elapsed: {count}</p>
-            <p>Income: {income}/s</p>
-            <p>Hack experience: {hackExp}/s</p>
-            { hasShares && (
-                <p>Shares {has4s ? "(4S)" : ""}: {formatMoney(ns, shareValue)}  {shareValue>0 && <SmallButton title={"Sell"} onButtonClick={() => maybeSellShares(ns)} bg={"black"} />} </p>
-            )}
-        </div>
-    );
-}
-
-function SmallButton({title, onButtonClick, bg}: { title: string, onButtonClick: () => void, bg: string }) {
-    return <span style={{background: bg, border: 'solid 1px white', padding: '4px', boxShadow: '#3f3 3px 3px 5px', borderRadius: '5px'}}
-                 onClick={onButtonClick}>{title}</span>
-}
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
@@ -106,124 +36,119 @@ export async function main(ns: NS): Promise<void> {
         ReactDOM.unmountComponentAtNode(hookNode);
     });
 
-
-
     while (true) {
         domWindow.dispatchEvent(new Event(eventName));
-
-/*
-        try {
-            const headers = []
-            const values = [];
-
-            const income = formatMoney(ns, ns.getTotalScriptIncome()[0]) + '/s';
-            headers.push("Income: ");
-            values.push(income);
-
-            const hackExp = ns.nFormat(ns.getTotalScriptExpGain(), "0.00a");
-            headers.push("Hack exp: ");
-            values.push(hackExp + '/s');
-
-            const shareInfo = getShareStatus(ns);
-            if (shareInfo!=null) {
-                const shareValue = formatMoney(ns, shareInfo.value);
-                headers.push((shareInfo.has4S ?  "Shares (4S): " : "Shares: "));
-                values.push(shareValue);
-
-                const totalMoney = formatMoney(ns, ns.getServerMoneyAvailable("home") + shareInfo.value);
-                headers.push("Total money: ");
-                values.push(totalMoney);
-            }
-
-            const augInfo = getAugInfo(ns);
-            if (augInfo!=null) {
-                headers.push("Available augs: ");
-                values.push(`${augInfo.augCount} (${augInfo.neurofluxCount})`);
-            }
-
-            const spreadAttackTarget = getSpreadAttackTarget(ns);
-            if (spreadAttackTarget!=null) {
-                headers.push("Spread target: ");
-                values.push(spreadAttackTarget);
-            }
-
-            const hashnetExchange = getHashnetExchangeIcons(ns);
-            const hashCount = retrieveHashNumber(ns);
-            if (hashnetExchange!=null) {
-                headers.push("Hashes: ");
-                const hashForDisplay = (Math.round(hashCount / 100) * 100).toString().padStart(6, ' '); // Avoids spurious precision
-                values.push(`${hashnetExchange} ${hashForDisplay}`);
-            }
-
-            const sleeveIcons = getSleeveIcons(ns);
-            if (sleeveIcons!=null) {
-                headers.push("Sleeves: ");
-                values.push(sleeveIcons);
-            }
-
-            const stanekIcons = getStanekIcons(ns);
-            if (stanekIcons!=null && stanekIcons.length > 0) {
-                headers.push("Stanek: ");
-                values.push(stanekIcons);
-            }
-
-            const gangInfo = getGangInfo(ns);
-            if (gangInfo!=null) {
-                headers.push("﹏﹏﹏﹏");
-                values.push("﹏﹏﹏﹏");
-
-                headers.push("Gang income:");
-                const gangIncome = formatMoney(ns, gangInfo.gangIncome * 5) + '/s';
-                values.push(gangIncome);
-
-                headers.push("Gang rep:");
-                values.push(ns.nFormat(gangInfo.factionRep, "0,0"));
-
-                const warfareIcon = gangInfo.isWarfare ? " (⚔)" : "";
-                headers.push("Territory"+warfareIcon+":");
-                values.push(ns.nFormat(gangInfo.territory*100, "0.0")+"%");
-
-                headers.push("Gang: ");
-                values.push(gangInfo.icons);
-            }  else {
-                const requiredGangKarma = -54000;
-                const karma = Math.floor(ns.heart.break());
-                const karmaMsg = (karma > requiredGangKarma) ? ` (want ${requiredGangKarma})` : " (enough)";
-                headers.push("Karma: ");
-                values.push(karma+karmaMsg);
-            }
-
-            const companyStatus = getCorpStatus(ns);
-            if (companyStatus!=null) {
-                headers.push("﹏﹏﹏﹏");
-                values.push("﹏﹏﹏﹏");
-
-                headers.push("Corp value: ");
-                values.push(formatMoney(ns, companyStatus.value));
-
-                headers.push("Corp income: ");
-                values.push(formatMoney(ns, companyStatus.companyIncome) + "/s");
-
-                headers.push("Funding round: ");
-                values.push( companyStatus.isPublic ? "Public" : companyStatus.investmentRound );
-
-                if (companyStatus.isPublic) {
-                    headers.push("Dividends: ")
-                    values.push(formatMoney(ns, companyStatus.dividendIncome) + "/s");
-                }
-            }
-
-            labelCell.innerText = headers.join(" \n");
-            valueCell.innerText = values.join("\n");
-        } catch (error) {
-            // @ts-ignore
-            ns.print("Failed to update: " + error+" at "+error.stack);
-        }
-*/
-
         await ns.asleep(1000);
     }
 
+}
+
+
+function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
+    const [income, setIncome] = useState(0);
+    const [hackExp, setHackExp] = useState(0);
+
+    const [shareInfo, setShareInfo] = useState<ShareStatus | null>(null);
+    const [totalMoney, setTotalMoney] = useState(0);
+
+    const [augReport, setAugReport] = useState<AugReport | null>(null);
+    const [spreadAttackTarget, setSpreadAttackTarget] = useState<string | null>(null);
+    const [sleeveTasks, setSleeveTasks] = useState<(SleeveTask | null)[]>([]);
+
+    const [hashnetIcons, setHashnetIcons] = useState<string | null>(null);
+    const [hashCount, setHashCount] = useState(0);
+
+    const [stanekIcons, setStanekIcons] = useState<string | null>(null);
+    const [gangInfo, setGangInfo] = useState<GangInfo | null>(null);
+    const [karma, setKarma] = useState(0);
+    const [companyStatus, setCompanyStatus] = useState<CorporationStatus | null>(null);
+
+    const handleTick = () => {
+        setIncome(ns.getTotalScriptIncome()[0]);
+        setHackExp(ns.getTotalScriptExpGain());
+
+        const shareInfo = getShareStatus(ns);
+        setShareInfo(shareInfo);
+        const totalMoney = ns.getServerMoneyAvailable("home") + (shareInfo?.value ?? 0);
+        setTotalMoney(totalMoney);
+
+        setAugReport(getAugInfo(ns));
+        setSpreadAttackTarget(getSpreadAttackTarget(ns));
+        setSleeveTasks(retrieveSleeveTasks(ns));
+
+        setHashnetIcons(getHashnetExchangeIcons(ns));
+        setHashCount(retrieveHashNumber(ns));
+
+        setStanekIcons(getStanekIcons(ns));
+
+        setGangInfo(getGangInfo(ns));
+        setKarma(ns.heart.break());
+
+        setCompanyStatus(getCorpStatus(ns));
+    };
+
+    useEffect(() => {
+        domWindow.addEventListener(eventName, handleTick);
+        // Clean up event listener when component unmounts
+        return () => domWindow.removeEventListener(eventName, handleTick);
+    }, [eventName]); // Add eventName to dependency array since we're using it in the effect
+
+    const rounded = (count: number) => (Math.round(count / 100) * 100).toString().padStart(6, ' ');
+
+    return (
+        <div className={"uiDashboard"} style={{display: "flex", flexDirection: "column", height: "100%"}}>
+            <div>Income: {formatMoney(ns, income)}/s</div>
+            <div>Hack experience: {ns.nFormat(hackExp, "0.00a")}/s</div>
+            {shareInfo && (
+                <>
+                    <div>Shares {shareInfo.has4S ? "(4S)" : ""}: {formatMoney(ns, shareInfo.value)} {shareInfo.value > 0 &&
+                        <SmallButton title={"Sell"} onButtonClick={() => maybeSellShares(ns)} bg={"black"}/>} </div>
+                    <div>Total money: {formatMoney(ns, totalMoney)}</div>
+                </>
+            )}
+            {augReport && (
+                <div>Available augs: <span title={augReport.installableAugs.map(a => a.name).join(", ") }>{augReport.augCount} ({augReport.neurofluxCount} neuroflux)</span></div>
+            )}
+            {spreadAttackTarget && (
+                <div>Spread target: {spreadAttackTarget}</div>
+            )}
+            {(sleeveTasks.length > 0) && (
+                <div>Sleeves: {sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("")}</div>
+            )}
+            {(hashnetIcons || hashCount > 0) && (
+                <div>Hashes: {hashnetIcons} {rounded(hashCount)}</div>
+            )}
+            {stanekIcons && stanekIcons.length > 0 && (
+                <div>Stanek: {stanekIcons}</div>
+            )}
+            {gangInfo && (
+                <>
+                    <div>Gang income: {formatMoney(ns, gangInfo.gangIncome * 5)}/s</div>
+                    <div>Gang rep: {ns.nFormat(gangInfo.factionRep, "0,0")}</div>
+                    <div>Territory{gangInfo.isWarfare ? " (⚔)" : ""}: {ns.nFormat(gangInfo.territory*100, "0.0")}%</div>
+                    <div>Gang: {gangInfo.icons}</div>
+                </>
+            )}
+            {!gangInfo && (
+                <div>Karma: {Math.floor(karma)} (want {requiredGangKarma})</div>
+            )}
+            {companyStatus && (
+                <>
+                    <div>Corp value: {formatMoney(ns, companyStatus.value)}</div>
+                    <div>Corp income: {formatMoney(ns, companyStatus.companyIncome)}/s</div>
+                    <div>Funding round: { companyStatus.isPublic ? "Public" : companyStatus.investmentRound }</div>
+                    {companyStatus.isPublic && (
+                        <div>Dividends: {formatMoney(ns, companyStatus.dividendIncome)}/s</div>
+                    )}
+                </>
+            )}
+        </div>
+    );
+}
+
+function SmallButton({title, onButtonClick, bg}: { title: string, onButtonClick: () => void, bg: string }) {
+    return <span style={{background: bg, border: 'solid 1px white', padding: '4px', boxShadow: '#3f3 3px 3px 5px', borderRadius: '5px'}}
+                 onClick={onButtonClick}>{title}</span>
 }
 
 function getShareStatus(ns: NS): (ShareStatus | null) {
@@ -281,4 +206,17 @@ function getCorpStatus(ns: NS): (CorporationStatus | null) {
 
 function getAugInfo(ns: NS): (AugReport | null) {
     return retrieveAugInfo(ns);
+}
+
+// ------
+
+
+function doSomething(ns: NS) {
+    ns.tprint("Message!");
+}
+
+async function maybeSellShares(ns: NS) {
+    ns.tprint("Selling shares!");
+    // @todo removed temporarily to reduce RAM usage
+    // ns.run("/tix/sellShares.js");
 }
