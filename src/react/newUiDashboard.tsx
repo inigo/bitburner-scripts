@@ -63,6 +63,8 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
     const [karma, setKarma] = useState(0);
     const [companyStatus, setCompanyStatus] = useState<CorporationStatus | null>(null);
 
+    const sleeveActions = ["-", "spread", "strength", "agility", "dexterity", "charisma", "defense", "study", "crime", "shock", "home", "volhaven", "clear", "gym"];
+
     const handleTick = () => {
         setIncome(ns.getTotalScriptIncome()[0]);
         setHackExp(ns.getTotalScriptExpGain());
@@ -103,8 +105,7 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
                 <>
                     <MetricItem label={"Shares" + (shareInfo.has4S ? "(4S)" : "")}>
                         {formatMoney(ns, shareInfo.value)}
-                        {shareInfo.value > 0 &&
-                            <SmallButton title={"Sell"} onButtonClick={() => maybeSellShares(ns)}/>}
+                        {shareInfo.value > 0 && <SmallButton title={"Sell"} onButtonClick={() => sellShares(ns)}/>}
                     </MetricItem>
                     <MetricItem label="Total money">{formatMoney(ns, totalMoney)}</MetricItem>
                 </>
@@ -118,7 +119,10 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
                 <MetricItem label="Spread target">{spreadAttackTarget}</MetricItem>
             )}
             {sleeveTasks.length > 0 && (
-                <MetricItem label="Sleeves">{sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("")}</MetricItem>
+                <MetricItem label="Sleeves">
+                    {sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("")}
+                    <ActionSelector options={sleeveActions} selected={"-"} onOptionChange={(newOption) => controlSleeves(ns, newOption)} />
+                </MetricItem>
             )}
             {(hashnetIcons || hashCount > 0) && (
                 <MetricItem label="Hashes">{hashnetIcons} {rounded(hashCount)}</MetricItem>
@@ -167,6 +171,18 @@ const MetricItem: React.FC<{
 function SmallButton({title, onButtonClick, bg = "black"}: { title: string, onButtonClick: () => void, bg?: string }) {
     return <span style={{background: bg, border: 'solid 1px white', padding: '4px', boxShadow: '#3f3 3px 3px 5px', borderRadius: '5px'}}
                  onClick={onButtonClick}>{title}</span>
+}
+
+function ActionSelector({options, selected, onOptionChange}: { options: string[], selected: string, onOptionChange: (option: string) => void }) {
+    return (
+        <span style={{fontWeight: 500, justifyContent: "space-between", marginLeft: "auto", width: "10px", display: "inline-block" }}>
+            <select style={{width: "40px"}}  value={selected} onChange={(e) => onOptionChange(e.target.value)} >
+                {options.map(o =>
+                    <option key={o} value={o}>{o}</option>
+                )}
+            </select>
+        </span>
+    )
 }
 
 function getShareStatus(ns: NS): (ShareStatus | null) {
@@ -236,8 +252,12 @@ function doSomething(ns: NS) {
 }
 
 
-async function maybeSellShares(ns: NS) {
+async function sellShares(ns: NS) {
     ns.tprint("Selling shares!");
-    // @todo removed temporarily to reduce RAM usage
-    // ns.run("/tix/sellShares.js");
+    ns.run("/tix/sellShares.js");
+}
+
+async function controlSleeves(ns: NS, newObjective: string) {
+    ns.tprint("Setting sleeves to "+newObjective);
+    ns.run("/sleeve/sleeveControl.js", 1, newObjective);
 }
