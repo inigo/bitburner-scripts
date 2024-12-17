@@ -141,6 +141,7 @@ function listSleeveTasks(): SleeveTaskInfo[] {
 		, { name: "Recovery", emoji: "⚡" }
 		, { name: "Synchro", emoji: "🕺🏻" }
 		, { name: "Idle", emoji: "🛏️" }
+		, { name: "Bladeburner", emoji: "🔪️" }
 	];
 }
 
