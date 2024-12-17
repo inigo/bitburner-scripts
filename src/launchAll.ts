@@ -28,7 +28,7 @@ export async function main(ns: NS): Promise<void> {
 		await launchIfNotRunning(ns, "/bladeburner/manageBladeburner.js");
 	}
 
-	await launchIfNotRunning(ns, "uiDashboard.js");
+	await launchIfNotRunning(ns, "/react/newUiDashboard.js");
 
 	while(true) {
 		const scripts = [

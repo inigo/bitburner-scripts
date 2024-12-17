@@ -19,7 +19,7 @@ export async function main(ns: NS): Promise<void> {
 	ns.run("/reporting/logProgress.js");
 	await ns.sleep(100);
 
-	await launchIfNotRunning(ns, "uiDashboard.js");
+	await launchIfNotRunning(ns, "/react/newUiDashboard.js");
 
 	ns.run("/goal/selectGoal.js");
 	await ns.sleep(100);
