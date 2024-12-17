@@ -1,30 +1,21 @@
 import {NS} from '@ns'
-import {setHashSpend} from "/hacknet/libHashes";
+import {HashInfo, listHashOptions, lookupHashAlias, setHashSpend} from "/hacknet/libHashes";
 
-/// Buy hashes
+/// Explicitly set the target for buying hashes
 
 export function autocomplete(): string[] {
-    return hashObjectives.map(o => o.name);
+    return listHashOptions().flatMap(o => o.aliases);
 }
 
-const hashObjectives = [
-    { name: "contracts", target: "Generate Coding Contract" }
-   , { name: "corpResearch", target: "Exchange for Corporation Research" }
-   , { name: "corpFunds", target: "Sell for Corporation Funds" }
-   , { name: "gym", target: "Improve Gym Training" }
-   , { name: "study", target: "Improve Studying" }
-   , { name: "bladeburnerSkill", target: "Exchange for Bladeburner SP" }
-   , { name: "bladeburnerRank", target: "Exchange for Bladeburner Rank" }
-   , { name: "money", target: "Sell for Money" }
-    // Reduce Minimum Security / Increase Maximum Money
-    // Company Favor
-]
-
 export async function main(ns: NS): Promise<void> {
-    const goal = (ns.args[0] as string) ?? null;
+    const targetNames = ns.args
+        .map(s => s as string)
+        .map(lookupHashAlias)
+        .filter((h): h is HashInfo => h !== null)
+        .map(h => h.name);
+    const targets = targetNames.map(t => { return { name: t }; });
 
-    const targetName = hashObjectives.find(o => o.name == goal)?.target;
-    if (targetName) {
-        await setHashSpend(ns, [ {name: targetName} ])
-    }
+    const setManually = targets.length > 0; // Setting no target reverts to automatic mode
+
+    await setHashSpend(ns, targets, setManually);
 }

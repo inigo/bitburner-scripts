@@ -2,11 +2,11 @@ import { NS } from '@ns'
 import * as ports from "libPorts";
 
 
-function listHashOptions() {
+export function listHashOptions(): HashInfo[] {
 	return [
 		{ name: "Sell for Money", emoji: "💰", aliases: ["money", "cash"] }
-		, { name: "Sell for Corporation Funds", emoji: "🏢", aliases: ["corporation", "funding", "funds"] }
-		, { name: "Reduce Minimum Security", emoji: "🔓", aliases: ["weaken", "seurity"] }
+		, { name: "Sell for Corporation Funds", emoji: "🏢", aliases: ["funding", "corporation", "funds" ] }
+		, { name: "Reduce Minimum Security", emoji: "🔓", aliases: ["weaken", "security"] }
 		, { name: "Increase Maximum Money", emoji: "💎", aliases: ["grow", "increasemoney"] }
 		, { name: "Improve Studying", emoji: "📚", aliases: ["study", "studying"] }
 		, { name: "Improve Gym Training", emoji: "🏋️‍♂️", aliases: ["gym", "workout"] }
@@ -14,6 +14,8 @@ function listHashOptions() {
 		, { name: "Exchange for Bladeburner Rank", emoji: "🦄", aliases: ["rank"] }
 		, { name: "Exchange for Bladeburner SP", emoji: "🔪", aliases: ["skills", "skill"] }
 		, { name: "Generate Coding Contract", emoji: "💻", aliases: ["contract", "contracts"] }
+		, { name: "Company Favor", emoji: "👔", aliases: ["company", "favor", "favour"] }
+		, { name: "Clear", emoji: "🫗", aliases: ["clear"] }
 	]
 }
 
@@ -36,23 +38,29 @@ export function retrieveHashSpends(ns: NS): HashUpgrade[] {
 export function retrieveHashNumber(ns: NS): number {
 	return (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as HashSpendReport)?.numHashes ?? 0;
 }
+export function retrieveHashSpendReport(ns: NS): HashSpendReport | null {
+	return (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as HashSpendReport);
+}
 
 export type HashSpendReport = {
 	targets: HashUpgrade[],
-	numHashes: number
+	numHashes: number,
+	setManually: boolean
 }
 
-export async function setHashSpend(ns: NS, targets: HashUpgrade[]): Promise<void> {
+export async function setHashSpend(ns: NS, targets: HashUpgrade[], setManually = false): Promise<void> {
 	const numHashes = ns.hacknet.numHashes();
 	const existingHashSpends = retrieveHashSpends(ns);
-	if (targets.length==0) { 
+
+	const targetsExcludingClear = targets.filter(t => t.name !== "Clear");
+	if (targetsExcludingClear.length==0) {
 		if (existingHashSpends.length > 0) {
 			ns.toast("Clearing hash spend target"); 
 		}
-	} else if (JSON.stringify(targets)!=JSON.stringify(existingHashSpends)) {
-		ns.toast("Hash spend target: "+targets.map(t => t.name).join(", "));
+	} else if (JSON.stringify(targetsExcludingClear)!=JSON.stringify(existingHashSpends)) {
+		ns.toast("Hash spend target: "+targetsExcludingClear.map(t => t.name).join(", "));
 	}
-	const spendReport = {targets: targets, numHashes: numHashes};
+	const spendReport: HashSpendReport = {targets: targetsExcludingClear, numHashes: numHashes, setManually: (setManually && targetsExcludingClear.length>0) };
 	await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(spendReport));
 }
 

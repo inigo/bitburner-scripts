@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {formatMoney} from "libFormat";
 import * as ports from "libPorts";
-import {HashSpendReport, lookupHashIcons, retrieveHashNumber} from "hacknet/libHashes";
+import {HashSpendReport, listHashOptions, lookupHashIcons, retrieveHashSpendReport} from "hacknet/libHashes";
 import {lookupSleeveIcon, retrieveSleeveTasks} from "sleeve/libSleeve";
 import {CombinedFragment, lookupFragmentTypeIcon} from "stanek/libFragment";
 import {receiveAttackTarget} from "spread/libSpread";
@@ -16,7 +16,7 @@ const {useState, useEffect} = React;
 
 const requiredGangKarma = -54000;
 const sleeveActions = ["-", "spread", "strength", "agility", "dexterity", "charisma", "defense", "study", "crime", "shock", "home", "volhaven", "clear", "gym"];
-const hashActions = ["-", "contracts", "corpResearch", "corpFunds", "gym", "study", "bladeburnerSkill", "bladeburnerRank", "money"];
+const hashActions = ["-", ... listHashOptions().map(h => h.aliases[0])];
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
@@ -37,6 +37,7 @@ export async function main(ns: NS): Promise<void> {
         ReactDOM.unmountComponentAtNode(hookNode);
     });
 
+    // noinspection InfiniteLoopJS
     while (true) {
         domWindow.dispatchEvent(new Event(eventName));
         await ns.asleep(1000);
@@ -54,10 +55,7 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
     const [augReport, setAugReport] = useState<AugReport | null>(null);
     const [spreadAttackTarget, setSpreadAttackTarget] = useState<string | null>(null);
     const [sleeveTasks, setSleeveTasks] = useState<(SleeveTask | null)[]>([]);
-
-    const [hashnetIcons, setHashnetIcons] = useState<string | null>(null);
-    const [hashCount, setHashCount] = useState(0);
-
+    const [hashSpendReport, setHashSpendReport] = useState<HashSpendReport | null>(null);
     const [stanekIcons, setStanekIcons] = useState<string | null>(null);
     const [gangInfo, setGangInfo] = useState<GangInfo | null>(null);
     const [karma, setKarma] = useState(0);
@@ -75,10 +73,7 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
         setAugReport(getAugInfo(ns));
         setSpreadAttackTarget(getSpreadAttackTarget(ns));
         setSleeveTasks(retrieveSleeveTasks(ns));
-
-        setHashnetIcons(getHashnetExchangeIcons(ns));
-        setHashCount(retrieveHashNumber(ns));
-
+        setHashSpendReport(retrieveHashSpendReport(ns));
         setStanekIcons(getStanekIcons(ns));
 
         setGangInfo(getGangInfo(ns));
@@ -122,9 +117,9 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
                     <ActionSelector options={sleeveActions} selected={"-"} onOptionChange={async (newOption) => await controlSleeves(ns, newOption)} />
                 </MetricItem>
             )}
-            {(hashnetIcons || hashCount > 0) && (
+            {(hashSpendReport) && (
                 <MetricItem label="Hashes">
-                    {hashnetIcons} {rounded(hashCount)}
+                    {lookupHashIcons(hashSpendReport.targets.map(t => t.name))} {hashSpendReport.setManually ? "(manual)" : "(auto)"}  {rounded(hashSpendReport.numHashes)}
                     <ActionSelector options={hashActions} selected={"-"} onOptionChange={async (newOption) => await buyHashes(ns, newOption)} />
                 </MetricItem>
             )}
