@@ -109,7 +109,11 @@ function serversHacking(ns: NS) {
 function killExistingAttacks(ns: NS): void {
 	findCrackedServers(ns)
 		.filter(s => ns.getServerMaxRam(s) > 0 )
-		.forEach(s => ns.killall(s));
+		.forEach(s => {
+			ns.scriptKill("/spread/spreadGrow.js", s);
+			ns.scriptKill("/spread/spreadHack.js", s);
+			ns.scriptKill("/spread/spreadWeaken.js", s);
+		});
 }
 
 function uniqueId(): string {
