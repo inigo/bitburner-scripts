@@ -13,7 +13,7 @@ import {NS, SleeveTask} from '@ns'
 import {domDocument, domWindow, React, ReactDOM} from "/react/libReact";
 import {Button} from "/react/components/Button";
 
-const { useState, useEffect } = React;
+const {useState, useEffect} = React;
 const requiredGangKarma = -54000;
 
 
@@ -27,7 +27,7 @@ export async function main(ns: NS): Promise<void> {
 
     ReactDOM.render(
         <React.StrictMode>
-            <UiDashboard ns={ns} eventName={eventName} />
+            <UiDashboard ns={ns} eventName={eventName}/>
         </React.StrictMode>,
         hookNode
     );
@@ -97,48 +97,55 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
 
     return (
         <div className={"uiDashboard"} style={{display: "flex", flexDirection: "column", height: "100%"}}>
-            <div>Income: {formatMoney(ns, income)}/s</div>
-            <div>Hack experience: {ns.nFormat(hackExp, "0.00a")}/s</div>
+            <MetricItem label="Income">{formatMoney(ns, income)}</MetricItem>
+            <MetricItem label="Hack experience">{ns.nFormat(hackExp, "0.00a")}/s</MetricItem>
             {shareInfo && (
                 <>
-                    <div>Shares {shareInfo.has4S ? "(4S)" : ""}: {formatMoney(ns, shareInfo.value)} {shareInfo.value > 0 &&
-                        <SmallButton title={"Sell"} onButtonClick={() => maybeSellShares(ns)} bg={"black"}/>} </div>
-                    <div>Total money: {formatMoney(ns, totalMoney)}</div>
+                    <MetricItem label={"Shares" + (shareInfo.has4S ? "(4S)" : "")}>
+                        {formatMoney(ns, shareInfo.value)}
+                        {shareInfo.value > 0 &&
+                            <SmallButton title={"Sell"} onButtonClick={() => maybeSellShares(ns)}/>}
+                    </MetricItem>
+                    <MetricItem label="Total money">{formatMoney(ns, totalMoney)}</MetricItem>
                 </>
             )}
             {augReport && (
-                <div>Available augs: <span title={augReport.installableAugs.map(a => a.name).join(", ") }>{augReport.augCount} ({augReport.neurofluxCount} neuroflux)</span></div>
+                <MetricItem label="Available augs" tooltip={augReport.installableAugs.map(a => a.name).join(", ")}>
+                    {augReport.augCount} ({augReport.neurofluxCount} neuroflux)
+                </MetricItem>
             )}
             {spreadAttackTarget && (
-                <div>Spread target: {spreadAttackTarget}</div>
+                <MetricItem label="Spread target">{spreadAttackTarget}</MetricItem>
             )}
-            {(sleeveTasks.length > 0) && (
-                <div>Sleeves: {sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("")}</div>
+            {sleeveTasks.length > 0 && (
+                <MetricItem label="Sleeves">{sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("")}</MetricItem>
             )}
             {(hashnetIcons || hashCount > 0) && (
-                <div>Hashes: {hashnetIcons} {rounded(hashCount)}</div>
+                <MetricItem label="Hashes">{hashnetIcons} {rounded(hashCount)}</MetricItem>
             )}
             {stanekIcons && stanekIcons.length > 0 && (
-                <div>Stanek: {stanekIcons}</div>
+                <MetricItem label="Stanek">{stanekIcons}</MetricItem>
             )}
             {gangInfo && (
                 <>
-                    <div>Gang income: {formatMoney(ns, gangInfo.gangIncome * 5)}/s</div>
-                    <div>Gang rep: {ns.nFormat(gangInfo.factionRep, "0,0")}</div>
-                    <div>Territory{gangInfo.isWarfare ? " (⚔)" : ""}: {ns.nFormat(gangInfo.territory*100, "0.0")}%</div>
-                    <div>Gang: {gangInfo.icons}</div>
+                    <MetricItem label="Gang income">{formatMoney(ns, gangInfo.gangIncome * 5)}/s</MetricItem>
+                    <MetricItem label="Gang rep">{ns.nFormat(gangInfo.factionRep, "0,0")}</MetricItem>
+                    <MetricItem label={`Territory${gangInfo.isWarfare ? " (⚔)" : ""}`}>
+                        {ns.nFormat(gangInfo.territory * 100, "0.0")}%
+                    </MetricItem>
+                    <MetricItem label="Gang">{gangInfo.icons}</MetricItem>
                 </>
             )}
             {!gangInfo && (
-                <div>Karma: {Math.floor(karma)} (want {requiredGangKarma})</div>
+                <MetricItem label="Karma">{Math.floor(karma)} (want {requiredGangKarma})</MetricItem>
             )}
             {companyStatus && (
                 <>
-                    <div>Corp value: {formatMoney(ns, companyStatus.value)}</div>
-                    <div>Corp income: {formatMoney(ns, companyStatus.companyIncome)}/s</div>
-                    <div>Funding round: { companyStatus.isPublic ? "Public" : companyStatus.investmentRound }</div>
+                    <MetricItem label="Corp value">{formatMoney(ns, companyStatus.value)}</MetricItem>
+                    <MetricItem label="Corp income">{formatMoney(ns, companyStatus.companyIncome)}/s</MetricItem>
+                    <MetricItem label="Funding round">{companyStatus.isPublic ? "Public" : companyStatus.investmentRound}</MetricItem>
                     {companyStatus.isPublic && (
-                        <div>Dividends: {formatMoney(ns, companyStatus.dividendIncome)}/s</div>
+                        <MetricItem label="Dividends">{formatMoney(ns, companyStatus.dividendIncome)}/s</MetricItem>
                     )}
                 </>
             )}
@@ -146,18 +153,29 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
     );
 }
 
-function SmallButton({title, onButtonClick, bg}: { title: string, onButtonClick: () => void, bg: string }) {
+const MetricItem: React.FC<{
+    label: string;
+    children: React.ReactNode;
+    tooltip?: string;
+}> = ({label, children, tooltip}) => (
+    <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: "4px 0"}} title={tooltip}>
+        <span style={{color: "#bbb"}}>{label}:</span>
+        <span style={{fontWeight: 500, justifyContent: "space-between", marginLeft: "auto"}}>{children}</span>
+    </div>
+);
+
+function SmallButton({title, onButtonClick, bg = "black"}: { title: string, onButtonClick: () => void, bg?: string }) {
     return <span style={{background: bg, border: 'solid 1px white', padding: '4px', boxShadow: '#3f3 3px 3px 5px', borderRadius: '5px'}}
                  onClick={onButtonClick}>{title}</span>
 }
 
 function getShareStatus(ns: NS): (ShareStatus | null) {
-    return retrieveShareStatus(ns)?? null;
+    return retrieveShareStatus(ns) ?? null;
 }
 
 function getHashnetExchangeIcons(ns: NS): (string | null) {
     const exchangeTargets = (ports.checkPort(ns, ports.HASH_SALES_PORT, JSON.parse) as (HashSpendReport | null))?.targets ?? null;
-    if (exchangeTargets==null) return null;
+    if (exchangeTargets == null) return null;
 
     const names = exchangeTargets.map(o => o.name);
     return lookupHashIcons(names);
@@ -165,22 +183,24 @@ function getHashnetExchangeIcons(ns: NS): (string | null) {
 
 function getSleeveIcons(ns: NS): (string | null) {
     const sleeveTasks = retrieveSleeveTasks(ns);
-    if (sleeveTasks.length==0) return null;
+    if (sleeveTasks.length == 0) return null;
 
     return sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("");
 }
 
 function getGangInfo(ns: NS): (GangInfo | null) {
     const report = retrieveGangInfo(ns);
-    if (report==null) return null;
+    if (report == null) return null;
 
     const gangTasks = report.members
-                        .map(g => g.task)
-                        .map(lookupGangTaskIcon)
-                        .join("");
-    return { gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks,
-            factionRep: report.factionRep,
-            territory: report.gangInfo.territory, isWarfare: report.gangInfo.territoryWarfareEngaged };
+        .map(g => g.task)
+        .map(lookupGangTaskIcon)
+        .join("");
+    return {
+        gangIncome: report.gangInfo.moneyGainRate, icons: gangTasks,
+        factionRep: report.factionRep,
+        territory: report.gangInfo.territory, isWarfare: report.gangInfo.territoryWarfareEngaged
+    };
 
 
 }
@@ -189,7 +209,7 @@ type GangInfo = { gangIncome: number, icons: string, factionRep: number, territo
 
 function getStanekIcons(ns: NS): (string | null) {
     const report = ports.checkPort(ns, ports.ACTIVE_FRAGMENTS_PORT, JSON.parse) as (CombinedFragment[] | null);
-    if (report==null) return null;
+    if (report == null) return null;
 
     const stanekTasks = (report as CombinedFragment[]).map(f => f.type).map(lookupFragmentTypeIcon).join("");
     return stanekTasks;
@@ -214,6 +234,7 @@ function getAugInfo(ns: NS): (AugReport | null) {
 function doSomething(ns: NS) {
     ns.tprint("Message!");
 }
+
 
 async function maybeSellShares(ns: NS) {
     ns.tprint("Selling shares!");
