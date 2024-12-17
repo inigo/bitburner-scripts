@@ -64,6 +64,7 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
     const [companyStatus, setCompanyStatus] = useState<CorporationStatus | null>(null);
 
     const sleeveActions = ["-", "spread", "strength", "agility", "dexterity", "charisma", "defense", "study", "crime", "shock", "home", "volhaven", "clear", "gym"];
+    const hashActions = ["-", "contracts", "corpResearch", "corpFunds", "gym", "study", "bladeburnerSkill", "bladeburnerRank", "money"];
 
     const handleTick = () => {
         setIncome(ns.getTotalScriptIncome()[0]);
@@ -121,11 +122,14 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
             {sleeveTasks.length > 0 && (
                 <MetricItem label="Sleeves">
                     {sleeveTasks.map(o => (o?.type) || "Idle").map(lookupSleeveIcon).join("")}
-                    <ActionSelector options={sleeveActions} selected={"-"} onOptionChange={(newOption) => controlSleeves(ns, newOption)} />
+                    <ActionSelector options={sleeveActions} selected={"-"} onOptionChange={async (newOption) => await controlSleeves(ns, newOption)} />
                 </MetricItem>
             )}
             {(hashnetIcons || hashCount > 0) && (
-                <MetricItem label="Hashes">{hashnetIcons} {rounded(hashCount)}</MetricItem>
+                <MetricItem label="Hashes">
+                    {hashnetIcons} {rounded(hashCount)}
+                    <ActionSelector options={hashActions} selected={"-"} onOptionChange={async (newOption) => await buyHashes(ns, newOption)} />
+                </MetricItem>
             )}
             {stanekIcons && stanekIcons.length > 0 && (
                 <MetricItem label="Stanek">{stanekIcons}</MetricItem>
@@ -247,10 +251,6 @@ function getAugInfo(ns: NS): (AugReport | null) {
 // ------
 
 
-function doSomething(ns: NS) {
-    ns.tprint("Message!");
-}
-
 
 async function sellShares(ns: NS) {
     ns.tprint("Selling shares!");
@@ -260,4 +260,9 @@ async function sellShares(ns: NS) {
 async function controlSleeves(ns: NS, newObjective: string) {
     ns.tprint("Setting sleeves to "+newObjective);
     ns.run("/sleeve/sleeveControl.js", 1, newObjective);
+}
+
+async function buyHashes(ns: NS, target: string) {
+    ns.tprint("Buying hashes: "+target);
+    ns.run("/hacknet/hashControl.js", 1, target);
 }
