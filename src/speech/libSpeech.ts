@@ -1,6 +1,7 @@
 
 export function say(message: string): void {
     try {
+/*
         const ss: SpeechSynthesis = eval("window").speechSynthesis;
         const preferredVoiceName = "Daniel";
         const voices = ss.getVoices().filter(v => v.lang.startsWith("en"));
@@ -9,6 +10,7 @@ export function say(message: string): void {
         const msg = new SpeechSynthesisUtterance(message);
         msg.voice = chosenVoice;
         ss.speak(msg);
+*/
     } catch (err) {
         // Ignore
     }
