@@ -1,9 +1,9 @@
-import {GymType, NS, SleeveClassTask, SleeveCompanyTask, SleeveTask} from '@ns'
-import { retrieveCompanyStatus } from "corp/libCorporation";
-import {retrieveHashSpendReport, retrieveHashSpends, setHashSpend, spendHashesOnPurchases} from "hacknet/libHashes";
-import { retrieveSleeveTasks } from "sleeve/libSleeve";
-import { retrieveAttackStatus } from "attack/libAttack";
-import { retrieveGangInfo } from "crime/libGangInfo";
+import {NS, SleeveCompanyTask, SleeveTask} from '@ns'
+import {retrieveCompanyStatus} from "corp/libCorporation";
+import {retrieveHashSpendReport, setHashSpend, spendHashesOnPurchases} from "hacknet/libHashes";
+import {retrieveSleeveTasks} from "sleeve/libSleeve";
+import {retrieveAttackStatus} from "attack/libAttack";
+import {retrieveGangInfo} from "crime/libGangInfo";
 
 /**
  * Choose an appropriate objective to spend Hacknet hashes on, based on the reports from various
@@ -18,25 +18,26 @@ export async function main(ns : NS) : Promise<void> {
     }
 
     const level = (s: string) => ns.hacknet.getHashUpgradeLevel(s)
-    const cost = (s: string) => ns.hacknet.hashCost(s);
 
     const corpInfo = retrieveCompanyStatus(ns);
     const investmentRound = (corpInfo?.investmentRound ?? -1);
-    const sleeveInfo = retrieveSleeveTasks(ns);
+    const inCorporation = corpInfo != null;
 
+    const sleeveInfo = retrieveSleeveTasks(ns);
     const isGymClass = (s: SleeveTask) => s?.type === "CLASS" ? ["str","def", "dex", "agi"].includes(s.classType) : false;
+    const isUni = (s: SleeveTask) => s?.type === "CLASS" && !isGymClass(s);
     const allSleevesAtGym = sleeveInfo.filter(s => s!=null).every(s => isGymClass(s));
     const someSleevesAtGym = sleeveInfo.filter(s => s!=null && isGymClass(s)).length > 2;
+    const someSleevesAtUni = sleeveInfo.filter(s => s!=null && isUni(s)).length > 2;
     const sleeveCompanyTask = sleeveInfo.find(s => (s as SleeveCompanyTask)?.companyName) ?? null;
     const sleeveCompany = sleeveCompanyTask ? (sleeveCompanyTask as SleeveCompanyTask).companyName : null;
 
     const homeAttackTarget = retrieveAttackStatus(ns).filter(a => a.source=="home").map(a => a.target)[0] ?? null;
     const hashes = ns.hacknet.numHashes();
-    const hashCapacity = ns.hacknet.hashCapacity();
     const hashesNeededForServerWeakening = 700;
     const gangInfo = retrieveGangInfo(ns);
     const gangFaction = gangInfo?.gangInfo?.faction ?? null;
-    const factionsToIgnore = ["Church of the Machine God", gangFaction ].filter(f => f!=null);
+    const factionsToIgnore = ["Church of the Machine God", "Bladeburners", gangFaction ].filter(f => f!=null);
     const inInterestingFaction = ns.getPlayer().factions.filter(f => !factionsToIgnore.includes(f)).length > 0;
     const inBladeburner = ns.bladeburner.inBladeburner();
 
@@ -70,29 +71,66 @@ export async function main(ns : NS) : Promise<void> {
         while (spendHashesOnPurchases(ns, [ { name: "Reduce Minimum Security", target: homeAttackTarget }, { name: "Increase Maximum Money", target: homeAttackTarget } ])) {
             ns.print("Reducing security and increasing money on "+homeAttackTarget);
         }
-    } else if (investmentRound >= 1) {
-        ns.print("Providing research to corporation");
-        await setHashSpend(ns, [ { name: "Exchange for Corporation Research" } ], false);
     } else if (level("Generate Coding Contract")<6 && inInterestingFaction) {
-        ns.print("Less than five coding contracts, so generating another one");
+        ns.print("Less than six coding contracts, so generating another one");
         await setHashSpend(ns, [ { name: "Generate Coding Contract" } ], false);
     } else {
-        ns.print("Reaching hash capacity, so being more generous about using hashes");
-
-        if (inBladeburner && (cost("Exchange for Bladeburner SP") < hashes)) {
-            await setHashSpend(ns, [ { name: "Exchange for Bladeburner SP" } ], false);
-        } else if (inBladeburner && (cost("Exchange for Bladeburner Rank") < hashes)) {
-            await setHashSpend(ns, [ { name: "Exchange for Bladeburner Rank" } ], false);
-        } else if (sleeveCompany!=null) {
-            await setHashSpend(ns, [{name: "Company Favor", target: sleeveCompany}], false);
-        } else if ((cost("Generate Coding Contract") < hashCapacity) && inInterestingFaction) {
-            await setHashSpend(ns, [ { name: "Generate Coding Contract" } ], false);
-        } else if (someSleevesAtGym && (cost("Improve Gym Training") < hashes)) {
-            await setHashSpend(ns, [ { name: "Improve Gym Training" } ], false);
-        // Corporation research already dealt with, and spending on server security/money is disruptive
-        } else {
-            await setHashSpend(ns, [ { name: "Sell for Money" } ], false);
-        }
+        ns.print("Already done initial hash spends - now onto weighted algorithm");
+        const params = {
+            sleeveCompany,
+            attackedServer: homeAttackTarget,
+            inCorporation,
+            someSleevesAtGym,
+            someSleevesAtUni,
+            inInterestingFaction
+        };
+        const bestTarget = selectBestHashSpend(ns, params);
+        await setHashSpend(ns, [ bestTarget ], false);
     }
+}
 
+interface WeightedHashTarget {
+    name: string;
+    weight: number;
+    isAvailable: boolean;
+    cost?: number;
+    weightedCost?: number;
+    target?: string;
+}
+
+function selectBestHashSpend(ns: NS, params: {
+    sleeveCompany: string | null,
+    attackedServer: string | null,
+    inCorporation: boolean,
+    someSleevesAtGym: boolean,
+    someSleevesAtUni: boolean,
+    inInterestingFaction: boolean,
+}): { name: string, target?: string } {
+
+    const doingBladeburnerAction = ns.bladeburner.inBladeburner() && ns.bladeburner.getCurrentAction() != null;
+    const cost = (s: string) => ns.hacknet.hashCost(s);
+
+    const possibleTargets: WeightedHashTarget[] = [
+        { name: "Sell for Money",weight: 1_000_000, isAvailable: true }
+        , {name: "Sell for Corporation Funds",weight: 2, isAvailable: params.inCorporation }
+        , {name: "Exchange for Corporation Research",weight: 2, isAvailable: params.inCorporation}
+        , {name: "Reduce Minimum Security", weight: 8, isAvailable: params.attackedServer!=null, target: params.attackedServer ?? undefined }
+        , {name: "Increase Maximum Money", weight: 8, isAvailable: params.attackedServer!=null, target: params.attackedServer ?? undefined }
+        , {name: "Improve Studying", weight: 10, isAvailable: params.someSleevesAtUni }
+        , {name: "Improve Gym Training", weight: 10, isAvailable: params.someSleevesAtGym}
+        , {name: "Exchange for Bladeburner Rank",weight: 1, isAvailable: doingBladeburnerAction }
+        , {name: "Exchange for Bladeburner SP",weight: 1, isAvailable: doingBladeburnerAction }
+        , {name: "Generate Coding Contract", weight: 4, isAvailable: params.inInterestingFaction }
+        , {name: "Company Favor",weight: 6, isAvailable: params.sleeveCompany!=null, target: params.sleeveCompany ?? undefined }
+    ];
+    const availableTargets = possibleTargets
+        .filter(t => t.isAvailable)
+        .map(t => ({ ...t, cost: cost(t.name) }))
+        .filter(t => t.cost <= ns.hacknet.hashCapacity() )
+        .map(t => ({ ...t, weightedCost: t.cost * t.weight }))
+        .sort((a, b) => a.weightedCost - b.weightedCost)
+
+    ns.print(`Picking preferred target ${JSON.stringify(availableTargets[0])} from target options ${JSON.stringify(availableTargets)}`);
+
+    return availableTargets[0];
 }

@@ -106,7 +106,7 @@ export function filesNeededForAttack(): string[] {
 
 
 export async function reportAttackStatus(ns: NS): Promise<void> {
-    const filename = "/attack/attack.js";
+    const filename = "attack/attack.js";
     const listAttackTargets = (s: string) => ns.ps(s).filter(j => j.filename==filename).map(j => j.args[0]);
 
     const potentialAttackers = ["home", ... ns.getPurchasedServers()];

@@ -98,7 +98,7 @@ function UiDashboard({ns, eventName}: { ns: NS, eventName: string }) {
                 <>
                     <MetricItem label={"Shares" + (shareInfo.has4S ? "(4S)" : "")}>
                         {formatMoney(ns, shareInfo.value)}
-                        {shareInfo.value > 0 && <SmallButton title={"Sell"} onButtonClick={() => sellShares(ns)}/>}
+                        {shareInfo.value > 0 && <SmallButton title={"Sell"} onButtonClick={() => sellAllShares(ns)}/>}
                     </MetricItem>
                     <MetricItem label="Total money">{formatMoney(ns, totalMoney)}</MetricItem>
                 </>
@@ -244,7 +244,7 @@ function getAugInfo(ns: NS): (AugReport | null) {
 
 
 
-async function sellShares(ns: NS) {
+async function sellAllShares(ns: NS) {
     ns.tprint("Selling shares!");
     ns.run("/tix/sellShares.js");
 }
