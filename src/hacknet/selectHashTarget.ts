@@ -62,10 +62,10 @@ export async function main(ns : NS) : Promise<void> {
     } else if (level("Generate Coding Contract")<3 && inInterestingFaction) {
         ns.print("Less than three coding contracts, so generating another one");
         await setHashSpend(ns, [ { name: "Generate Coding Contract" } ], false);
-    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes < hashesNeededForServerWeakening && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {
+    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes < hashesNeededForServerWeakening && level("Reduce Minimum Security")<4 && level("Increase Maximum Money")<4) {
         ns.print("Attacking a server, but insufficient hashes to improve it thoroughly - pausing until more hashes - currently "+hashes+" but want "+hashesNeededForServerWeakening);
         await setHashSpend(ns, [ ], false);
-    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes >= hashesNeededForServerWeakening && level("Reduce Minimum Security")<3 && level("Increase Maximum Money")<3) {
+    } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes >= hashesNeededForServerWeakening && level("Reduce Minimum Security")<4 && level("Increase Maximum Money")<4) {
         // Batch this increase together - otherwise the hack script will restart every time we make an improvement
         ns.print("Attacking server "+homeAttackTarget+", so making the attack easier");
         while (spendHashesOnPurchases(ns, [ { name: "Reduce Minimum Security", target: homeAttackTarget }, { name: "Increase Maximum Money", target: homeAttackTarget } ])) {

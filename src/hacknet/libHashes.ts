@@ -68,15 +68,22 @@ export function spendHashesOnPurchases(ns: NS, purchases: HashUpgrade[], maxPurc
 	let count = 0;
 	let purchaseMade = false;
 	for (const p of purchases) {
-		const wasSuccessful = ns.hacknet.spendHashes(p.name, p.target);
-		if (wasSuccessful) { 
-			ns.print("Hashes: "+p.name); 
-			if (p.name!="Sell for Money") {
-				ns.toast("Hashes: "+p.name); 
+		const isServerUpgrade = p.name == "Reduce Minimum Security" || p.name == "Increase Maximum Money";
+		const cost = ns.hacknet.hashCost(p.name, isServerUpgrade ? 4 : 1);
+		if (cost < ns.hacknet.numHashes()) {
+			const wasSuccessful = ns.hacknet.spendHashes(p.name, p.target);
+			if (wasSuccessful) {
+				ns.print("Hashes: "+p.name);
+				if (p.name!="Sell for Money") {
+					ns.toast("Hashes: "+p.name);
+				}
+				count++;
 			}
+			purchaseMade = purchaseMade || wasSuccessful;
+		} else {
+			purchaseMade = false;
 			count++;
 		}
-		purchaseMade = purchaseMade || wasSuccessful;
 		if (count >= maxPurchases) break;
 	}
 	return purchaseMade;
