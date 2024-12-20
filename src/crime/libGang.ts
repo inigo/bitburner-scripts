@@ -4,7 +4,6 @@ import { GangGenInfo, GangMemberInfo, GangOtherInfoObject, NS } from '@ns';
 import { retrieveCompanyStatus } from "corp/libCorporation";
 import { getTotalMoney, buyWithShares } from "tix/libShareSelling";
 import { GangReport } from "crime/libGangInfo";
-import {max} from "lodash";
 
 export async function manageGang(ns: NS, goal = "general", stage="early"): Promise<void> {
 	const notEnoughMoney = !hasEnoughMoneyToRecruit(ns);
@@ -41,7 +40,7 @@ export async function manageGang(ns: NS, goal = "general", stage="early"): Promi
 	const currentGang = ns.gang.getGangInformation();
 
 	const gangAugmentations = ns.singularity.getAugmentationsFromFaction(currentGang.faction);
-	const maxReputationRequired = max(gangAugmentations.map(a => ns.singularity.getAugmentationRepReq(a))) ?? 0;
+	const maxReputationRequired = Math.max(... gangAugmentations.map(a => ns.singularity.getAugmentationRepReq(a)));
 	const hasMaxReputation = getReputation(ns) > maxReputationRequired;
 
 	for (const name of trainedMembers) {
