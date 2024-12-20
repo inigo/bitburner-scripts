@@ -64,27 +64,41 @@ export async function setHashSpend(ns: NS, targets: HashUpgrade[], setManually =
 	await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(spendReport));
 }
 
-export function spendHashesOnPurchases(ns: NS, purchases: HashUpgrade[], maxPurchases = 100): boolean {
+export async function updateHashReport(ns: NS): Promise<void> {
+	const spendReport = retrieveHashSpendReport(ns);
+	if (spendReport) {
+		spendReport.numHashes = ns.hacknet.numHashes();
+		await ports.setPortValue(ns, ports.HASH_SALES_PORT, JSON.stringify(spendReport));
+	}
+}
+
+export async function spendHashesOnPurchases(ns: NS, purchases: HashUpgrade[], maxPurchases = 100): Promise<boolean> {
 	let count = 0;
 	let purchaseMade = false;
+
 	for (const p of purchases) {
+		// Batch server upgrades together, because they are disruptive of hacking
 		const isServerUpgrade = p.name == "Reduce Minimum Security" || p.name == "Increase Maximum Money";
-		const cost = ns.hacknet.hashCost(p.name, isServerUpgrade ? 4 : 1);
-		if (cost < ns.hacknet.numHashes()) {
-			const wasSuccessful = ns.hacknet.spendHashes(p.name, p.target);
-			if (wasSuccessful) {
+		const initialCost = ns.hacknet.hashCost(p.name, isServerUpgrade ? 4 : 1);
+
+		if (initialCost < ns.hacknet.numHashes()) {
+			let wasSuccessful = false;
+			while (ns.hacknet.spendHashes(p.name, p.target) && count<maxPurchases) {
 				ns.print("Hashes: "+p.name);
+				wasSuccessful = true;
+				count++;
+			}
+			if (wasSuccessful) {
 				if (p.name!="Sell for Money") {
 					ns.toast("Hashes: "+p.name);
 				}
-				count++;
 			}
 			purchaseMade = purchaseMade || wasSuccessful;
 		} else {
-			purchaseMade = false;
 			count++;
 		}
 		if (count >= maxPurchases) break;
 	}
+	await updateHashReport(ns);
 	return purchaseMade;
 }

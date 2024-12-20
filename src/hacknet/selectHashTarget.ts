@@ -68,7 +68,7 @@ export async function main(ns : NS) : Promise<void> {
     } else if (homeAttackTarget!=null && homeAttackTarget!="n00dles" && hashes >= hashesNeededForServerWeakening && level("Reduce Minimum Security")<4 && level("Increase Maximum Money")<4) {
         // Batch this increase together - otherwise the hack script will restart every time we make an improvement
         ns.print("Attacking server "+homeAttackTarget+", so making the attack easier");
-        while (spendHashesOnPurchases(ns, [ { name: "Reduce Minimum Security", target: homeAttackTarget }, { name: "Increase Maximum Money", target: homeAttackTarget } ])) {
+        while (await spendHashesOnPurchases(ns, [ { name: "Reduce Minimum Security", target: homeAttackTarget }, { name: "Increase Maximum Money", target: homeAttackTarget } ])) {
             ns.print("Reducing security and increasing money on "+homeAttackTarget);
         }
     } else if (level("Generate Coding Contract")<6 && inInterestingFaction) {
