@@ -13,6 +13,7 @@ export async function main(ns: NS): Promise<void> {
 		ns.print("Gang already controls all territory - nothing to do");
 		ns.exit();
 	} else {
+		// noinspection InfiniteLoopJS
 		while (true) {
 			const powerInterval = await findPowerInterval(ns);
 			if (powerInterval.interval < 50) {
@@ -84,6 +85,12 @@ async function intermittentlyToggleWarfare(ns: NS, powerInterval: PowerInterval)
 			ns.print("WARN Gang power did not change when expected - have lost synch");
 			return;
 		}
+
+		if (ns.gang.getGangInformation().territory > 0.995) {
+			ns.print("Gang already controls all territory - nothing to do");
+			ns.exit();
+		}
+
 		const timeTakenInLoop = new Date().getTime() - loopStart;
 		await ns.sleep(powerInterval.interval - timeTakenInLoop);
 	}	
