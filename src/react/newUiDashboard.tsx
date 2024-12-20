@@ -246,7 +246,7 @@ function getAugInfo(ns: NS): (AugReport | null) {
 
 async function sellAllShares(ns: NS) {
     ns.tprint("Selling shares!");
-    ns.run("/tix/sellShares.js");
+    ns.run("/tix/sellAllShares.js");
 }
 
 async function controlSleeves(ns: NS, newObjective: string) {
