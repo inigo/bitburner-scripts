@@ -35,7 +35,7 @@ export async function main(ns : NS) : Promise<void> {
     const notYetInGang = ! ns.gang.inGang();
     const playerStatsTooLowForGang = getLowestPlayerCombatStat(ns).value < 75;
     const enoughMoneyForTravelling = ns.getServerMoneyAvailable("home") > 50_000_000;
-    const lotsOfMoney = ns.getServerMoneyAvailable("home") > 2_000_000_000;
+    const lotsOfMoney = ns.getServerMoneyAvailable("home") > 2_000_000_000 && ns.getTotalScriptIncome()[0] > 1_000_000;
 
     if (anyVeryShocked) {
         ns.print("Sleeves are very shocked - recovering");
