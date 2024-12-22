@@ -44,6 +44,7 @@ export async function main(ns: NS): Promise<void> {
 						, "/sleeve/reportSleeveTasks.js"
 						, "/sleeve/installSleeveAugments.js"
 						, "/stanek/reportFragments.js"
+						, "/company/workForCompany.js"
 						, "/crime/startGang.js"
 						, "/crime/reportGangStatus.js"
 						// , "/corp/startCorp.js" // @todo Don't start a corp because corp code is bad
