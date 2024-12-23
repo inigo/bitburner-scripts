@@ -76,16 +76,17 @@ export async function triggerRestart(ns: NS): Promise<void> {
 
 export function maybeBuyStanekAugmentation(ns: NS): boolean {
     try {
-        const stanekWidth = ns.stanek.giftWidth();
-        const requiredWidth = 5; // Don't bother if not enough gain from the gift
-        if (stanekWidth >= requiredWidth) {
+        // @todo This check doesn't work if Stanek's gift is not installed...
+        // const stanekWidth = ns.stanek.giftWidth();
+        // const requiredWidth = 5; // Don't bother if not enough gain from the gift
+        // if (stanekWidth >= requiredWidth) {
             ns.stanek.acceptGift();
             return ns.singularity.purchaseAugmentation("Church of the Machine God", "Stanek's Gift - Genesis");
-        } else {
-            return false;
-        }
+        // } else {
+        //     return false;
+        // }
     } catch (e) {
-        ns.toast("Cannot get Stanek's Gift - maybe have already installed augmentations manually?")
+        ns.toast("Cannot get Stanek's Gift - maybe have already installed augmentations manually? " + e);
         return false;
     }
 }
