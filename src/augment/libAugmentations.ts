@@ -79,6 +79,7 @@ export function maybeBuyStanekAugmentation(ns: NS): boolean {
         const stanekWidth = ns.stanek.giftWidth();
         const requiredWidth = 5; // Don't bother if not enough gain from the gift
         if (stanekWidth >= requiredWidth) {
+            ns.stanek.acceptGift();
             return ns.singularity.purchaseAugmentation("Church of the Machine God", "Stanek's Gift - Genesis");
         } else {
             return false;
