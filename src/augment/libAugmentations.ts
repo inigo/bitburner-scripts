@@ -12,7 +12,7 @@ export function getCostMultiplier(ns: NS): number {
     return 1.9 * sf11Modifier;
 }
 
-export function getUsefulAugmentations(ns: NS, faction: string, goal: Goal): FullAugmentationInfo[] {
+export function getUsefulAugmentations(ns: NS, faction: string, goal: Goal | "augmentations"): FullAugmentationInfo[] {
 	const ownedAugmentations = ns.singularity.getOwnedAugmentations(true);
 	const availableAugmentations = ns.singularity.getAugmentationsFromFaction(faction);
 
@@ -20,7 +20,8 @@ export function getUsefulAugmentations(ns: NS, faction: string, goal: Goal): Ful
     // (but maybe only up to a certain point - once we have enough income, we don't need more?? )
     const relevanceFilter = (goal === "bladeburner")
         ? (a: FullAugmentationInfo) => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation || a.isBladeburnerAugmentation || a.isPhysicalAugmentation || a.isCharismaAugmentation
-        : (a: FullAugmentationInfo) => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation;
+        : (goal==="augmentations") ? (a: FullAugmentationInfo) => true :
+        (a: FullAugmentationInfo) => a.isHackingAugmentation || a.isHacknetAugmentation || a.isReputationAugmentation;
 
 	const augs = availableAugmentations
 			.map(a => getAugmentationInfo(ns, a))

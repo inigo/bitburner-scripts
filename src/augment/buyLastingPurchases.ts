@@ -2,6 +2,7 @@ import {CityName, NS} from '@ns'
 import { listSleeves, installSleeveAugments } from "sleeve/libSleeve";
 import { buyAugmentations } from "crime/libGang";
 import {sellAllShares} from "/tix/libTix";
+import {getOrderedAugmentations, getUsefulAugmentations} from "/augment/libAugmentations";
 
 export async function main(ns: NS) : Promise<void>{
 	await buyLastingPurchases(ns);
@@ -15,6 +16,7 @@ export async function buyLastingPurchases(ns: NS): Promise<void> {
 	buyCores(ns);
 	await buyGangAugments(ns);
 	buySleeveAugments(ns);
+	buyIrrelevantAugments(ns); // Augments that aren't needed for the current goal, but might still be useful e.g. to qualify for factions
 	acquireFreeAugments(ns);
 	await travelAroundWorld(ns);
 }
@@ -69,6 +71,26 @@ async function buyGangAugments(ns: NS): Promise<void> {
 function buySleeveAugments(ns: NS): void {
 	const unshockedSleeves = listSleeves(ns).filter(s => ns.sleeve.getSleeve(s).shock == 0);
 	unshockedSleeves.forEach(s => installSleeveAugments(ns, s, 0));
+}
+
+function buyIrrelevantAugments(ns: NS): void {
+	const money = ns.getServerMoneyAvailable("home");
+	const allFactions = ns.getPlayer().factions;
+	const allPurchasableAugmentations = allFactions.flatMap(f => getUsefulAugmentations(ns, f, "augmentations")
+		.filter(a => a.cost <= money && a.reputationNeeded <= ns.singularity.getFactionRep(f)));
+	const orderedAugmentations = getOrderedAugmentations(ns, allPurchasableAugmentations);
+	// Start buying the most expensive first
+	orderedAugmentations.reverse().forEach(aug => {
+		// We could keep the faction name associated with each aug, and buy from the correct one, but there's no reason not to simply buy all augs from all factions
+		// Likewise, the cost will increase as we buy - we could check the cost after each purchase and filter out unavailable ones, but there's no point
+		allFactions.forEach(f => {
+			const wasSuccessful = ns.singularity.purchaseAugmentation(f, aug.name);
+			if (wasSuccessful) {
+				ns.print(`Successfully bought ${aug.name} from ${f}`);
+			}
+		})
+	})
+
 }
 
 function acquireFreeAugments(ns: NS): void {
