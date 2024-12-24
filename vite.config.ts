@@ -1,6 +1,7 @@
 /* eslint-env node */
-import { defineConfig } from 'viteburner';
-import { resolve } from 'path';
+import {defineConfig} from 'viteburner';
+import {resolve} from 'path';
+
 export default defineConfig({
     /** basic vite configs */
     resolve: {
@@ -10,7 +11,10 @@ export default defineConfig({
             '/src': resolve(__dirname, 'src'),
         },
     },
-    build: { minify: false },
+    build: {
+        minify: false,
+        sourcemap: "inline"
+    },
     /** viteburner configs */
     viteburner: {
         watch: [
@@ -18,7 +22,7 @@ export default defineConfig({
                 pattern: 'src/**/*.{js,ts}',
                 transform: true,
             },
-            { pattern: 'src/**/*.{script,txt}' },
+            {pattern: 'src/**/*.{script,txt}'},
         ],
     },
 });
