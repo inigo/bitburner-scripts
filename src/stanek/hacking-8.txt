@@ -56,31 +56,45 @@
     "rotation": 2
   },
   {
-    "name": "hackGrowWeakenSpeed",
-    "id": 5,
-    "x": 6,
-    "y": 4,
-    "rotation": 1
-  },
-  {
-    "name": "hacknetProduction",
-    "id": 20,
-    "x": 7,
-    "y": 0,
-    "rotation": 1
-  },
-  {
-    "name": "boost",
-    "id": 101,
-    "x": 5,
-    "y": 0,
-    "rotation": 1
-  },
-  {
     "name": "reputation",
     "id": 25,
     "x": 4,
     "y": 3,
     "rotation": 0
+  },
+  {
+    "name": "hackGrowWeakenSpeed",
+    "id": 5,
+    "x": 5,
+    "y": 0,
+    "rotation": 0
+  },
+  {
+    "name": "boost",
+    "id": 105,
+    "x": 5,
+    "y": 1,
+    "rotation": 0
+  },
+  {
+    "name": "boost",
+    "id": 101,
+    "x": 4,
+    "y": 6,
+    "rotation": 2
+  },
+  {
+    "name": "hacknetProduction",
+    "id": 20,
+    "x": 0,
+    "y": 7,
+    "rotation": 2
+  },
+  {
+    "name": "workMoney",
+    "id": 27,
+    "x": 6,
+    "y": 3,
+    "rotation": 3
   }
 ]
