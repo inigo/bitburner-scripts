@@ -372,3 +372,41 @@ export function solveShortestPathInGrid(ns: NS, data: number[][]): string {
     }
     return '';
 }
+
+export function solveTwoColoring(ns: NS, data: any): string {
+    const [n, edges] = data;
+    const adj: number[][] = Array.from({ length: n }, () => []);
+
+    // Build adjacency list
+    for (const [u, v] of edges) {
+        adj[u].push(v);
+        adj[v].push(u);
+    }
+
+    // -1 indicates uncolored
+    const colors = Array(n).fill(-1);
+
+    // Try coloring each connected component
+    for (let start = 0; start < n; start++) {
+        if (colors[start] === -1) {
+            // BFS or DFS, here BFS
+            colors[start] = 0;
+            const queue = [start];
+
+            while (queue.length) {
+                const u = queue.shift()!;
+                for (const v of adj[u]) {
+                    if (colors[v] === -1) {
+                        colors[v] = 1 - colors[u];
+                        queue.push(v);
+                    } else if (colors[v] === colors[u]) {
+                        // Conflict
+                        return '[]';
+                    }
+                }
+            }
+        }
+    }
+
+    return `[${colors.join(',')}]`;
+}
