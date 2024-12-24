@@ -1,7 +1,7 @@
 import { NS } from '@ns'
-import * as ports from "libPorts";
-import {anyScriptRunning, launchIfNotRunning} from "/libLaunch";
-import {getGoal} from "/goal/libGoal";
+import * as ports from "@/libPorts";
+import {anyScriptRunning, launchIfNotRunning} from "@/libLaunch";
+import {getGoal} from "@/goal/libGoal";
 
 /// Most basic control script - runs on a minimal server, and runs simple upgrades. RUN THIS FIRST!
 

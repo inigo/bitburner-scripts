@@ -1,6 +1,6 @@
 import { HackingFormulas, NS, Player, Server } from '@ns';
-import { fmt } from "libFormat";
-import { log, reportOnServer, runningAttacks, toIdealServer } from "attack/libAttack";
+import { fmt } from "@/libFormat";
+import { log, reportOnServer, runningAttacks, toIdealServer } from "@/attack/libAttack";
 
 export class AttackController {
 	targetServerName = "";

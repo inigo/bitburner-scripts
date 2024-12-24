@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { fmt } from "libFormat";
+import { fmt } from "@/libFormat";
 import { NS } from '@ns'
 
 const millisecondsPerHour = 60 * 60 * 1000;

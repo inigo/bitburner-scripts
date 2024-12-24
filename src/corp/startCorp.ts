@@ -1,6 +1,6 @@
 import { NS } from '@ns';
-import { buyWithShares } from "tix/libShareSelling"; 
-import { killAttacks } from '/attack/killAttacks.js';
+import { buyWithShares } from "@/tix/libShareSelling"; 
+import { killAttacks } from '@/attack/killAttacks.js';
 
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");

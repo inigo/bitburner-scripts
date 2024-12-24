@@ -1,9 +1,9 @@
-import { fmt, formatMoney } from "libFormat.js";
-import * as ports from "libPorts.js";
+import { fmt, formatMoney } from "@/libFormat.js";
+import * as ports from "@/libPorts.js";
 import { GangGenInfo, GangMemberInfo, GangOtherInfoObject, NS } from '@ns';
-import { retrieveCompanyStatus } from "corp/libCorporation";
-import { getTotalMoney, buyWithShares } from "tix/libShareSelling";
-import { GangReport } from "crime/libGangInfo";
+import { retrieveCompanyStatus } from "@/corp/libCorporation";
+import { getTotalMoney, buyWithShares } from "@/tix/libShareSelling";
+import { GangReport } from "@/crime/libGangInfo";
 
 export async function manageGang(ns: NS, goal = "general", stage="early"): Promise<void> {
 	const notEnoughMoney = !hasEnoughMoneyToRecruit(ns);

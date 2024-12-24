@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { manuallyConnectTo } from "basic/installBackdoors"; 
-import { listSleeves, travelTo } from "sleeve/libSleeve";
+import { manuallyConnectTo } from "@/basic/installBackdoors"; 
+import { listSleeves, travelTo } from "@/sleeve/libSleeve";
 
 /// Complete the bitnode (if the requirements have been met, and automatically start the next iteration of BN 12
 

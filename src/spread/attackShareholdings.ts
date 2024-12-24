@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { sendAttackTarget } from "spread/libSpread";
+import { sendAttackTarget } from "@/spread/libSpread";
 
 export async function main(ns : NS) : Promise<void> {
     const stockServerLookup = buildStockServerLookup();

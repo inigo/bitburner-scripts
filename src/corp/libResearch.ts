@@ -1,5 +1,5 @@
 import { NS, Division } from '@ns'
-import {listDivisions} from "/corp/libCorporation";
+import {listDivisions} from "@/corp/libCorporation";
 
 /**
  * Unlock relevant research when available - but keeping plenty of research points available, since they

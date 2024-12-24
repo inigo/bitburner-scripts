@@ -8,21 +8,21 @@
     "bitburnerScriptRoot": "./dist"
   },
   "scripts": {
-    "watch": "npx tsc -w",
-    "lint": "eslint . --ext .ts",
     "defs": "node ./updateDefs.js",
-    "sync": "bitburner-sync --watch"
+    "dev": "viteburner"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.199",
     "@types/node": "^22.10.1",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
     "eslint": "^7.31.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6"
+    "vite": "^4.5.5",
+    "viteburner": "^0.5.3"
   },
   "dependencies": {
     "bitburner-sync": "^1.5.3",

@@ -1,4 +1,4 @@
-import * as ports from "libPorts";
+import * as ports from "@/libPorts";
 import { NS, Server } from '@ns'
 
 /**

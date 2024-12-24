@@ -1,4 +1,4 @@
-import { manuallyConnectTo } from "basic/installBackdoors"; 
+import { manuallyConnectTo } from "@/basic/installBackdoors"; 
 import { NS } from '@ns'
 
 /// Switch terminal to the specified server

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {CityName, CorpEmployeePosition, CrimeType, Division, NS} from '@ns'
-import * as ports from 'libPorts';
+import * as ports from '@/libPorts';
 
 export async function* waitForNextCorporationTick(ns: NS): TickGenerator {
     // @todo update - options are prevState or nextState - was just state before

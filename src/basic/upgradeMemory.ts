@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { buyWithShares } from "tix/libShareSelling";
-import { say } from "speech/libSpeech"
+import { buyWithShares } from "@/tix/libShareSelling";
+import { say } from "@/speech/libSpeech"
 
 export async function main(ns : NS) : Promise<void> {
 	const upgradeSucceeded = await buyWithShares(ns, ns.singularity.getUpgradeHomeRamCost(), () => ns.singularity.upgradeHomeRam());

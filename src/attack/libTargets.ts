@@ -1,8 +1,8 @@
 import { NS } from '@ns'
-import { receiveAttackTarget } from "spread/libSpread";
-import { findAllHackableServers } from "libServers";
-import { toIdealServer } from "attack/libAttack";
-import { AttackController } from 'attack/libController';
+import { receiveAttackTarget } from "@/spread/libSpread";
+import { findAllHackableServers } from "@/libServers";
+import { toIdealServer } from "@/attack/libAttack";
+import { AttackController } from '@/attack/libController';
 
 export class TargetFinder {
     constructor(readonly ns: NS) {

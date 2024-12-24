@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import {reportFragments} from "/stanek/libFragment";
+import {reportFragments} from "@/stanek/libFragment";
 
 /// On a specified server, run nothing but a continuous charge of Stanek's Gift
 

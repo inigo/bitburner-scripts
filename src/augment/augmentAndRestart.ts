@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { sellAllShares } from "tix/libTix"; 
-import { buyLastingPurchases } from "augment/buyLastingPurchases"; 
+import { sellAllShares } from "@/tix/libTix"; 
+import { buyLastingPurchases } from "@/augment/buyLastingPurchases"; 
 
 export async function main(ns: NS): Promise<void> {
 	const shouldForceRestart = ns.args[0] == "forceRestart";

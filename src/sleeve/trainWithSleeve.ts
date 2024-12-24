@@ -1,4 +1,4 @@
-import {getLowestPlayerCombatStat, listSleeves, workout, travelTo, reportSleeveTasks, statToGymType} from "sleeve/libSleeve";
+import {getLowestPlayerCombatStat, listSleeves, workout, travelTo, reportSleeveTasks, statToGymType} from "@/sleeve/libSleeve";
 import { NS } from '@ns'
 
 // Use sleeves to train player combat stats equally

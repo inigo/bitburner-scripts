@@ -3,11 +3,11 @@
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-// import { openDB } from "https://cdn.jsdelivr.net/npm/idb@7/+esm";
-import { formatMoney } from 'libFormat';
-import * as ports from "libPorts";
+// import { openDB } from "@/https://cdn.jsdelivr.net/npm/idb@7/+esm";
+import { formatMoney } from '@/libFormat';
+import * as ports from "@/libPorts";
 import { NS } from '@ns';
-import { ShareStatus } from 'tix/libShareInfo';
+import { ShareStatus } from '@/tix/libShareInfo';
 
 // IDB is from https://github.com/jakearchibald/idb
 // Accessing it via the URL so it works in Bitburner

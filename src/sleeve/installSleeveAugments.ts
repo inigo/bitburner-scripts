@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { listSleeves, installSleeveAugments } from "sleeve/libSleeve";
+import { listSleeves, installSleeveAugments } from "@/sleeve/libSleeve";
 
 
 /**

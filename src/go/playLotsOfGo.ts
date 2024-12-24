@@ -1,5 +1,5 @@
 import {NS} from '@ns'
-import {Opponent, startGame} from "/go/playGo";
+import {Opponent, startGame} from "@/go/playGo";
 
 export async function main(ns: NS): Promise<void> {
     let n = 0;

@@ -1,7 +1,7 @@
 import {CrimeType, NS, SleeveCrimeTask} from '@ns'
-import {retrieveCompanyStatus} from "corp/libCorporation";
-import {retrieveSleeveTasks} from "sleeve/libSleeve";
-import {retrieveGangInfo} from "crime/libGangInfo";
+import {retrieveCompanyStatus} from "@/corp/libCorporation";
+import {retrieveSleeveTasks} from "@/sleeve/libSleeve";
+import {retrieveGangInfo} from "@/crime/libGangInfo";
 
 export async function main(ns : NS) : Promise<void> {
     const reporter = new Reporter(ns);

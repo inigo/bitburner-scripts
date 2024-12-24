@@ -1,6 +1,6 @@
-import { TargetFinder }  from "attack/libTargets";
-import { launchAttack } from "attack/launchAttacksFromPurchasedServers"
-import { fmt } from "libFormat"; 
+import { TargetFinder }  from "@/attack/libTargets";
+import { launchAttack } from "@/attack/launchAttacksFromPurchasedServers"
+import { fmt } from "@/libFormat"; 
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {

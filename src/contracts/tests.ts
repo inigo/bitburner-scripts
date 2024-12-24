@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import {solveArrayJumpingII, solveHammingCode, solveLempelZiv, solveLzCompression, solveRleCompression, solveVigenereCipher} from "/contracts/moreContracts";
+import {solveArrayJumpingII, solveHammingCode, solveLempelZiv, solveLzCompression, solveRleCompression, solveVigenereCipher} from "@/contracts/moreContracts";
 
 export async function main(ns: NS): Promise<void> {
     // testVigenereCipher(ns);

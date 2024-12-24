@@ -5,7 +5,7 @@ import {
     workout, travelTo, commitCrime, recoverShock, studyCs,
     retrieveSleeveInstructions,
     reportSleeveTasks, SleeveNo, CombatStats, statToGymType
-} from "sleeve/libSleeve";
+} from "@/sleeve/libSleeve";
 
 /**
  * Identify and set the correct thing for sleeves to be doing, based on the current game state - 

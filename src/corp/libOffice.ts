@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {CityName, CorpEmployeePosition, NS, Office} from '@ns'
-import { findDivisionName, OfficeRole, listPositions, JobPosition, JobCounts, doCount, JWeight, TickGenerator } from 'corp/libCorporation'
-import { IndustryInfo } from 'corp/libIndustries'
+import { findDivisionName, OfficeRole, listPositions, JobPosition, JobCounts, doCount, JWeight, TickGenerator } from '@/corp/libCorporation'
+import { IndustryInfo } from '@/corp/libIndustries'
 
 export class OfficeControl {
     private industryInfo: IndustryInfo;

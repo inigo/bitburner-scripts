@@ -1,8 +1,8 @@
 import {CityName, NS} from '@ns'
-import { listSleeves, installSleeveAugments } from "sleeve/libSleeve";
-import { buyAugmentations } from "crime/libGang";
-import {sellAllShares} from "/tix/libTix";
-import {getOrderedAugmentations, getUsefulAugmentations} from "/augment/libAugmentations";
+import { listSleeves, installSleeveAugments } from "@/sleeve/libSleeve";
+import { buyAugmentations } from "@/crime/libGang";
+import {sellAllShares} from "@/tix/libTix";
+import {getOrderedAugmentations, getUsefulAugmentations} from "@/augment/libAugmentations";
 
 export async function main(ns: NS) : Promise<void>{
 	await buyLastingPurchases(ns);

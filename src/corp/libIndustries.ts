@@ -1,4 +1,4 @@
-import {  JobPosition, JWeight, OfficeRole, MaterialWeight } from 'corp/libCorporation'
+import {  JobPosition, JWeight, OfficeRole, MaterialWeight } from '@/corp/libCorporation'
 
 export class IndustryInfo {
     constructor(readonly industry: string) {

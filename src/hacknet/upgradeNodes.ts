@@ -1,7 +1,7 @@
 /// Upgrade hacknet nodes with the most effective purchases, as long as they pay back in under X minutes (1 hour by default)
 
 import { NS } from '@ns'
-import { buyUpgrades, buyCache } from "hacknet/libHacknet";
+import { buyUpgrades, buyCache } from "@/hacknet/libHacknet";
 
 export async function main(ns: NS): Promise<void> {
 	ns.disableLog("ALL");

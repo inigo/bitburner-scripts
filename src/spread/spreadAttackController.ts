@@ -1,6 +1,6 @@
-import { findCrackedServers }  from "libServers";
+import { findCrackedServers }  from "@/libServers";
 import { NS } from '@ns'
-import { receiveAttackTarget, sendAttackTarget, refreshAttackTarget } from "spread/libSpread";
+import { receiveAttackTarget, sendAttackTarget, refreshAttackTarget } from "@/spread/libSpread";
 
 const pauseBetweenLaunches = 1000;
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { listContracts } from "contracts/libContracts"; 
+import { listContracts } from "@/contracts/libContracts";
 import { NS } from '@ns'
 import {
 	solveArrayJumpingII,
@@ -12,7 +12,7 @@ import {
 	solveTotalWaysToSum,
 	solveVigenereCipher,
 	solveSquareRoot
-} from "./moreContracts";
+} from "@/contracts/moreContracts";
 
 export async function main(ns: NS): Promise<void> {
 	solveAllContracts(ns);
@@ -132,7 +132,7 @@ function solveMinimumPathSumTriangle(ns: NS, data: number[][]) {
 
 function solveGenerateIpAddresses(ns: NS, data: number[]) {
 	const isValidFn = (val: string) => {
-		const parts = val.split("\.");
+		const parts = val.split("\\.");
 		if (parts.length!=4) return false;
 		if (parts.some(s => s.length==0)) return false;
 		if (parts.some(s => s.startsWith("0") && s!="0")) return false;

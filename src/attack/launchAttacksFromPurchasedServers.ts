@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { TargetFinder }  from "attack/libTargets";
-import { filesNeededForAttack } from "attack/libAttack"
+import { TargetFinder }  from "@/attack/libTargets";
+import { filesNeededForAttack } from "@/attack/libAttack"
 
 export async function main(ns : NS) : Promise<void> {
     const purchasedServersWithoutAttacks = ns.getPurchasedServers()

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as ports from "libPorts";
+import * as ports from "@/libPorts";
 import { NS, Fragment } from '@ns';
 
 /** Create a filename to save/load a Stanek configuration */

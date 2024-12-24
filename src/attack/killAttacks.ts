@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { killMatchingScripts } from "attack/libAttack";
+import { killMatchingScripts } from "@/attack/libAttack";
 
 /**
  * Kill all attack scripts on the current server, or those attacks against a specific server.

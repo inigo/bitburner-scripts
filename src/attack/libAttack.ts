@@ -1,6 +1,6 @@
 import { NS, Server } from '@ns';
-import * as ports from "libPorts.js";
-import { fmt } from "libFormat";
+import * as ports from "@/libPorts.js";
+import { fmt } from "@/libFormat";
 
 export async function doAttack(ns: NS, filename: string, attackFn: ((serverName: string) => Promise<number>)): Promise<void> {
     const target = (ns.args[0] as string);

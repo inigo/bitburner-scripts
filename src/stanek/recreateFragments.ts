@@ -1,4 +1,4 @@
-import { checkReportedFragments } from "stanek/libFragment";
+import { checkReportedFragments } from "@/stanek/libFragment";
 
 /// Reset all the current fragments in Stanek's Gift - e.g. after a RAM increase
 

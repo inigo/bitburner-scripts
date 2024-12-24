@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import * as ports from "libPorts";
+import * as ports from "@/libPorts";
 
 
 export function listHashOptions(): HashInfo[] {

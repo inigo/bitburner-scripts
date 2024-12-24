@@ -1,5 +1,5 @@
-import { StockChooser, WixStockChooser, FakeStockmarket, RealStockmarket, doTrading, realStockValues, OngoingStockPredictor, SmoothingStockPredictor, RealWallet, FakeWallet } from 'tix/libTix';
-import { formatMoney } from 'libFormat';
+import { StockChooser, WixStockChooser, FakeStockmarket, RealStockmarket, doTrading, realStockValues, OngoingStockPredictor, SmoothingStockPredictor, RealWallet, FakeWallet } from '@/tix/libTix';
+import { formatMoney } from '@/libFormat';
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {

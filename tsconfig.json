@@ -17,13 +17,12 @@
     "strict": true,
     "rootDir": "src/",
     "outDir": "dist/",
-    "baseUrl": "src/",
+    "baseUrl": ".",
     "paths": {
-      "/*": [
-        "*"
-      ],
+      "@/*": ["src/*"],
+      "/src/*": ["src/*"],
       "@ns": [
-        "../NetscriptDefinitions.d.ts"
+        "./NetscriptDefinitions.d.ts"
       ]
     }
   }

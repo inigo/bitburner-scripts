@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { fmt } from "libFormat";
-import * as dom from "casino/libDom";
+import { fmt } from "@/libFormat";
+import * as dom from "@/casino/libDom";
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {

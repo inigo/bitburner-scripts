@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns'
-import { formatMoney } from 'libFormat';
-import { findDivisionName } from 'corp/libCorporation';
-import { ProductPriceManager } from '/corp/libProducts';
+import { formatMoney } from '@/libFormat';
+import { findDivisionName } from '@/corp/libCorporation';
+import { ProductPriceManager } from '@/corp/libProducts';
 
 export class InvestmentManager {
     readonly division: string;

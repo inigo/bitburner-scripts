@@ -1,4 +1,4 @@
-import { reportFragments } from "stanek/libFragment";
+import { reportFragments } from "@/stanek/libFragment";
 
 /**
  * List all the active fragments and write them to a port: consumed by  

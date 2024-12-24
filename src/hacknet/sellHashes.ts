@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /// Sell hashes for the specified result - expected to be called regularly automaticaly, but can also be called manually
 import {NS} from '@ns'
-import {lookupHashAlias, retrieveHashSpends, setHashSpend, spendHashesOnPurchases} from "hacknet/libHashes";
+import {lookupHashAlias, retrieveHashSpends, setHashSpend, spendHashesOnPurchases} from "@/hacknet/libHashes";
 
 export async function main(ns: NS): Promise<void> {
 	ns.disableLog("ALL");

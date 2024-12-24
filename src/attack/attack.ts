@@ -1,7 +1,7 @@
-import { fmt } from "libFormat";
-import { log, reportOnServer, runningAttacks } from "attack/libAttack";
+import { fmt } from "@/libFormat";
+import { log, reportOnServer, runningAttacks } from "@/attack/libAttack";
 import { NS } from '@ns';
-import { AttackController } from "attack/libController";
+import { AttackController } from "@/attack/libController";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function autocomplete(data : AutocompleteData, args : string[]) : string[] {

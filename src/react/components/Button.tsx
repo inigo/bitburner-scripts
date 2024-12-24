@@ -1,4 +1,4 @@
-import {React} from "/react/libReact";
+import {React} from "@/react/libReact";
 
 
 export function Button({ bg, title, onButtonClick, disabled = false }: { bg: string; title: string; onButtonClick: () => void, disabled?: boolean  }) {

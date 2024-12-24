@@ -1,4 +1,4 @@
-import { findAllServers } from "libServers"; 
+import { findAllServers } from "@/libServers"; 
 import { NS } from '@ns'
 
 export function* listContracts(ns: NS): IterableIterator<ContractInfo> {

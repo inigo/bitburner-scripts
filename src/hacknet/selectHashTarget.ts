@@ -1,9 +1,9 @@
 import {NS, SleeveCompanyTask, SleeveTask} from '@ns'
-import {retrieveCompanyStatus} from "corp/libCorporation";
-import {retrieveHashSpendReport, setHashSpend, spendHashesOnPurchases} from "hacknet/libHashes";
-import {retrieveSleeveTasks} from "sleeve/libSleeve";
-import {retrieveAttackStatus} from "attack/libAttack";
-import {retrieveGangInfo} from "crime/libGangInfo";
+import {retrieveCompanyStatus} from "@/corp/libCorporation";
+import {retrieveHashSpendReport, setHashSpend, spendHashesOnPurchases} from "@/hacknet/libHashes";
+import {retrieveSleeveTasks} from "@/sleeve/libSleeve";
+import {retrieveAttackStatus} from "@/attack/libAttack";
+import {retrieveGangInfo} from "@/crime/libGangInfo";
 
 /**
  * Choose an appropriate objective to spend Hacknet hashes on, based on the reports from various

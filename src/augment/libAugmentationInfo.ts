@@ -1,5 +1,5 @@
 import {Multipliers, NS} from "@ns";
-import * as ports from "/libPorts";
+import * as ports from "@/libPorts";
 
 export function retrieveAugInfo(ns: NS): (AugReport | null) {
     return ports.checkPort(ns, ports.AUG_REPORTS_PORT, JSON.parse) as (AugReport | null);

@@ -11,7 +11,7 @@ import {
 	studyCs,
 	travelTo,
 	workout
-} from "sleeve/libSleeve";
+} from "@/sleeve/libSleeve";
 import {GymType, NS} from '@ns'
 
 export function autocomplete(): string[] {

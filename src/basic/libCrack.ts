@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import {findAllServers} from "libServers"; 
-import * as ports from "libPorts";
+import {findAllServers} from "@/libServers"; 
+import * as ports from "@/libPorts";
 
 export function crackAll(ns: NS): void {
 	const availableCracks = listAllCracks(ns).filter(c => c.exists);

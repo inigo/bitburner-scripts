@@ -1,5 +1,5 @@
-import { TargetFinder }  from "attack/libTargets";
-import { PrettyTable }  from "libFormat";
+import { TargetFinder }  from "@/attack/libTargets";
+import { PrettyTable }  from "@/libFormat";
 import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {

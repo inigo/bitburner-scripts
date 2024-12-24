@@ -1,4 +1,4 @@
-import { toFilename, reportFragments, SimpleFragment } from "stanek/libFragment";
+import { toFilename, reportFragments, SimpleFragment } from "@/stanek/libFragment";
 import { NS } from '@ns';
 
 /// Load fragments into Stanek's Gift from a file

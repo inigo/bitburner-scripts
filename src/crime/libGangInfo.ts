@@ -1,5 +1,5 @@
 import { NS, GangGenInfo } from '@ns';
-import * as ports from "libPorts";
+import * as ports from "@/libPorts";
 
 /** Used by the dashboard */
 export function lookupGangTaskIcon(task: string): string {

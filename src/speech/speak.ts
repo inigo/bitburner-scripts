@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { say } from "speech/libSpeech"
+import { say } from "@/speech/libSpeech"
 
 /// Say a specified message
 

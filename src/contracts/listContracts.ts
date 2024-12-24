@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import {listContracts} from "contracts/libContracts"; 
+import {listContracts} from "@/contracts/libContracts"; 
 
 /**
  * List all available contracts.

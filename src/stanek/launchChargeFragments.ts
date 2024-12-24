@@ -1,6 +1,6 @@
 import { NS } from '@ns';
-import { reportFragments, addFragmentInfo, CombinedFragment, toFilename } from "stanek/libFragment";
-import { loadFragments } from "stanek/loadFragments";
+import { reportFragments, addFragmentInfo, CombinedFragment, toFilename } from "@/stanek/libFragment";
+import { loadFragments } from "@/stanek/loadFragments";
 
 export async function main(ns: NS): Promise<void> {
 	const maxIterations: number = ns.args.find(arg => Number.isInteger(arg)) as number ?? 100;

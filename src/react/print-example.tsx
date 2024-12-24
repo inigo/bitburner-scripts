@@ -1,6 +1,6 @@
 import {NS} from "@ns";
-import {domWindow, React} from "react/libReact";
-import {Button} from "/react/components/Button";
+import {domWindow, React} from "@/react/libReact";
+import {Button} from "@/react/components/Button";
 
 const { useState, useEffect } = React;
 

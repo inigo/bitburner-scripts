@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { getOwnedShareValue, sellAllShares, reportShareStatus, pauseTrading } from '/tix/libTix.js';
+import { getOwnedShareValue, sellAllShares, reportShareStatus, pauseTrading } from '@/tix/libTix.js';
 
 /**
  * Make a purchase, selling shares if necessary to finance it.

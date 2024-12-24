@@ -1,6 +1,6 @@
 import {NS} from '@ns'
-import {getBitnodeAndGoal, Goal, listGoals} from "/goal/libGoal";
-import {setGoal} from "/goal/libGoalSetting";
+import {getBitnodeAndGoal, Goal, listGoals} from "@/goal/libGoal";
+import {setGoal} from "@/goal/libGoalSetting";
 
 /// Set the primary goal of the Bitnode - i.e. the path that we will take to win. Typically "hacking", but "stocks" is better in BN 8 and "bladeburner" may be better.
 /// 

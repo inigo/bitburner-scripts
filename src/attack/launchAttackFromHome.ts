@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { TargetFinder }  from "attack/libTargets";
-import { say } from "speech/libSpeech"
+import { TargetFinder }  from "@/attack/libTargets";
+import { say } from "@/speech/libSpeech"
 
 export async function main(ns : NS) : Promise<void> {
 	if (ns.scriptRunning("/attack/attack.js", "home")) {

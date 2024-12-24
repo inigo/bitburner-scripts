@@ -1,4 +1,5 @@
-import {setLogging} from "/attack/libAttack";
+import {setLogging} from "@/attack/libAttack";
+import {NS} from '@ns'
 
 /// Set whether attack logging is enabled for servers - helpful when debugging the attack code
 

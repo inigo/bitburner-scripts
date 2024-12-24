@@ -1,4 +1,4 @@
-import { reportSleeveTasks } from "sleeve/libSleeve";
+import { reportSleeveTasks } from "@/sleeve/libSleeve";
 import { NS } from '@ns'
 
 /// Update the information in the dashboard about what each sleeve is working on 

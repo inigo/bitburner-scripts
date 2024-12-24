@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import {React} from "/react/libReact";
+import {React} from "@/react/libReact";
 
 export function autocomplete(data : AutocompleteData) : string[] {
     return [...data.scripts];

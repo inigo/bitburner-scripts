@@ -1,5 +1,5 @@
 import {NS} from '@ns'
-import {getOwnedShareValue, pauseTrading, reportShareStatus, sellAllShares} from "tix/libTix";
+import {getOwnedShareValue, pauseTrading, reportShareStatus, sellAllShares} from "@/tix/libTix";
 
 export async function main(ns : NS) : Promise<void> {
 

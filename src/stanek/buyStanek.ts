@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { maybeBuyStanekAugmentation } from "augment/libAugmentations";
+import { maybeBuyStanekAugmentation } from "@/augment/libAugmentations";
 
 export async function main(ns: NS): Promise<void> {
     const boughtStanek = maybeBuyStanekAugmentation(ns);

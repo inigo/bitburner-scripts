@@ -1,5 +1,5 @@
 import {NS} from '@ns'
-import {HashInfo, listHashOptions, lookupHashAlias, setHashSpend} from "/hacknet/libHashes";
+import {HashInfo, listHashOptions, lookupHashAlias, setHashSpend} from "@/hacknet/libHashes";
 
 /// Explicitly set the target for buying hashes
 

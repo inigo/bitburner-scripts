@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NS } from '@ns'
-import { setCorporationInstructions, CorporationInstructions } from "corp/libCorporation";
+import { setCorporationInstructions, CorporationInstructions } from "@/corp/libCorporation";
 
 /// Set instructions for the corporation control script
 

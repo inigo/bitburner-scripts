@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {CityName, NS} from '@ns'
-import { doCount, findDivisionName, listCities, listEmployeeUpgrades, OfficeRole } from 'corp/libCorporation'
-import { OfficeControl } from 'corp/libOffice'
+import { doCount, findDivisionName, listCities, listEmployeeUpgrades, OfficeRole } from '@/corp/libCorporation'
+import { OfficeControl } from '@/corp/libOffice'
 
 /**
  * Buy the best improvements for a division, based on their current weighted cost.

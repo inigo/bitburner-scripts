@@ -1,7 +1,7 @@
-import {getUsefulAugmentations} from "augment/libAugmentations";
-import {retrieveGangInfo} from "crime/libGangInfo";
-import {CityName} from "@ns";
-import {getGoal, Goal} from "/goal/libGoal";
+import {getUsefulAugmentations} from "@/augment/libAugmentations";
+import {retrieveGangInfo} from "@/crime/libGangInfo";
+import {CityName, NS} from "@ns";
+import {getGoal, Goal} from "@/goal/libGoal";
 
 export async function main(ns : NS) : Promise<void> {
 	await travelForFactions(ns);

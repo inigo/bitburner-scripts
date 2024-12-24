@@ -1,4 +1,4 @@
-import { sellAllShares, reportShareStatus, pauseTrading } from "tix/libTix"; 
+import { sellAllShares, reportShareStatus, pauseTrading } from "@/tix/libTix"; 
 import { NS } from '@ns';
 
 export async function main(ns: NS): Promise<void> {

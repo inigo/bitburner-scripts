@@ -1,5 +1,5 @@
 import {NS, SourceFileLvl} from "@ns";
-import {getBitnodeAndGoal, Goal, goalFilename} from "/goal/libGoal";
+import {getBitnodeAndGoal, Goal, goalFilename} from "@/goal/libGoal";
 
 export function isCurrentGoalValid(ns: NS): boolean {
     const [recordedBitnode, goal] = getBitnodeAndGoal(ns);

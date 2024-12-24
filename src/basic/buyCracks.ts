@@ -1,7 +1,7 @@
 /// Use the Tor router to buy all available crack files (e.g. BruteSSH.exe)
 
 import { NS } from '@ns'
-import {buyCracks, reportCrackStatus} from "/basic/libCrack"; 
+import {buyCracks, reportCrackStatus} from "@/basic/libCrack"; 
 
 export async function main(ns: NS): Promise<void> {
 	try {

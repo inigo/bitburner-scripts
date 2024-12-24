@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {NS} from '@ns'
-import {retrieveGangInfo} from "/crime/libGangInfo";
-import * as ports from "libPorts";
-import {getOwnedShareValue} from "/tix/libTix";
-import {AugReport, FullAugmentationInfo} from "/augment/libAugmentationInfo";
-import {Goal} from "/goal/libGoal";
+import {retrieveGangInfo} from "@/crime/libGangInfo";
+import * as ports from "@/libPorts";
+import {getOwnedShareValue} from "@/tix/libTix";
+import {AugReport, FullAugmentationInfo} from "@/augment/libAugmentationInfo";
+import {Goal} from "@/goal/libGoal";
 
 export function getCostMultiplier(ns: NS): number {
     const sf11Count = ns.singularity.getOwnedSourceFiles().filter(sf => sf.n == 11).length;

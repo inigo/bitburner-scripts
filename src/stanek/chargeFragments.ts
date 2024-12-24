@@ -1,5 +1,5 @@
-import { checkReportedFragments } from "stanek/libFragment";
-import { fmt } from "/libFormat.js";
+import { checkReportedFragments } from "@/stanek/libFragment";
+import { fmt } from "@/libFormat.js";
 import { NS } from '@ns';
 
 /// Charge all the active fragments - run with a large number of threads. Needs reportFragments to have been run first 

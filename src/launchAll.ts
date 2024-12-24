@@ -1,7 +1,7 @@
 import { NS } from '@ns'
-import * as ports from "libPorts";
-import {getGoal} from "/goal/libGoal";
-import {anyScriptRunning, launchIfNotRunning} from "/libLaunch";
+import * as ports from "@/libPorts";
+import {getGoal} from "@/goal/libGoal";
+import {anyScriptRunning, launchIfNotRunning} from "@/libLaunch";
 
 // The second phase control script, launched by bootstrap once we've reached sufficient memory and money
 

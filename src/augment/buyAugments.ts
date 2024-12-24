@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { sellAllShares } from "tix/libTix";
-import { findPreferredFaction } from "joinFaction";
+import { sellAllShares } from "@/tix/libTix";
+import { findPreferredFaction } from "@/joinFaction";
 import {
     getGangFaction,
     getBestInstallableAugmentations,
@@ -9,11 +9,11 @@ import {
     triggerRestart,
     maybeBuyStanekAugmentation,
     reportAugInfo, calculateAllAvailableMoney, calculateCost
-} from "augment/libAugmentations";
-import { retrieveCompanyStatus } from "corp/libCorporation";
-import { fmt } from "libFormat";
-import { say } from "speech/libSpeech"
-import {getGoal, Goal} from "/goal/libGoal";
+} from "@/augment/libAugmentations";
+import { retrieveCompanyStatus } from "@/corp/libCorporation";
+import { fmt } from "@/libFormat";
+import { say } from "@/speech/libSpeech"
+import {getGoal, Goal} from "@/goal/libGoal";
 
 /// Buy available augmentations, as efficiently as possible, and then trigger a restart
 

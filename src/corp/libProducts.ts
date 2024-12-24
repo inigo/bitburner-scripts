@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {NS, Division, Product, CityName} from '@ns';
-import {listCities, findDivisionName, listDivisions} from 'corp/libCorporation';
-import { ProductNamer } from 'corp/libNamer';
+import {listCities, findDivisionName, listDivisions} from '@/corp/libCorporation';
+import { ProductNamer } from '@/corp/libNamer';
 
 /**
  * Launch new products repeatedly, so there is always one product under development.

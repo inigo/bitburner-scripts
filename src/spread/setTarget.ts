@@ -1,4 +1,4 @@
-import { sendAttackTarget } from "spread/libSpread";
+import { sendAttackTarget } from "@/spread/libSpread";
 import { NS } from '@ns'
 
 /// Change the target of servers launched by spreadAttackController

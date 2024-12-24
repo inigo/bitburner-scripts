@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {formatMoney} from "libFormat";
-import * as ports from "libPorts";
-import {HashSpendReport, HashUpgrade, lookupHashIcons, retrieveHashNumber} from "hacknet/libHashes";
-import {lookupSleeveIcon, retrieveSleeveTasks} from "sleeve/libSleeve";
-import {CombinedFragment, lookupFragmentTypeIcon} from "stanek/libFragment";
-import {receiveAttackTarget} from "spread/libSpread";
-import {CorporationStatus, retrieveCompanyStatus} from "corp/libCorporation";
-import {retrieveShareStatus, ShareStatus} from "tix/libShareInfo";
-import {lookupGangTaskIcon, retrieveGangInfo} from "crime/libGangInfo";
-import {AugReport, retrieveAugInfo} from "augment/libAugmentationInfo";
+import {formatMoney} from "@/libFormat";
+import * as ports from "@/libPorts";
+import {HashSpendReport, HashUpgrade, lookupHashIcons, retrieveHashNumber} from "@/hacknet/libHashes";
+import {lookupSleeveIcon, retrieveSleeveTasks} from "@/sleeve/libSleeve";
+import {CombinedFragment, lookupFragmentTypeIcon} from "@/stanek/libFragment";
+import {receiveAttackTarget} from "@/spread/libSpread";
+import {CorporationStatus, retrieveCompanyStatus} from "@/corp/libCorporation";
+import {retrieveShareStatus, ShareStatus} from "@/tix/libShareInfo";
+import {lookupGangTaskIcon, retrieveGangInfo} from "@/crime/libGangInfo";
+import {AugReport, retrieveAugInfo} from "@/augment/libAugmentationInfo";
 import {NS} from '@ns'
 
 export async function main(ns: NS): Promise<void> {

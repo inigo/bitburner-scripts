@@ -6,8 +6,8 @@ import {
 	replayStoredStockValues,
 	FakeWallet,
 	FakeWixStockChooser
-} from 'tix/libTix';
-import { formatMoney } from 'libFormat';
+} from '@/tix/libTix';
+import { formatMoney } from '@/libFormat';
 
 export async function main(ns : NS) : Promise<void> {
     const storeName = "historicalTickStore6"

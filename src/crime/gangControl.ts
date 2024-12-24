@@ -1,4 +1,4 @@
-import { reportGangInfo, mostLucrativeTask, buyAffordableEquipmentForIndividual } from "crime/libGang";
+import { reportGangInfo, mostLucrativeTask, buyAffordableEquipmentForIndividual } from "@/crime/libGang";
 import { NS } from '@ns';
 
 /// Set all gang members to be working on a particular task - e.g. terrorism

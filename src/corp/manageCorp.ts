@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {CityName, CorpIndustryName, NS} from '@ns';
-import {JobPosition, listCities, listDivisions, reportCompanyStatus, retrieveCorporationInstructions, waitForNextCorporationTick} from 'corp/libCorporation';
-import {ImprovementManager} from 'corp/libImprovements';
-import {InvestmentManager} from 'corp/libInvestment';
-import {ProductLauncher, ProductPriceManager} from '/corp/libProducts';
-import {ResearchManager} from '/corp/libResearch';
-import {OfficeControl} from 'corp/libOffice'
+import {JobPosition, listCities, listDivisions, reportCompanyStatus, retrieveCorporationInstructions, waitForNextCorporationTick} from '@/corp/libCorporation';
+import {ImprovementManager} from '@/corp/libImprovements';
+import {InvestmentManager} from '@/corp/libInvestment';
+import {ProductLauncher, ProductPriceManager} from '@/corp/libProducts';
+import {ResearchManager} from '@/corp/libResearch';
+import {OfficeControl} from '@/corp/libOffice'
 
 export async function main(ns : NS) : Promise<void> {
     ns.disableLog("sleep");

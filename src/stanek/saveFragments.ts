@@ -1,4 +1,4 @@
-import { addFragmentInfo, toFilename, SimpleFragment, FullFragmentInfo, CombinedFragment } from "stanek/libFragment";
+import { addFragmentInfo, toFilename, SimpleFragment, FullFragmentInfo, CombinedFragment } from "@/stanek/libFragment";
 import { NS } from '@ns';
 
 /// Save the current fragment layout to a file

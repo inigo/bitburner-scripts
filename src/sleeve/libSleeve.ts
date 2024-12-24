@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as ports from "libPorts";
+import * as ports from "@/libPorts";
 import {CityName, GymType, NS, SleeveTask, UniversityClassType} from '@ns'
 
 type SleeveTaskInfo = { name: string, emoji: string };
