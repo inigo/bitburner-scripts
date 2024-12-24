@@ -346,3 +346,29 @@ export function solveSquareRoot(ns: NS, dataAsNo: number): string {
 
     return right.toString();
 }
+
+
+export function solveShortestPathInGrid(ns: NS, data: number[][]): string {
+    const rows = data.length, cols = data[0].length;
+    if (!rows || !cols || data[0][0] === 1 || data[rows - 1][cols - 1] === 1) return '';
+    const visited = Array.from({length: rows}, () => Array(cols).fill(false));
+    visited[0][0] = true;
+    const queue: [number, number, string][] = [[0, 0, '']];
+
+    const directions: [number, number, string][] = [
+        [1, 0, 'D'], [-1, 0, 'U'], [0, 1, 'R'], [0, -1, 'L']
+    ];
+
+    while (queue.length) {
+        const [r, c, path] = queue.shift()!;
+        if (r === rows - 1 && c === cols - 1) return path;
+        for (const [dr, dc, dir] of directions) {
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] && data[nr][nc] === 0) {
+                visited[nr][nc] = true;
+                queue.push([nr, nc, path + dir]);
+            }
+        }
+    }
+    return '';
+}
