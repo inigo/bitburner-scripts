@@ -279,7 +279,7 @@ class BasicGameplay {
 		const playerHand = this.toHand(ns, playerCards);
 		const dealerHand = this.toHand(ns, dealerCards);
 	
-		ns.print("Player hand value "+playerHand.value+" from '"+playerCards+"' and dealer hand value "+dealerHand.value+" from '"+dealerCards+"'");
+		ns.print(`Player hand value ${playerHand.value} from ${playerCards} and dealer hand value ${dealerHand.value} from ${dealerCards}`);
 	
 		// https://wizardofodds.com/games/blackjack/strategy/4-decks/
 		// Always hit hard 11 or less.

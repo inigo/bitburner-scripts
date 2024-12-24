@@ -58,7 +58,7 @@ async function buyAugmentations(ns: NS, goal: Goal, force: boolean): Promise<voi
 
         maybeBuyStanekAugmentation(ns);
         ns.tprint("Buying augmentations for "+faction);
-        say("Buying "+bestAugs.length+" augmentations from "+faction);
+        say(`Buying ${bestAugs.length} augmentations from ${faction}`);
 
         bestAugs.forEach(a => ns.tprint("INFO Buying augmentation "+a.name));
         bestAugs.forEach(a => ns.toast("Buying augmentation "+a.name));

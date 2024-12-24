@@ -28,7 +28,7 @@ export function getUsefulAugmentations(ns: NS, faction: string, goal: Goal | "au
 			.filter(a => ! ownedAugmentations.includes(a.name))
 			.filter(relevanceFilter)
 			.filter(a => !a.isNeuroflux);
-    ns.print("There are "+augs.length+" useful augmentations available from "+faction);
+    ns.print(`There are ${augs.length} useful augmentations available from ${faction}`);
     // ns.print("They are: "+getOrderedAugmentations(ns, augs)
     //     .map(a => `${a.name} (${a.isHackingAugmentation ? "hack " : ""}${a.isHacknetAugmentation ? "hacknet " : ""}${a.isReputationAugmentation ? "rep " : ""})`).join(", "));
 

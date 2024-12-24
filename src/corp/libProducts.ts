@@ -183,13 +183,13 @@ class ProductPriceSetter {
 
     reducePrice(ns: NS, info: ProductPriceInfo) {
         const newMultiplier = info.priceMultiplier * (1 / info.rateOfChange);
-        this.ns.print("Reducing price for '"+this.productName+"' from "+info.priceMultiplier+" to "+newMultiplier);
+        this.ns.print(`Reducing price for '${this.productName}' from ${info.priceMultiplier} to ${newMultiplier}`);
         this.changePrice(ns, info, newMultiplier);
     }
 
     increasePrice(ns: NS, info: ProductPriceInfo) {
         const newMultiplier = info.priceMultiplier * info.rateOfChange;
-        this.ns.print("Increasing price for '"+this.productName+"' from "+info.priceMultiplier+" to "+newMultiplier);
+        this.ns.print(`Increasing price for '${this.productName}' from ${info.priceMultiplier} to ${newMultiplier}`);
         this.changePrice(ns, info, newMultiplier);
     }
 

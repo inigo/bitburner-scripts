@@ -17,12 +17,12 @@ export async function launchAttack(ns: NS, server: string): Promise<void> {
 	const viableTargets = targetFinder.listBestTargets(30, availableRam, 1).filter(t => ! t.isAttacked);
 
     if (viableTargets.length==0) {
-        ns.print("No viable targets to attack from "+server);
+        ns.print(`No viable targets to attack from ${server}`);
         return;
     }
 
     const serverToAttack = viableTargets[0].name;
-    ns.print("Launching attack from "+server+" on "+serverToAttack)
+    ns.print(`Launching attack from ${server} on ${serverToAttack}`)
     await ns.scp(filesNeededForAttack(), server, "home");
 	ns.exec("/attack/attack.js", server, 1, serverToAttack);
 }
