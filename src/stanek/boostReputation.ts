@@ -3,8 +3,8 @@ import {reportFragments} from "@/stanek/libFragment";
 
 /// On a specified server, run nothing but a continuous charge of Stanek's Gift
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function autocomplete(data : AutocompleteData, args : string[]) : string[] {
+// noinspection JSUnusedGlobalSymbols
+export function autocomplete(data : AutocompleteData) : string[] {
     return [...data.servers];
 }
 
@@ -13,12 +13,16 @@ export async function main(ns: NS): Promise<void> {
 
     await reportFragments(ns);
 
-    await ns.scp([ "libFormat.js", "/stanek/libFragment.js", "/stanek/chargeFragments.js"], server)
+    ns.scp([ "libFormat.js", "/stanek/libFragment.js", "/stanek/chargeFragments.js"], server)
     ns.killall(server);
 
     const ram = ns.getServerMaxRam(server)
     const scriptRam = ns.getScriptRam("/stanek/chargeFragments.js", server);
 
     const threads = Math.floor(ram / scriptRam);
-    ns.exec("/stanek/chargeFragments.js", server, threads);
+    if (threads > 0) {
+        ns.exec("/stanek/chargeFragments.js", server, threads);
+    } else {
+        ns.toast(`Not boosting reputation from ${server} because it's not owned`)
+    }
 }

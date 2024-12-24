@@ -30,6 +30,9 @@ export async function main(ns: NS): Promise<void> {
 
 	await launchIfNotRunning(ns, "/react/newUiDashboard.js");
 
+	// Convert some of the captured servers to boosting Stanek
+	ns.run("/stanek/launchBoostReputation.js");
+
 	while(true) {
 		const scripts = [
 						// "/augment/completeBitnode.js" // This needs to be at the beginning, so it triggers before any restarts
