@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /// Sell hashes for the specified result - expected to be called regularly
 import {NS} from '@ns'
+import {add} from "lodash";
 
 export async function main(ns: NS): Promise<void> {
     await startGame(ns, Opponent.Netburners, 13);
@@ -74,8 +75,10 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
     const size = board[0].length;
     const isFirstMove = ! board.some(row => row.some(node => node.piece === 'X'));
 
-    // For the first move, go in one of the corners
-    if (isFirstMove) {
+    const moveCount: number = toBoard(board).join('').split('X').length - 1;
+
+    // For the first few moves, go in one of the corners
+    if (moveCount<4) {
         const max = board.length-1;
         const startingMoves = [board[2][2], board[max - 2][2], board[2][max - 2], board[max][max]];
         const validStartingMove = startingMoves.find(n => n.isValidMove);
@@ -90,12 +93,29 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
                 const adjacentNodes = getAdjacentNodes(node);
                 const vulnerableWhite = adjacentNodes.map(node => (node.liberties === 1 && node.owner === "white") ? 1000 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
                 const vulnerableBlack = adjacentNodes.map(node => (node.liberties === 1 && node.owner === "black") ? 1000 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
+
+                // For the first few moves, add a new node adjacent to the existing ones
+                let addingToExistingNodes = false;
+                const existingChainCount = chainsCount(ns, toBoard(board));
+                if (moveCount < 8) {
+                    const newBoard = copyRichBoard(board);
+                    newBoard[x][y] = { ...newBoard[x][y], piece: 'X' };
+                    const newChainsCount = chainsCount(ns, toBoard(newBoard));
+                    const newChainsLength = chainsLength(ns, toBoard(newBoard));
+                    const longestChainCount = Math.max(...newChainsLength);
+                    if (newChainsCount == existingChainCount && longestChainCount < 3) {
+                        addingToExistingNodes = true;
+                    }
+                }
+
                 const okayWhite = adjacentNodes.map(node => (node.liberties === 2 && node.owner === "white") ? 100 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
                 const okayBlack = adjacentNodes.map(node => (node.liberties === 2 && node.owner === "black") ? 100 * node.chainSize : 0).reduce((acc, curr) => acc + curr, 0);
                 const isPossiblyOwnEye = node.isEye=="black" || (node.isEmpty && node.isControlled=="black");
+                const isAddingToExistingNodes = addingToExistingNodes ? 500 : 0;
 
-                const score = vulnerableWhite +
-                    vulnerableBlack + okayWhite + okayBlack +
+                const score = vulnerableWhite + vulnerableBlack +
+                    okayWhite + okayBlack +
+                    isAddingToExistingNodes +
                     (isPossiblyOwnEye ? -1000 : 0);
                 const move: Move = [x, y];
                 if (score > 0) {
@@ -109,6 +129,26 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
         .sort((a, b) => b.score - a.score)
         .at(0) ?? null;
     return bestMove?.move ?? null;
+}
+
+function toBoard(board: RichBoard): string[] {
+    return board.map(row => row.map(n => n.piece).join(''));
+}
+
+const copyRichBoard = (board: RichNode[][]): RichNode[][] => {
+    return board.map(row => row.map(node => ({...node})));
+}
+
+function chainsCount(ns: NS, board: Board): number {
+    const countUnique = (chains: (number | null)[][]): number => new Set(chains.flat().filter((n): n is number => n !== null)).size;
+    return countUnique(ns.go.analysis.getChains(board));
+}
+
+function chainsLength(ns: NS, board: Board): number[] {
+    const boardWithChains = ns.go.analysis.getChains(board);
+    const counts = new Map<number, number>();
+    boardWithChains.flat().forEach(n => n !== null && counts.set(n, (counts.get(n) || 0) + 1));
+    return Array.from(counts.values());
 }
 
 function getRandomMove(ns: NS, board: Board, validMoves: ValidMoves): Move | null {
