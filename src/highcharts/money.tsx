@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {domDocument, domWindow, React, ReactDOM} from "@/react/libReact";
 import {MoneySource, NS} from "@ns";
-const { useState, useEffect } = React;
+
+const { useEffect } = React;
 
 function ChartHolder({ns, chartId, eventName}: { ns: NS, chartId: string, eventName: string }) {
     useEffect(() => {
@@ -52,14 +53,13 @@ function createChartData(ns: NS) {
         toDataEntry(parent, "Work", m.work),
     ].filter(o => o.value > 0);
 
-    const dataArray = [
+    return [
         {id: 'root', name: 'All money earned', value: 1, hideValue: true},
         toDataEntry('root', 'Current', moneySources.sinceInstall.total, 'current'),
         toDataEntry('root', 'In Bitnode', moneySources.sinceStart.total, 'all'),
         ...toDataArray(moneySources.sinceInstall, "current"),
         ...toDataArray(moneySources.sinceStart, "all"),
-    ]
-    return dataArray;
+    ];
 }
 
 function updateExistingChart(ns: NS, chartId: string) {
@@ -170,14 +170,15 @@ export function mountComponent(ns: NS, chartId: string, eventName: string): void
     });
 }
 
-export async function loadHighchartsLibrary(ns: NS) {
+export async function loadHighchartsLibrary(ns: NS): Promise<void> {
     if (([... domDocument.querySelectorAll('script[src*="highcharts"]')].length < 2)) {
-        ns.tprint("Loading highcharts.js");
+        ns.tprint("Attempting to load highcharts.js");
         const script = domDocument.createElement('script');
         script.src = "https://code.highcharts.com/highcharts.js";
         script.onload = () => console.log('Loaded highcharts.js');
         script.onerror = (e) => console.error('Failed to load highcharts.js:', e);
         domDocument.head.appendChild(script);
+        await ns.sleep(600);
 
         // https://code.highcharts.com/js/modules/sunburst.js
         // https://code.highcharts.com/modules/sunburst.js
@@ -189,6 +190,6 @@ export async function loadHighchartsLibrary(ns: NS) {
         domDocument.head.appendChild(script2);
 
         // Give the JS time to load - calling too soon will fail
-        await ns.sleep(1000);
+        await ns.sleep(500);
     }
 }
