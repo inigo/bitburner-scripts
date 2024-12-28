@@ -63,6 +63,7 @@ async function launchAttacks(ns: NS, isWeakenOnly: boolean): Promise<void> {
 		if (hackCount < targetHackCount && !isWeakenOnly) {
 			ns.print("Launching hack on "+s);
 			const threadsToLaunch = Math.floor(freeMemory / hackRam);
+			if (threadsToLaunch<1) { continue; }
 			ns.exec("/spread/spreadHack.js", s, threadsToLaunch, uniqueId());
 			hackCount++;
 			continue;			
