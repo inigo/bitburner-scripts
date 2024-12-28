@@ -4,12 +4,17 @@ import {manuallyConnectTo} from "@/basic/installBackdoors";
 /// Complete the bitnode (if the requirements have been met, and automatically start the next iteration of BN 12
 
 export async function main(ns : NS) : Promise<void> {
+    // Before the Red Pill is available, it's not possible to find world daemon, so the rest would fail
+    const hasRedPill = ns.singularity.getOwnedAugmentations(true).includes("The Red Pill");
+    ns.print("Don't have Red Pill, so cannot check world daemon")
+    if (!hasRedPill) { return }
+
     const requiredHacking = ns.getBitNodeMultipliers().WorldDaemonDifficulty * 3000;
     const currentHacking = ns.getPlayer().skills.hacking;
-    const hasRedPill = ns.singularity.getOwnedAugmentations(true).includes("The Red Pill");
     const enoughPortsOpen = ns.getServer("w0r1d_d43m0n").openPortCount == 5;
 
     if (hasRedPill && enoughPortsOpen && currentHacking >= requiredHacking) {
+        ns.tprint("Hacking World Daemon!");
         ns.run("/reporting/logProgress.js", 1, "completeBitnode")
         await manuallyConnectTo(ns, "w0r1d_d43m0n");
         await ns.singularity.installBackdoor();
