@@ -35,8 +35,8 @@ export async function main(ns: NS): Promise<void> {
 
 	while(true) {
 		const scripts = [
-						// "/augment/completeBitnode.js" // This needs to be at the beginning, so it triggers before any restarts
-						"/basic/upgradeMemory.js"
+						"/augment/completeBitnode.js" // This needs to be at the beginning, so it triggers before any restarts
+						, "/basic/upgradeMemory.js"
 						, "/basic/buyCracks.js"
 						, "/basic/crackAll.js" 
 						, "/spread/spreadAttackController.js"

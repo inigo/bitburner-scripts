@@ -1,6 +1,5 @@
-import { NS } from '@ns'
-import { manuallyConnectTo } from "@/basic/installBackdoors"; 
-import { listSleeves, travelTo } from "@/sleeve/libSleeve";
+import {NS} from '@ns'
+import {manuallyConnectTo} from "@/basic/installBackdoors";
 
 /// Complete the bitnode (if the requirements have been met, and automatically start the next iteration of BN 12
 
@@ -11,11 +10,7 @@ export async function main(ns : NS) : Promise<void> {
     const enoughPortsOpen = ns.getServer("w0r1d_d43m0n").openPortCount == 5;
 
     if (hasRedPill && enoughPortsOpen && currentHacking >= requiredHacking) {
-
         ns.run("/reporting/logProgress.js", 1, "completeBitnode")
-
-        // Work round the current bug that sleeves don't reset location when starting a new Bitnode - can remove once that is deployed
-        listSleeves(ns).forEach(s => travelTo(ns, s, "Sector-12"));
         await manuallyConnectTo(ns, "w0r1d_d43m0n");
         await ns.singularity.installBackdoor();
 
@@ -26,33 +21,18 @@ export async function main(ns : NS) : Promise<void> {
 
 function startNewNode() {
     const doc = eval("document");
-
     // Click on the link for Bitnode 12
-    [... doc.querySelectorAll("span")].map(f => getReactProps(f)).filter(e => e).filter( e => e.onClick)[4].onClick();
+    doc.querySelector("button[aria-label*='BitNode-12']").click();
     // Press the Enter button
-    doc.querySelector("button").click();
+    doc.querySelector("button[aria-label*='enter']").click();
     // Bootstrap in the new Bitnode 
     window.setTimeout(() => runTerminalCommand("run bootstrap.js"), 1000);
 }
 
-function runTerminalCommand(command: string) {
+export function runTerminalCommand(command: string): void {
     const doc = eval("document");
     const terminalInput = doc.getElementById("terminal-input");
-    terminalInput.value= command;
     const handler = Object.keys(terminalInput)[1];
-    terminalInput[handler].onChange({target:terminalInput});
-    terminalInput[handler].onKeyDown({keyCode:13,preventDefault:()=>null});
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getReactFiber(element: HTMLElement) {
-    const key = Object.keys(element).find(key => key.startsWith("__reactFiber")) as string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (element as Record<string, any>)[key];
-}
-
-function getReactProps(element: HTMLElement) {
-    const key = Object.keys(element).find(key => key.startsWith("__reactProps")) as string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (element as Record<string, any>)[key];
+    terminalInput[handler].onChange({ target: { value: command } });
+    terminalInput[handler].onKeyDown({ key: 'Enter', preventDefault: () => null });
 }
