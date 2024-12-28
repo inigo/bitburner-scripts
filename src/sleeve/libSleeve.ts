@@ -52,6 +52,13 @@ export function commitCrime(ns: NS, sleeveNo: SleeveNo): void {
 	ns.sleeve.setToCommitCrime(sleeveNo, crime);
 }
 
+export function commitMurder(ns: NS, sleeveNo: SleeveNo): void {
+	const crime = "Homicide";
+	const task = ns.sleeve.getTask(sleeveNo);
+	if (task && task.type=="CRIME" && task.crimeType===crime) return;
+	ns.sleeve.setToCommitCrime(sleeveNo, crime);
+}
+
 export function recoverShock(ns: NS, sleeveNo: SleeveNo): void {
 	const task = ns.sleeve.getTask(sleeveNo);
 	if (task && task.type=="RECOVERY") return;

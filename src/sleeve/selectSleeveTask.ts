@@ -4,7 +4,7 @@ import {
     listSleeves, getMeanCombatStat, getLowestPlayerCombatStat, getOrderedCombatStats,
     workout, travelTo, commitCrime, recoverShock, studyCs,
     retrieveSleeveInstructions,
-    reportSleeveTasks, SleeveNo, CombatStats, statToGymType
+    reportSleeveTasks, SleeveNo, CombatStats, statToGymType, commitMurder
 } from "@/sleeve/libSleeve";
 
 /**
@@ -30,7 +30,7 @@ export async function main(ns : NS) : Promise<void> {
     const anyVeryShocked = sleeveStats.some(ss => ss.shock > 96);
     const playerHackVeryLow = ns.getPlayer().skills.hacking < 20;
     const playerHackLow = ns.getPlayer().skills.hacking < 100;
-    const sleevesUntrained = sleeves.map(s => getMeanCombatStat(ns, s)).some(combat => combat < 90);
+    const sleevesUntrained = sleeves.map(s => getMeanCombatStat(ns, s)).some(combat => combat < 40);
     const tooMuchKarma = ns.heart.break() > -54000;
     const notYetInGang = ! ns.gang.inGang();
     const playerStatsTooLowForGang = getLowestPlayerCombatStat(ns).value < 75;
@@ -44,13 +44,12 @@ export async function main(ns : NS) : Promise<void> {
         ns.print("Player hacking level is too low - helping to train it");
         sleeves.forEach(i => studyCs(ns, i));
     } else if (sleevesUntrained) {
-        // @todo Homicide is affected 4 times as much by strength and defence, as by agility and dexterity - so we should train those stats preferentially
         ns.print("Sleeves are not buff enough - training them so they can commit crimes well");
         if (enoughMoneyForTravelling) { sleeves.forEach(i => travelTo(ns, i, "Sector-12")); }
-        trainCombat(ns, sleeves);
+        trainForMurder(ns, sleeves);
     } else if (tooMuchKarma) {
         ns.print("Not able to start a gang yet, so committing crimes");
-        sleeves.forEach(i => commitCrime(ns, i));
+        sleeves.forEach(i => commitMurder(ns, i));
     } else if (notYetInGang && playerStatsTooLowForGang) {
         ns.print("Able to start a gang, but haven't because player stats are too low for faction - training for the player stats");
         if (enoughMoneyForTravelling) { sleeves.forEach(i => travelTo(ns, i, "Sector-12")); }
@@ -97,6 +96,7 @@ export async function main(ns : NS) : Promise<void> {
     await reportSleeveTasks(ns);
 }
 
+// noinspection JSUnusedLocalSymbols
 function trainCombat(ns: NS, sleeves: SleeveNo[]): void {
     // Assume the last sleeve has representative stats (the first sleeve may not, because it might be augmented)
     const lastSleeve = sleeves.at(-1) !;
@@ -110,6 +110,16 @@ function trainCombat(ns: NS, sleeves: SleeveNo[]): void {
 	}
 }
 
+// Train Sleeve stats to be best for murder -
+function trainForMurder(ns: NS, sleeves: SleeveNo[]): void {
+    // Strength and Defense are four times as important as Agility and Dexterity.
+    const weightedStats = [ "Agility", "Dexterity", "Defense", "Defense", "Defense", "Defense", "Strength", "Strength", "Strength", "Strength" ];
+	for (const i of sleeves) {
+		const statToTrain = randomOf(weightedStats);
+		workout(ns, i, statToGymType(statToTrain));
+	}
+}
+
 function workForFaction(ns: NS, sleeveNo: SleeveNo, faction: string): void {
     const preferHacking = getMeanCombatStat(ns, sleeveNo) > ns.sleeve.getSleeve(sleeveNo).skills.hacking;
     const preferredTasks = preferHacking ? [ "hacking", "security", "field" ] : [ "security", "field", "hacking" ];
@@ -119,3 +129,6 @@ function workForFaction(ns: NS, sleeveNo: SleeveNo, faction: string): void {
         if (ns.sleeve.setToFactionWork(sleeveNo, faction, task as FactionWorkType)) break;
     }    
 }
+
+function randomOf(vals: string[]): string { return vals.at(random(vals.length)) !; }
+function random(max: number) { return Math.floor(Math.random()*max); }
