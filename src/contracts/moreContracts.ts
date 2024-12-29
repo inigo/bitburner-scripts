@@ -469,3 +469,49 @@ export function uniquePathsInGridII(ns: NS, data: number[][]): number {
 
     return dp[rows-1][cols-1];
 }
+
+export function encodedBinaryToInteger(ns: NS, data: string): number {
+    // Convert string to array of bits
+    const bits = data.split('').map(Number);
+    const len = bits.length;
+
+    // Check all parity bits
+    let errorPosition = 0;
+    let position = 1;
+    while (position < len) {
+        let parity = 0;
+        for (let i = position; i < len; i++) {
+            if ((i & position) !== 0) {
+                parity ^= bits[i];
+            }
+        }
+        if (parity !== 0) {
+            errorPosition += position;
+        }
+        position <<= 1;
+    }
+
+    // Check overall parity
+    let totalParity = 0;
+    for (let i = 0; i < len; i++) {
+        totalParity ^= bits[i];
+    }
+
+    // If error detected, correct it
+    if (errorPosition !== 0 || totalParity !== 0) {
+        if (errorPosition < len) {
+            bits[errorPosition] ^= 1;  // Flip the erroneous bit
+        }
+    }
+
+    // Extract data bits (skip parity bits)
+    let result = 0;
+
+    for (let i = 1; i < len; i++) {
+        if ((i & (i - 1)) !== 0) {  // If i is not a power of 2
+            result = (result << 1) | bits[i];
+        }
+    }
+
+    return result;
+}

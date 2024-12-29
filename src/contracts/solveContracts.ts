@@ -15,7 +15,7 @@ import {
 	solveShortestPathInGrid,
 	solveTwoColoring,
 	solveTotalWaysToSumOne,
-	uniquePathsInGridII
+	uniquePathsInGridII, encodedBinaryToInteger
 } from "@/contracts/moreContracts";
 
 export async function main(ns: NS): Promise<void> {
@@ -59,6 +59,7 @@ export function solveContract(ns: NS, contract: Contract): void {
 		, ["Shortest Path in a Grid", (input: string) => solveShortestPathInGrid(ns, input)]
 		, ["Proper 2-Coloring of a Graph", (input: any) => solveTwoColoring(ns, input)]
 		, ["Unique Paths in a Grid II", (input: any) => uniquePathsInGridII(ns, input)]
+		, ["HammingCodes: Encoded Binary to Integer", (input: any) => encodedBinaryToInteger(ns, input)]
 
 		, ["Algorithmic Stock Trader I", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 1) ]
 		, ["Algorithmic Stock Trader II", (input: number[]) => solveAlgorithmicStockTrader(ns, input, 20) ]
