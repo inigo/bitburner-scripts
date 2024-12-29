@@ -410,3 +410,62 @@ export function solveTwoColoring(ns: NS, data: any): string {
 
     return `[${colors.join(',')}]`;
 }
+
+export function totalWaysToSumOne(ns: NS, data: number): number {
+    // Array to store the number of ways to make each sum
+    const ways: number[] = new Array(data + 1).fill(0);
+    ways[0] = 1;  // Base case: one way to make sum of 0 (empty sum)
+
+    // For each number from 1 to n
+    for (let i = 1; i < data; i++) {
+        // For each sum from i to n
+        for (let j = i; j <= data; j++) {
+            ways[j] += ways[j - i];
+        }
+    }
+
+    // Return the total number of ways minus 1 (to exclude the single number itself)
+    return ways[data];
+}
+
+export function uniquePathsInGridII(ns: NS, data: number[][]): number {
+    if (!data || data.length === 0 || data[0].length === 0) return 0;
+
+    const rows = data.length;
+    const cols = data[0].length;
+
+    // If start or end point is blocked, return 0
+    if (data[0][0] === 1 || data[rows-1][cols-1] === 1) return 0;
+
+    // Initialize dp array with 0s
+    const dp: number[][] = Array(rows).fill(0)
+        .map(() => Array(cols).fill(0));
+
+    // Initialize first position
+    dp[0][0] = 1;
+
+    // Initialize first row
+    for (let j = 1; j < cols; j++) {
+        if (data[0][j] === 0) {
+            dp[0][j] = dp[0][j-1];
+        }
+    }
+
+    // Initialize first column
+    for (let i = 1; i < rows; i++) {
+        if (data[i][0] === 0) {
+            dp[i][0] = dp[i-1][0];
+        }
+    }
+
+    // Fill dp array
+    for (let i = 1; i < rows; i++) {
+        for (let j = 1; j < cols; j++) {
+            if (data[i][j] === 0) {
+                dp[i][j] = dp[i-1][j] + dp[i][j-1];
+            }
+        }
+    }
+
+    return dp[rows-1][cols-1];
+}
