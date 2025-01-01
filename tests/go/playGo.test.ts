@@ -1,6 +1,6 @@
 import {NS} from '@ns'
 import { describe, expect, test, jest } from '@jest/globals';
-import {evaluateBoard, getChains} from "@/go/playGo";
+import {evaluateBoard, getChains, getLibertyCounts} from "@/go/playGo";
 
 type Board = string[];
 
@@ -170,6 +170,73 @@ describe('getChains', () => {
         expect(getChains(board)).toEqual([
             [0, 0, 0],
             [0, null, 0],
+            [0, 0, 0]
+        ]);
+    });
+});
+
+describe('getLibertyCounts', () => {
+    test('empty board', () => {
+        const board = [
+            '...',
+            '...',
+            '...'
+        ];
+        expect(getLibertyCounts(board)).toEqual([
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ]);
+    });
+
+    test('single stone', () => {
+        const board = [
+            '.O.',
+            '...',
+            '...'
+        ];
+        expect(getLibertyCounts(board)).toEqual([
+            [0, 3, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ]);
+    });
+
+    test('chain with shared liberties', () => {
+        const board = [
+            'OO.',
+            '...',
+            '...'
+        ];
+        expect(getLibertyCounts(board)).toEqual([
+            [3, 3, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ]);
+    });
+
+    test('surrounded piece', () => {
+        const board = [
+            '.X.',
+            'XOX',
+            '.X.'
+        ];
+        expect(getLibertyCounts(board)).toEqual([
+            [0, 2, 0],
+            [2, 0, 2],
+            [0, 2, 0]
+        ]);
+    });
+
+    test('dead nodes', () => {
+        const board = [
+            '.#.',
+            '#O#',
+            '.#.'
+        ];
+        expect(getLibertyCounts(board)).toEqual([
+            [0, 0, 0],
+            [0, 0, 0],
             [0, 0, 0]
         ]);
     });

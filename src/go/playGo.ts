@@ -44,12 +44,76 @@ export async function startGame(ns: NS, opponent: Opponent, boardSize: (5 | 7 | 
     return score;
 }
 
-export function getChains(boardState: Board): (number | null)[][] {
-    const pieces: Piece[][] = boardState.map(line => Array.from(line) as Piece[]);
+type Liberties = Position[]
 
-    const height = pieces.length;
-    const width = pieces[0].length;
-    const result: (number | null)[][] = Array(height).fill(null).map(() => Array(width).fill(undefined));
+function flattenWithPositions(values: (number | null)[][]): ValueWithPosition[] {
+    return values.flatMap((row, x) =>
+        row.map((value, y) => ({ value, position: { x, y } })));
+}
+
+function makeDistinct<A>(positions: A[]): A[] {
+    // Objects cannot be Set keys, and Map keys are compared by reference, so this makes distinct by value
+    return Array.from(new Set(positions.map(p => JSON.stringify(p)))).map(str => JSON.parse(str));
+}
+
+export function getLibertyDetailsFromPieces(pieces: Piece[][]): (Liberties)[][] {
+    const chains = getChainsFromPieces(pieces);
+    const maxChainId = Math.max(...chains.flat().filter(id => id !== null) as number[]);
+
+    const flattenedChains = flattenWithPositions(chains);
+    const chainLiberties: Liberties[] = Array(maxChainId+1).fill(undefined);
+    for (let i = 0; i < chainLiberties.length; i++) {
+        const positionsInChain = flattenedChains.filter(c => c.value == i).map(c => c.position);
+        const owner = pieces[positionsInChain[0].x][positionsInChain[0].y];
+        if (owner=='.' || owner=='#') {
+            chainLiberties[i] = [];
+            continue;
+        }
+        const adjacentPositions = positionsInChain.flatMap(p => getAdjacentPositions(pieces, p.x, p.y));
+        const adjacentPositionsExcludingOriginal = adjacentPositions.filter(p => !positionsInChain.some(r => r.x === p.x && r.y === p.y));
+        const uniqueAdjacentPositions = makeDistinct(adjacentPositionsExcludingOriginal);
+        chainLiberties[i] = uniqueAdjacentPositions.filter(p => pieces[p.x][p.y] == '.');
+    }
+
+    const size = pieces.length;
+    const result: (Liberties)[][] = Array(size).fill(undefined).map(() => Array(size).fill(undefined));
+    pieces.forEach((row, x) =>
+        row.forEach((piece, y) => {
+            if (piece === '#') {
+                result[x][y] = [];
+            } else {
+                const chainId = chains[x][y];
+                result[x][y] = chainId!=null ? chainLiberties[chainId] : [];
+            }
+        })
+    );
+
+    return result;
+}
+
+export function getLibertyCounts(board: Board): number[][] {
+    return getLibertyCountsFromPieces(toPieces(board));
+}
+
+export function getLibertyCountsFromPieces(pieces: Piece[][]): number[][] {
+    const libertyDetails = getLibertyDetailsFromPieces(pieces);
+    return pieces.map((row, x) =>
+        row.map((piece, y) => libertyDetails[x][y]?.length ?? -1)
+    );
+}
+
+function toPieces(board: Board): Piece[][] {
+    return board.map(line => Array.from(line) as Piece[]);
+}
+
+export function getChains(boardState: Board): (number | null)[][] {
+    const pieces = toPieces(boardState);
+    return getChainsFromPieces(pieces);
+}
+
+export function getChainsFromPieces(pieces: Piece[][]): (number | null)[][] {
+    const size = pieces.length;
+    const result: (number | null)[][] = Array(size).fill(undefined).map(() => Array(size).fill(undefined));
     let nextId = 0;
 
     function flood(p: Position, originalPiece: Piece, id: number) {
@@ -65,26 +129,21 @@ export function getChains(boardState: Board): (number | null)[][] {
         }
     }
 
-    for (let x = 0; x < height; x++) {
-        for (let y = 0; y < width; y++) {
-            if (pieces[x][y] === '#') {
+    pieces.forEach((row, x) =>
+        row.forEach((piece, y) => {
+            if (piece === '#') {
                 result[x][y] = null;
-            }
-        }
-    }
-
-    for (let x = 0; x < height; x++) {
-        for (let y = 0; y < width; y++) {
-            if (result[x][y] === undefined && pieces[x][y] !== '#') {
+            } else if (result[x][y] === undefined && pieces[x][y] !== '#') {
                 flood({x, y}, pieces[x][y], nextId++);
             }
-        }
-    }
+        })
+    );
 
     return result;
 }
 
 type Position = { x: number; y: number };
+type ValueWithPosition = { value: number | null, position: Position }
 
 function getAdjacentPositions(pieces: Piece[][], x: number, y: number): Position[] {
     // if original position is outside board, then nothing adjacent
@@ -233,7 +292,7 @@ function newBoardState(ns: NS, board: Board, move: Move): Board {
 }
 
 function toRichBoard(ns: NS, board: Board): RichBoard {
-    const liberties = ns.go.analysis.getLiberties(board);
+    const liberties = getLibertyCounts(board);
     const chains = getChains(board);
     const validMoves = ns.go.analysis.getValidMoves(board);
     const controlledEmptyNodes = ns.go.analysis.getControlledEmptyNodes(board);
