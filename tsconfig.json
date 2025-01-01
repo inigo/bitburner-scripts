@@ -3,6 +3,7 @@
     "NetscriptDefinitions.d.ts",
     "global.d.ts",
     "src/**/*",
+    "tests/**/*",
   ],
   "compilerOptions": {
     "module": "esnext",
@@ -18,6 +19,8 @@
     "rootDir": "src/",
     "outDir": "dist/",
     "baseUrl": ".",
+    "types": ["jest", "node", "react"],
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["src/*"],
       "/src/*": ["src/*"],

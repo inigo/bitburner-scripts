@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /// Sell hashes for the specified result - expected to be called regularly
 import {NS} from '@ns'
-import {add} from "lodash";
 
 export async function main(ns: NS): Promise<void> {
     await startGame(ns, Opponent.Netburners, 13);
@@ -9,6 +8,9 @@ export async function main(ns: NS): Promise<void> {
 
 export async function startGame(ns: NS, opponent: Opponent, boardSize: (5 | 7 | 9 | 13) ): Promise<number> {
     ns.go.resetBoardState(opponent, boardSize);
+
+    // @todo Useful to have while debugging
+    await ns.sleep(5000);
 
     let turnsOpponentPassed = 0;
 
@@ -40,6 +42,57 @@ export async function startGame(ns: NS, opponent: Opponent, boardSize: (5 | 7 | 
     ns.toast("Game finished: " + scoreText);
     ns.print("Game finished: " + scoreText);
     return score;
+}
+
+export function getChains(boardState: Board): (number | null)[][] {
+    const pieces: Piece[][] = boardState.map(line => Array.from(line) as Piece[]);
+
+    const height = pieces.length;
+    const width = pieces[0].length;
+    const result: (number | null)[][] = Array(height).fill(null).map(() => Array(width).fill(undefined));
+    let nextId = 0;
+
+    function flood(p: Position, originalPiece: Piece, id: number) {
+        if (result[p.x][p.y] !== undefined) return;
+        const piece = pieces[p.x][p.y];
+        if (piece=='#') {
+            result[p.x][p.y] = null;
+        } else if (piece!=originalPiece) {
+            return;
+        } else {
+            result[p.x][p.y] = id;
+            getAdjacentPositions(pieces, p.x, p.y).map(p => flood(p, originalPiece, id));
+        }
+    }
+
+    for (let x = 0; x < height; x++) {
+        for (let y = 0; y < width; y++) {
+            if (pieces[x][y] === '#') {
+                result[x][y] = null;
+            }
+        }
+    }
+
+    for (let x = 0; x < height; x++) {
+        for (let y = 0; y < width; y++) {
+            if (result[x][y] === undefined && pieces[x][y] !== '#') {
+                flood({x, y}, pieces[x][y], nextId++);
+            }
+        }
+    }
+
+    return result;
+}
+
+type Position = { x: number; y: number };
+
+function getAdjacentPositions(pieces: Piece[][], x: number, y: number): Position[] {
+    // if original position is outside board, then nothing adjacent
+    if (pieces[x]?.[y] === undefined) { return []; }
+    const potentialPositions = [ { x: x-1, y: y }, { x: x+1, y: y }, { x: x, y: y+1 }, { x: x, y: y-1 } ];
+
+    const isValidPosition = (p: Position) => pieces[p.x]?.[p.y] && pieces[p.x][p.y] !== '#';
+    return potentialPositions.filter(isValidPosition);
 }
 
 function selectMove(ns: NS, board: Board): Move | null {
@@ -77,10 +130,10 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
 
     const moveCount: number = toBoard(board).join('').split('X').length - 1;
 
-    // For the first few moves, go in one of the corners
+    // For the first few moves, go near one of the corners
     if (moveCount<4) {
         const max = board.length-1;
-        const startingMoves = [board[2][2], board[max - 2][2], board[2][max - 2], board[max][max]];
+        const startingMoves = [board[2][2], board[max - 2][2], board[2][max - 2], board[max - 2][max - 2]];
         const validStartingMove = startingMoves.find(n => n.isValidMove);
         if (validStartingMove) { return [validStartingMove.x, validStartingMove.y] }
     }
@@ -96,12 +149,12 @@ function getReasonableMove(ns: NS, board: RichBoard): Move | null {
 
                 // For the first few moves, add a new node adjacent to the existing ones
                 let addingToExistingNodes = false;
-                const existingChainCount = chainsCount(ns, toBoard(board));
+                const existingChainCount = myChainsCount(ns, board);
                 if (moveCount < 8) {
                     const newBoard = copyRichBoard(board);
-                    newBoard[x][y] = { ...newBoard[x][y], piece: 'X' };
-                    const newChainsCount = chainsCount(ns, toBoard(newBoard));
-                    const newChainsLength = chainsLength(ns, toBoard(newBoard));
+                    newBoard[x][y] = { ...newBoard[x][y], piece: 'X', owner: "black" };
+                    const newChainsCount = myChainsCount(ns, newBoard);
+                    const newChainsLength = myChainsLength(ns, newBoard);
                     const longestChainCount = Math.max(...newChainsLength);
                     if (newChainsCount == existingChainCount && longestChainCount < 3) {
                         addingToExistingNodes = true;
@@ -139,15 +192,14 @@ const copyRichBoard = (board: RichNode[][]): RichNode[][] => {
     return board.map(row => row.map(node => ({...node})));
 }
 
-function chainsCount(ns: NS, board: Board): number {
-    const countUnique = (chains: (number | null)[][]): number => new Set(chains.flat().filter((n): n is number => n !== null)).size;
-    return countUnique(ns.go.analysis.getChains(board));
+function myChainsCount(ns: NS, board: RichBoard): number {
+    return new Set(board.flat().filter(n => n.owner == "black" && n.chainId != null).map(n => n.chainId)).size;
 }
 
-function chainsLength(ns: NS, board: Board): number[] {
-    const boardWithChains = ns.go.analysis.getChains(board);
+function myChainsLength(ns: NS, board: RichBoard): number[] {
+    const chains = board.flat().filter(n => n.owner == "black" && n.chainId != null);
     const counts = new Map<number, number>();
-    boardWithChains.flat().forEach(n => n !== null && counts.set(n, (counts.get(n) || 0) + 1));
+    chains.forEach(n => counts.set(n.chainId!, (n.chainSize || 0) + 1));
     return Array.from(counts.values());
 }
 
@@ -182,7 +234,7 @@ function newBoardState(ns: NS, board: Board, move: Move): Board {
 
 function toRichBoard(ns: NS, board: Board): RichBoard {
     const liberties = ns.go.analysis.getLiberties(board);
-    const chains = ns.go.analysis.getChains(board);
+    const chains = getChains(board);
     const validMoves = ns.go.analysis.getValidMoves(board);
     const controlledEmptyNodes = ns.go.analysis.getControlledEmptyNodes(board);
     const richNodes: RichNode[][] = Array(board.length).fill(null).map(() =>
@@ -208,7 +260,7 @@ function toRichBoard(ns: NS, board: Board): RichBoard {
     return richNodes;
 }
 
-function evaluateBoard(ns: NS, board: Board): number {
+export function evaluateBoard(ns: NS, board: Board): number {
 
     // @todo This is a simple count. Better to work out eyes, and weight safely-owned spaces higher
 
@@ -252,10 +304,13 @@ type ScoredMove = {
     move: Move
 }
 
+type Owner = "black" | "white" | "empty" | "dead";
+type Piece = "X" | "O" | "." | "#";
+
 type RichNode = {
     x: number;
     y: number;
-    owner: "black" | "white" | "empty" | "dead";
+    owner: Owner;
     liberties: number;
     chainId: number | null;
     chainSize: number;
@@ -264,7 +319,7 @@ type RichNode = {
     isEmpty: boolean;
     isControlled: "black" | "white" | "no" | "dead";
     isEye: "black" | "white" | "no" | "dead" | "unknown" ; // @todo Remove unknown once we know
-    piece: "X" | "O" | "." | "#";
+    piece: Piece;
 };
 
 export enum Opponent {
