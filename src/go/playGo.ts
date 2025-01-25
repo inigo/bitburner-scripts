@@ -10,7 +10,7 @@ export async function startGame(ns: NS, opponent: Opponent, boardSize: (5 | 7 | 
     ns.go.resetBoardState(opponent, boardSize);
 
     // @todo Useful to have while debugging
-    await ns.sleep(5000);
+    // await ns.sleep(5000);
 
     let turnsOpponentPassed = 0;
 
@@ -65,6 +65,7 @@ export function getLibertyDetailsFromPieces(pieces: Piece[][]): (Liberties)[][] 
     for (let i = 0; i < chainLiberties.length; i++) {
         const positionsInChain = flattenedChains.filter(c => c.value == i).map(c => c.position);
         const owner = pieces[positionsInChain[0].x][positionsInChain[0].y];
+        // @todo Still need liberties for empty spaces, because needed when checking for valid moves
         if (owner=='.' || owner=='#') {
             chainLiberties[i] = [];
             continue;
@@ -319,6 +320,50 @@ function toRichBoard(ns: NS, board: Board): RichBoard {
     return richNodes;
 }
 
+// export function isValidMove(pieces: Piece[][], pieceToPlay: Play, position: Position, previousPieces?: Piece[][]): boolean {
+//         const pointToPlay = pieces[position.x][position.y];
+//         const liberty = getLibertyCountsFromPieces();
+//
+//         if (pointToPlay!='.') return false;
+//
+//         let possibleRepeat = false;
+//         if (previousPieces) {
+//             // @todo Should check whether this repeats the previous state
+//             possibleRepeat = false;
+//         }
+//
+//             // If the current point has some adjacent open spaces, it is not suicide. If the move is not repeated, it is legal
+//             const liberties = findAdjacentLibertiesForPoint(boardState.board, x, y);
+//             const hasLiberty = liberties.north || liberties.east || liberties.south || liberties.west;
+//             if (!possibleRepeat && hasLiberty) {
+//                 return GoValidity.valid;
+//             }
+//
+//             // If a connected friendly chain has more than one liberty, the move is not suicide. If the move is not repeated, it is legal
+//             const neighborChainLibertyCount = findMaxLibertyCountOfAdjacentChains(boardState, x, y, player);
+//             if (!possibleRepeat && neighborChainLibertyCount > 1) {
+//                 return GoValidity.valid;
+//             }
+//
+//             // If there is any neighboring enemy chain with only one liberty, and the move is not repeated, it is valid,
+//             // because it would capture the enemy chain and free up some liberties for itself
+//             const potentialCaptureChainLibertyCount = findMinLibertyCountOfAdjacentChains(
+//                 boardState.board,
+//                 x,
+//                 y,
+//                 player === GoColor.black ? GoColor.white : GoColor.black,
+//             );
+//             if (!possibleRepeat && potentialCaptureChainLibertyCount < 2) {
+//                 return GoValidity.valid;
+//             }
+//
+//             // If there is no direct liberties for the move, no captures, and no neighboring friendly chains with multiple liberties,
+//             // the move is not valid because it would suicide the piece
+//             if (!hasLiberty && potentialCaptureChainLibertyCount >= 2 && neighborChainLibertyCount <= 1) {
+//                 return GoValidity.noSuicide;
+//             }
+// }
+
 export function evaluateBoard(ns: NS, board: Board): number {
 
     // @todo This is a simple count. Better to work out eyes, and weight safely-owned spaces higher
@@ -365,6 +410,7 @@ type ScoredMove = {
 
 type Owner = "black" | "white" | "empty" | "dead";
 type Piece = "X" | "O" | "." | "#";
+type Play = "X" | "O";
 
 type RichNode = {
     x: number;
