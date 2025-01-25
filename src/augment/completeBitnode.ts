@@ -20,7 +20,7 @@ export async function main(ns : NS) : Promise<void> {
         await ns.singularity.installBackdoor();
 
         // Gives some time for the "Bitnode completed" scroll to complete
-        window.setTimeout(() => startNewNode(), 12_000);        
+        window.setTimeout(() => startNewNode(), 30_000);
     }
 }
 
@@ -31,7 +31,7 @@ function startNewNode() {
     // Press the Enter button
     doc.querySelector("button[aria-label*='enter']").click();
     // Bootstrap in the new Bitnode 
-    window.setTimeout(() => runTerminalCommand("run bootstrap.js"), 1000);
+    window.setTimeout(() => runTerminalCommand("run bootstrap.js"), 2000);
 }
 
 export function runTerminalCommand(command: string): void {
