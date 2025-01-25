@@ -1,0 +1,99 @@
+[
+  {
+    "name": "hackingSkill",
+    "id": 1,
+    "x": 5,
+    "y": 2,
+    "rotation": 0
+  },
+  {
+    "name": "hackingSkill",
+    "id": 0,
+    "x": 2,
+    "y": 4,
+    "rotation": 0
+  },
+  {
+    "name": "boost",
+    "id": 101,
+    "x": 4,
+    "y": 3,
+    "rotation": 1
+  },
+  {
+    "name": "reputation",
+    "id": 25,
+    "x": 4,
+    "y": 0,
+    "rotation": 1
+  },
+  {
+    "name": "hackGrowWeakenSpeed",
+    "id": 5,
+    "x": 0,
+    "y": 3,
+    "rotation": 2
+  },
+  {
+    "name": "boost",
+    "id": 106,
+    "x": 6,
+    "y": 4,
+    "rotation": 0
+  },
+  {
+    "name": "growPower",
+    "id": 7,
+    "x": 7,
+    "y": 2,
+    "rotation": 3
+  },
+  {
+    "name": "hackPower",
+    "id": 6,
+    "x": 3,
+    "y": 7,
+    "rotation": 2
+  },
+  {
+    "name": "hacknetCost",
+    "id": 21,
+    "x": 7,
+    "y": 6,
+    "rotation": 2
+  },
+  {
+    "name": "hacknetProduction",
+    "id": 20,
+    "x": 0,
+    "y": 0,
+    "rotation": 3
+  },
+  {
+    "name": "boost",
+    "id": 101,
+    "x": 5,
+    "y": 0,
+    "rotation": 2
+  },
+  {
+    "name": "boost",
+    "id": 104,
+    "x": 0,
+    "y": 5,
+    "rotation": 3
+  },
+  {
+    "name": "boost",
+    "id": 104,
+    "x": 1,
+    "y": 1,
+    "rotation": 3
+  },
+  {
+    "id": 10,
+    "x": 1,
+    "y": 0,
+    "rotation": 0
+  }
+]
