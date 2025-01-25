@@ -123,6 +123,7 @@ function getNeurofluxFaction(ns: NS): (string | null) {
     const gangFaction = getGangFaction(ns);
     const factions = ns.getPlayer().factions
         .filter(f => f!=gangFaction)
+        .filter(f => f!="Church of the Machine God")
         .sort((a, b) => ns.singularity.getFactionRep(a) - ns.singularity.getFactionRep(b))
         .reverse();
     return factions.at(0)  ?? null;
