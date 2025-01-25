@@ -26,6 +26,7 @@ export async function main(ns: NS): Promise<void> {
     const goal = getGoal(ns);
     const doNotRestart = checkPort(ns, DO_NOT_RESTART) !== null;
     if (doNotRestart && !force) {
+        await reportAugInfo(ns, []);
         ns.toast("Not buying augments, because DO_NOT_RESTART is set")
         return;
     }
