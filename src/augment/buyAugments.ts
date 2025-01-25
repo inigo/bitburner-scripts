@@ -14,6 +14,8 @@ import { retrieveCompanyStatus } from "@/corp/libCorporation";
 import { fmt } from "@/libFormat";
 import { say } from "@/speech/libSpeech"
 import {getGoal, Goal} from "@/goal/libGoal";
+import { NS } from '@ns'
+import {checkPort, DO_NOT_RESTART} from "@/libPorts";
 
 /// Buy available augmentations, as efficiently as possible, and then trigger a restart
 
@@ -22,6 +24,11 @@ export async function main(ns: NS): Promise<void> {
 
     const force = (ns.args.includes("force"));
     const goal = getGoal(ns);
+    const doNotRestart = checkPort(ns, DO_NOT_RESTART) !== null;
+    if (doNotRestart && !force) {
+        ns.tprint("Not buying augments, because DO_NOT_RESTART is set")
+        return;
+    }
     await buyAugmentations(ns, goal, force);
 }
 

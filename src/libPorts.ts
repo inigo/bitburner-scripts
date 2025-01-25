@@ -19,6 +19,7 @@ export const AUG_REPORTS_PORT = 15; // How many outstanding augmentations are th
 export const MESSAGES_TO_SPEAK_PORT = 16; // Queued up messages to speak
 
 export const AUGMENT_AND_RESTART = 20; // Install all augmentations and restart
+export const DO_NOT_RESTART = 21; // Install all augmentations and restart
 
 /* If run directly, dump the values of all ports to the terminal. */
 export async function main(ns: NS): Promise<void> {

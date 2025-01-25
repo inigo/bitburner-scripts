@@ -2,6 +2,7 @@ import { NS } from '@ns'
 import * as ports from "@/libPorts";
 import {getGoal} from "@/goal/libGoal";
 import {anyScriptRunning, launchIfNotRunning} from "@/libLaunch";
+import {checkPort, DO_NOT_RESTART} from "@/libPorts";
 
 // The second phase control script, launched by bootstrap once we've reached sufficient memory and money
 
@@ -69,12 +70,17 @@ export async function main(ns: NS): Promise<void> {
 			}				
 		}
 
-		// This is created by buyAugmentations and buyAugmentationsFromGang
+		// shouldRestart is a port value set by buyAugmentations and buyAugmentationsFromGang
+		const doNotRestart = checkPort(ns, DO_NOT_RESTART) !== null;
 		if (shouldRestart(ns)) {
-			ns.toast("Triggering restart!", "warning");
-			ns.exec("/augment/augmentAndRestart.js", "home", 1, "forceRestart");
-			ns.exit();
-			break;
+			if (doNotRestart) {
+				ns.toast("Skipping restart", "warning");
+			} else {
+				ns.toast("Triggering restart!", "warning");
+				ns.exec("/augment/augmentAndRestart.js", "home", 1, "forceRestart");
+				ns.exit();
+				break;
+			}
 		}
 
 		await ns.sleep(15_000);
