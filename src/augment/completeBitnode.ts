@@ -1,5 +1,6 @@
 import {NS} from '@ns'
 import {manuallyConnectTo} from "@/basic/installBackdoors";
+import {checkPort, DO_NOT_RESTART} from "@/libPorts";
 
 /// Complete the bitnode (if the requirements have been met, and automatically start the next iteration of BN 12
 
@@ -14,6 +15,12 @@ export async function main(ns : NS) : Promise<void> {
     const enoughPortsOpen = ns.getServer("w0r1d_d43m0n").openPortCount == 5;
 
     if (hasRedPill && enoughPortsOpen && currentHacking >= requiredHacking) {
+        const doNotRestart = checkPort(ns, DO_NOT_RESTART) !== null;
+        if (doNotRestart) {
+            ns.toast("Not hacking world daemon - do not restart is set")
+            return;
+        }
+
         ns.tprint("Hacking World Daemon!");
         ns.run("/reporting/logProgress.js", 1, "completeBitnode")
         await manuallyConnectTo(ns, "w0r1d_d43m0n");
