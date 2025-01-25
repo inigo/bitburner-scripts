@@ -2,3 +2,5 @@ node_modules/
 dist/
 TODO.txt
 .idea
+/src/events.txt
+/src/regularLog.txt
