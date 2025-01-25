@@ -26,24 +26,8 @@ export class AttackController {
 	}
 
 	initialPrimeTime(): number {
-		const firstWeakenTime = (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)) ? this.ns.getWeakenTime(this.targetServerName) : 0;
-
-		const availableGrowth = this.ns.getServerMaxMoney(this.targetServerName) / this.ns.getServerMoneyAvailable(this.targetServerName);
-		const growthInfo = this.growInfo(availableGrowth);
-		const growthTime = (availableGrowth>1) ? growthInfo.time : 0;
-
-		const secondWeakenInfo = this.weakenInfo( growthInfo.securityGrowth);
-		const secondWeakenTime = (availableGrowth>1) ? secondWeakenInfo.time : 0;
-
-		const totalPrimeTime = firstWeakenTime + growthTime + secondWeakenTime;
-		return totalPrimeTime;
-	}
-
-	async primeServer(): Promise<void> {
-		log(this.ns, "Starting priming on "+this.targetServerName);
-		reportOnServer(this.ns, this.targetServerName);
 		const host = this.ns.getHostname();
-		const availableMemory = this.ns.getServerMaxRam(host) - this.ns.getServerUsedRam(host);		
+		const availableMemory =  this.ns.getServerMaxRam(host) - this.ns.getServerUsedRam(host);
 
 		const securityToReduce = this.ns.getServerSecurityLevel(this.targetServerName) - this.ns.getServerMinSecurityLevel(this.targetServerName);
 		const firstWeakenInfo = this.weakenInfo( securityToReduce );
@@ -55,11 +39,40 @@ export class AttackController {
 		const secondWeakenInfo = this.weakenInfo( growthInfo.securityGrowth);
 
 		const idealPrimeTime = ((firstWeakenInfo.threads>0) ? firstWeakenTime : 0) +
-									((growthInfo.threads>0) ? growthInfo.time : 0) +
-									((secondWeakenInfo.threads>0) ? secondWeakenInfo.time : 0);
+			((growthInfo.threads>0) ? growthInfo.time : 0) +
+			((secondWeakenInfo.threads>0) ? secondWeakenInfo.time : 0);
 		const isOverMemory = Math.max(firstWeakenInfo.memory, growthInfo.memory, secondWeakenInfo.memory) > availableMemory;
-		const overMemoryMessage = isOverMemory ? " but insufficient memory, so expect longer" : "";
-		log(this.ns, fmt(this.ns)`Time to prime with sufficient threads should be ${idealPrimeTime}s${overMemoryMessage}`);
+
+		const actualFirstWeaken = firstWeakenInfo.threads == 0 ? 0 :
+				firstWeakenInfo.memory <= availableMemory ? firstWeakenTime :
+					(firstWeakenInfo.threads /  Math.floor(availableMemory / firstWeakenInfo.memoryPerThread)) * firstWeakenTime;
+		const actualGrowth = growthInfo.threads == 0 ? 0 :
+			growthInfo.memory <= availableMemory ? growthInfo.time :
+				(growthInfo.threads /  Math.floor(availableMemory / growthInfo.memoryPerThread)) * growthInfo.time;
+		const actualSecondWeaken = secondWeakenInfo.threads == 0 ? 0 :
+				secondWeakenInfo.memory <= availableMemory ? secondWeakenInfo.time :
+					(secondWeakenInfo.threads /  Math.floor(availableMemory / secondWeakenInfo.memoryPerThread)) * secondWeakenInfo.time;
+		const actualPrimeTime = actualFirstWeaken + actualGrowth + actualSecondWeaken;
+
+		log(this.ns, isOverMemory ? fmt(this.ns)`Time to prime with sufficient threads should be ${idealPrimeTime}s but actually will be ${actualPrimeTime}s` :
+			fmt(this.ns)`Time to prime is ${idealPrimeTime}s`);
+		return actualPrimeTime;
+	}
+
+	async primeServer(): Promise<void> {
+		log(this.ns, "Starting priming on "+this.targetServerName);
+		reportOnServer(this.ns, this.targetServerName);
+		const host = this.ns.getHostname();
+		const availableMemory = this.ns.getServerMaxRam(host) - this.ns.getServerUsedRam(host);		
+
+		const securityToReduce = this.ns.getServerSecurityLevel(this.targetServerName) - this.ns.getServerMinSecurityLevel(this.targetServerName);
+		const firstWeakenInfo = this.weakenInfo( securityToReduce );
+		const availableGrowth = this.ns.getServerMaxMoney(this.targetServerName) / this.ns.getServerMoneyAvailable(this.targetServerName);
+		const growthInfo = this.growInfo(availableGrowth);
+
+		const secondWeakenInfo = this.weakenInfo( growthInfo.securityGrowth);
+
+		log(this.ns, fmt(this.ns)`Priming in ${this.initialPrimeTime()}s`);
 
 		if (firstWeakenInfo.threads>0) {
 			if (firstWeakenInfo.memory > availableMemory) {
@@ -125,7 +138,7 @@ export class AttackController {
 		return { time: timeTaken + (delay*3) };
 	}	
 
-	timingInfo(minPauseBetweenAttacks = 300): TimingInfo {
+	timingInfo(minPauseBetweenAttacks = 100): TimingInfo {
 		const cycle = this.infoPerCycle();
 
 		const timingConstrainedSimultaneousAttacks = Math.floor(cycle.time / minPauseBetweenAttacks);
