@@ -31,7 +31,7 @@ async function buyServerWithAttack(ns: NS, ignoreLimit: boolean) {
 
 	const moneyAvailable = ns.getServerMoneyAvailable("home");
 	const serverCost = ns.getPurchasedServerCost(ramSize);
-	const canAfford = moneyAvailable >= serverCost;
+	const canAfford = moneyAvailable >= serverCost * 20;
 
 	if (!canAfford) {
 		ns.print(fmt(ns)`Not enough money to buy server - have £${moneyAvailable} but need at least £${serverCost}`);
