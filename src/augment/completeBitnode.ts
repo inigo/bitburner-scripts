@@ -5,7 +5,7 @@ import {manuallyConnectTo} from "@/basic/installBackdoors";
 
 export async function main(ns : NS) : Promise<void> {
     // Before the Red Pill is available, it's not possible to find world daemon, so the rest would fail
-    const hasRedPill = ns.singularity.getOwnedAugmentations(true).includes("The Red Pill");
+    const hasRedPill = ns.singularity.getOwnedAugmentations(false).includes("The Red Pill");
     ns.print("Don't have Red Pill, so cannot check world daemon")
     if (!hasRedPill) { return }
 
