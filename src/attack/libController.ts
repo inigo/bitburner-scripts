@@ -12,7 +12,7 @@ export class AttackController {
 	idealServerInfo: Server;
 	ns: NS;
 	hf: HackingFormulas;
-	constructor(ns: NS, targetServerName: string, sourceServerRam: number, sourceServerCores = 1, moneyToTakePercent = 0.5) {
+	constructor(ns: NS, targetServerName: string, sourceServerRam: number, sourceServerCores = 1, moneyToTakePercent = 0.5, internalDelay = 200, additionalDelay = 300) {
 		this.ns = ns;
 		this.hf = ns.formulas.hacking;
 		this.targetServerName = targetServerName;
@@ -21,8 +21,8 @@ export class AttackController {
 		this.sourceServerCores = sourceServerCores;
 		this.moneyToTakePercent = moneyToTakePercent;
 
-		this.internalDelay = 200;
-		this.additionalDelay = 300;
+		this.internalDelay = internalDelay;
+		this.additionalDelay = additionalDelay;
 	}
 
 	initialPrimeTime(): number {
