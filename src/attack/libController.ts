@@ -143,7 +143,7 @@ export class AttackController {
 
 		const timingConstrainedSimultaneousAttacks = Math.floor(cycle.time / minPauseBetweenAttacks);
 		const memoryConstrainedSimultaneousAttacks = Math.floor(this.sourceServerRam / cycle.memory);
-		const simultaneousAttacks = Math.min( memoryConstrainedSimultaneousAttacks, timingConstrainedSimultaneousAttacks);
+		const simultaneousAttacks = Math.max(Math.min( memoryConstrainedSimultaneousAttacks, timingConstrainedSimultaneousAttacks),1);
 		const pauseBetweenAttacks = Math.max(Math.ceil(cycle.time / simultaneousAttacks), minPauseBetweenAttacks)+this.additionalDelay+(this.internalDelay*3);
 
 		log(this.ns, fmt(this.ns)`Total time is ${cycle.time}s and min pause is ${minPauseBetweenAttacks}s giving timing constrained max attacks of ${timingConstrainedSimultaneousAttacks}`);
