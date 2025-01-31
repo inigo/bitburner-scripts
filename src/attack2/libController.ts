@@ -217,7 +217,7 @@ export class AttackController {
 
         const server = this.idealServerInfo;
         const growthTime = this.hf.growTime(server, player)
-        const growthThreads = Math.ceil(this.growThreads(server, growth, player)) + 1;
+        const growthThreads = Math.ceil(this.growThreads(server, growth, player)) + 2;
 
         const memoryPerThread = this.ns.getScriptRam(baseDir+"grow.js");
         const growthMemory = growthThreads * memoryPerThread;

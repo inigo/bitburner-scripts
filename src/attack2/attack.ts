@@ -27,8 +27,8 @@ export async function manageAttacks(ns: NS, hackTarget: string): Promise<void> {
     const spareRamBuffer = (host=="home") ? 100 : 0;
     const availableRam = ns.getServerMaxRam(host) - spareRamBuffer;
 
-    const bufferTimeWithinAttack = 30;
-    const bufferTimeBetweenAttacks = 50;
+    const bufferTimeWithinAttack = 60; // Works on fast computer 30;
+    const bufferTimeBetweenAttacks = 90; // Works on fast computer 50;
 
     while (true) {
         killAttacks(ns, hackTarget);
@@ -55,7 +55,7 @@ export async function manageAttacks(ns: NS, hackTarget: string): Promise<void> {
                 await attackController.launchAttackCycle(attacksSoFar++);
                 await ns.sleep(timing.pauseBetweenAttacks);
             } else {
-                ns.tprint("Waiting for port write");
+                ns.print("Waiting for port write");
                 await ns.nextPortWrite(attackController.getPort());
             }
 

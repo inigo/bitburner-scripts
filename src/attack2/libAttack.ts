@@ -2,6 +2,7 @@
 
 import {NS, Server} from '@ns'
 import {fmt} from "@/libFormat";
+import * as ports from "@/libPorts";
 
 export const baseDir = "/attack2/";
 
@@ -61,6 +62,26 @@ export function killMatchingScripts(ns: NS, host: string, filenames: string[], t
         .filter(p => matchesTargetFn(p.args.map(arg => String(arg))))
         .map(p => ns.kill(p.pid)).length;
 }
+
+export async function reportAttackStatus(ns: NS): Promise<void> {
+    const filename = "attack/attack.js";
+    const listAttackTargets = (s: string) => ns.ps(s).filter(j => j.filename==filename).map(j => j.args[0]);
+
+    const potentialAttackers = ["home", ... ns.getPurchasedServers()];
+    const targets: AttackScriptStatus[] = potentialAttackers.flatMap(s => listAttackTargets(s).filter(s => s).map(t => [s, t]))
+        .map(st => {
+            const [source, target] = st.map(String);
+            const income = ns.getScriptIncome(filename, source, target );
+            return { source, target, income };
+        });
+    await ports.setPortValue(ns, ports.ATTACK_REPORTS_PORT, JSON.stringify(targets));
+}
+
+export function retrieveAttackStatus(ns: NS): AttackScriptStatus[] {
+    return (ports.checkPort(ns, ports.ATTACK_REPORTS_PORT, JSON.parse) as AttackScriptStatus[]) ?? [];
+}
+
+type AttackScriptStatus = { source: string, target: string, income: number };
 
 // ------
 
