@@ -17,6 +17,7 @@ export const CORP_REPORTS_PORT = 13; // What is the status of the corporation?
 export const ATTACK_REPORTS_PORT = 14; // What servers are currently being attacked by a batch attack?
 export const AUG_REPORTS_PORT = 15; // How many outstanding augmentations are there?
 export const MESSAGES_TO_SPEAK_PORT = 16; // Queued up messages to speak
+export const CONTRACT_PORT = 17; // Return results from solving contracts
 
 export const AUGMENT_AND_RESTART = 20; // Install all augmentations and restart
 export const DO_NOT_RESTART = 21; // Install all augmentations and restart
