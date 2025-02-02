@@ -1,8 +1,8 @@
 import { NS } from '@ns'
 import { receiveAttackTarget } from "@/spread/libSpread";
 import { findAllHackableServers } from "@/libServers";
-import { toIdealServer } from "@/attack2/libAttack";
-import { AttackController } from '@/attack2/libController';
+import { toIdealServer } from "@/old_attack/libAttack";
+import { AttackController } from '@/old_attack/libController';
 
 export class TargetFinder {
     constructor(readonly ns: NS) {
@@ -49,7 +49,7 @@ export class TargetFinder {
     
     listRunningAttacks(): string[] {
         const servers = [... this.ns.getPurchasedServers(), "home"];
-        const attackedServers = servers.flatMap(s => this.ns.ps(s).filter(p => p.filename=="attack2/attack.js").map(p => p.args[0]) );
+        const attackedServers = servers.flatMap(s => this.ns.ps(s).filter(p => p.filename=="attack/attack.js").map(p => p.args[0]) );
         const distinctTargets = [...new Set(attackedServers)];
         return distinctTargets.map(String);
     }

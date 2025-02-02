@@ -1,4 +1,4 @@
-import { TargetFinder }  from "@/attack2/libTargets";
+import { TargetFinder }  from "@/old_attack/libTargets";
 import { PrettyTable }  from "@/libFormat";
 import { NS } from '@ns'
 

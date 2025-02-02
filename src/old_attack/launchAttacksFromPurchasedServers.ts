@@ -1,10 +1,10 @@
 import { NS } from '@ns'
-import { TargetFinder }  from "@/attack2/libTargets";
-import { filesNeededForAttack } from "@/attack2/libAttack"
+import { TargetFinder }  from "@/old_attack/libTargets";
+import { filesNeededForAttack } from "@/old_attack/libAttack"
 
 export async function main(ns : NS) : Promise<void> {
     const purchasedServersWithoutAttacks = ns.getPurchasedServers()
-                    .filter(s => ! ns.scriptRunning("/attack2/attack.js", s))
+                    .filter(s => ! ns.scriptRunning("/attack/attack.js", s))
                     .filter(s => ns.getServerUsedRam(s) < 128 );
     for (const server of purchasedServersWithoutAttacks) {
         await launchAttack(ns, server);
@@ -24,5 +24,5 @@ export async function launchAttack(ns: NS, server: string): Promise<void> {
     const serverToAttack = viableTargets[0].name;
     ns.print(`Launching attack from ${server} on ${serverToAttack}`)
     await ns.scp(filesNeededForAttack(), server, "home");
-	ns.exec("/attack2/attack.js", server, 1, serverToAttack);
+	ns.exec("/attack/attack.js", server, 1, serverToAttack);
 }
