@@ -8,8 +8,6 @@ export async function main(ns : NS) : Promise<void> {
 		return;
 	} 
 
-	return;
-
 	const ramToKeepFree = 128;
 	const availableRam = ns.getServerMaxRam("home") - ramToKeepFree;
     const cores = ns.getServer("home").cpuCores;
