@@ -3,6 +3,7 @@ import { receiveAttackTarget } from "@/spread/libSpread";
 import { findAllHackableServers } from "@/libServers";
 import { toIdealServer } from "@/attack/libAttack";
 import { AttackController } from '@/attack/libController';
+import {bufferTimeBetweenAttacks, bufferTimeWithinAttack} from "@/attack/attack";
 
 export class TargetFinder {
     constructor(readonly ns: NS) {
@@ -13,9 +14,10 @@ export class TargetFinder {
         const attacks = [ ... this.listRunningAttacks(), receiveAttackTarget(this.ns)?.targetServer ];
         const player = this.ns.getPlayer();
         const targetDetails = targets.map(t => {
-            const attack = new AttackController(this.ns, t, serverRam, serverCores, moneyToTakePercent);
+            const attack = new AttackController(this.ns, t, serverRam, serverCores, bufferTimeWithinAttack, bufferTimeBetweenAttacks);
             const timingInfo = attack.timingInfo();
             const memoryPerAttack = attack.infoPerCycle().memory;
+            const minSecurity = this.ns.getServerMinSecurityLevel(t);
             const maxMoney = this.ns.getServerMaxMoney(t);
             const bestMoneyPerAttack = Math.round(maxMoney * moneyToTakePercent);
     
@@ -37,7 +39,7 @@ export class TargetFinder {
     
             const isAttacked = attacks.includes(t);
     
-            return { name: t, incomeWithinPeriodPerSecond: incomeWithinPeriodPerSecond, incomePerSecond, totalMemory, maxMoney, time: timingInfo.pauseBetweenAttacks, threads: timingInfo.simultaneousAttacks, chance: chance, initialPrimeTime, isAttacked };
+            return { name: t, incomeWithinPeriodPerSecond: incomeWithinPeriodPerSecond, incomePerSecond, totalMemory, minSecurity, maxMoney, time: timingInfo.pauseBetweenAttacks, threads: timingInfo.simultaneousAttacks, chance: chance, initialPrimeTime, isAttacked };
         });
         return targetDetails
                     .filter(td => td.totalMemory <= serverRam)
@@ -57,5 +59,5 @@ export class TargetFinder {
 }
 
 export type TargetInfo = { name: string, incomeWithinPeriodPerSecond: number, incomePerSecond: number, 
-                            maxMoney: number, totalMemory: number, time: number, threads: number, chance: number, 
+                            minSecurity: number, maxMoney: number, totalMemory: number, time: number, threads: number, chance: number,
                             initialPrimeTime: number, isAttacked: boolean };

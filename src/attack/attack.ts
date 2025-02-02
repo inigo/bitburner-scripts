@@ -3,6 +3,9 @@ import {log, reportOnServer, runningAttacks} from "@/attack/libAttack";
 import {AttackController} from "@/attack/libController";
 import {fmt} from "@/libFormat";
 
+export const bufferTimeWithinAttack = 60; // Works on fast computer 30;
+export const bufferTimeBetweenAttacks = 90; // Works on fast computer 50;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function autocomplete(data : AutocompleteData, args : string[]) : string[] {
     return [...data.servers];
@@ -26,9 +29,6 @@ export async function manageAttacks(ns: NS, hackTarget: string): Promise<void> {
     // When running on home, reserve some memory for other scripts and utilities
     const spareRamBuffer = (host=="home") ? 100 : 0;
     const availableRam = ns.getServerMaxRam(host) - spareRamBuffer;
-
-    const bufferTimeWithinAttack = 60; // Works on fast computer 30;
-    const bufferTimeBetweenAttacks = 90; // Works on fast computer 50;
 
     while (true) {
         killAttacks(ns, hackTarget);
