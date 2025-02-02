@@ -10,7 +10,7 @@ export async function main(ns: NS): Promise<void> {
 	const launchServerCores = ns.getServer(launchServer).cpuCores;
 	const moneyToTakePercent: number = (ns.args[2] as number) ?? 0.5;
 
-	const table = new PrettyTable(ns, ["Name", "Status", "Quick ($/s)", "Max ($/s)", "Security", "Money ($)", "Attack time", "Memory", "Threads", "Prime in"]);
+	const table = new PrettyTable(ns, ["Name", "Status", "Quick ($/s)", "Max ($/s)", "Sec'y", "Money ($)", "Attack time (s)", "Memory (GB)", "Threads", "Prime in (s)"]);
 	const targetFinder = new TargetFinder(ns);
 	const targets = targetFinder.listBestTargets(60, launchServerRam, launchServerCores, moneyToTakePercent);
 	for (const t of targets.slice(0,20)) {
