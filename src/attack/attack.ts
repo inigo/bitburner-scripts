@@ -73,7 +73,7 @@ export async function manageAttacks(ns: NS, hackTarget: string): Promise<void> {
             const rebalanceThreshold = 10;
             if (potentiallyUnbalanced > rebalanceThreshold) {
                 log(ns, `WARN Server ${hackTarget} still unbalanced - rebalancing`);
-                ns.tprint(`Server ${hackTarget} unbalanced - rebalancing`);
+                ns.toast(`Server ${hackTarget} unbalanced - rebalancing`);
                 break;
             }
 
