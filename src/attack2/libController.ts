@@ -199,7 +199,7 @@ export class AttackController {
         const hackTime = this.hf.hackTime(server, player);
 
         const hackPerThread = this.hf.hackPercent(server, player);
-        const hackThreads = Math.max(Math.floor(this.moneyToTakePercentage / hackPerThread), 1);
+        const hackThreads = hackPerThread==0 ? Number.MAX_SAFE_INTEGER : Math.max(Math.floor(this.moneyToTakePercentage / hackPerThread), 1);
         // At high hack levels, granularity of threads means that we will end up taking less than 50% of the money
         // (or using Math.ceil would take more than 50%, or the rounding up to 1 will take more than 50%)
         const hackAmount = hackThreads * hackPerThread;
