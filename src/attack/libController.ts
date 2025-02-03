@@ -83,13 +83,21 @@ export class AttackController {
                 action.threads = availableThreads;
             }
         };
+        const adjustThreadsMore = (action: ActionInfo) => {
+            this.ns.print("Reducing number of threads from "+action.threads+" to "+(action.threads*0.9));
+            action.threads = Math.floor(action.threads * 0.9);
+        }
 
         const securityToReduce = this.ns.getServerSecurityLevel(this.targetServerName) - this.ns.getServerMinSecurityLevel(this.targetServerName);
         const firstWeakenInfo = this.weakenInfo( securityToReduce );
         if (firstWeakenInfo.threads>0) {
             adjustThreadsForMemory(firstWeakenInfo);
             while (firstWeakenInfo.threads>0 && this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)+0.01) {
-                await this.launchWeaken(firstWeakenInfo.threads, firstWeakenInfo.time, 0, "prime_weaken1", this.port);
+                const wasStarted = await this.launchWeaken(firstWeakenInfo.threads, firstWeakenInfo.time, 0, "prime_weaken1", this.port);
+                if (!wasStarted) {
+                    adjustThreadsMore(firstWeakenInfo);
+                    continue;
+                }
                 await this.ns.nextPortWrite(this.port);
             }
         }
@@ -99,7 +107,11 @@ export class AttackController {
         if (growthInfo.threads>0 && availableGrowth!=1) {
             adjustThreadsForMemory(growthInfo);
             while (this.ns.getServerMoneyAvailable(this.targetServerName) < this.ns.getServerMaxMoney(this.targetServerName) * 0.999) {
-                await this.launchGrow(growthInfo.threads, growthInfo.time, 0, "prime_grow", this.port);
+                const wasStarted = await this.launchGrow(growthInfo.threads, growthInfo.time, 0, "prime_grow", this.port);
+                if (!wasStarted) {
+                    adjustThreadsMore(growthInfo);
+                    continue;
+                }
                 await this.ns.nextPortWrite(this.port);
             }
         }
@@ -108,7 +120,11 @@ export class AttackController {
         if (secondWeakenInfo.threads>0 && availableGrowth!=1) {
             adjustThreadsForMemory(secondWeakenInfo);
             while (this.ns.getServerSecurityLevel(this.targetServerName) > this.ns.getServerMinSecurityLevel(this.targetServerName)+0.01) {
-                await this.launchWeaken(secondWeakenInfo.threads, secondWeakenInfo.time, 0, "prime_weaken2", this.port);
+                const wasStarted = await this.launchWeaken(secondWeakenInfo.threads, secondWeakenInfo.time, 0, "prime_weaken2", this.port);
+                if (!wasStarted) {
+                    adjustThreadsMore(secondWeakenInfo);
+                    continue;
+                }
                 await this.ns.nextPortWrite(this.port);
             }
         }
@@ -140,27 +156,28 @@ export class AttackController {
 
     // -------
 
-    async launchHack(threads: number, timeForAction: number, endTime: number, batchId: string, port = 0) {
-        await this.launchScript("hack", threads, timeForAction, endTime, batchId, port);
+    async launchHack(threads: number, timeForAction: number, endTime: number, batchId: string, port = 0): Promise<boolean> {
+        return await this.launchScript("hack", threads, timeForAction, endTime, batchId, port);
     }
 
-    async launchWeaken(threads: number, timeForAction: number, endTime: number, batchId: string, port = 0) {
-        await this.launchScript("weaken", threads, timeForAction, endTime, batchId, port);
+    async launchWeaken(threads: number, timeForAction: number, endTime: number, batchId: string, port = 0): Promise<boolean> {
+        return await this.launchScript("weaken", threads, timeForAction, endTime, batchId, port);
     }
 
-    async launchGrow(threads: number, timeForAction: number, endTime: number, batchId: string, port = 0) {
-        await this.launchScript("grow", threads, timeForAction, endTime, batchId, port);
+    async launchGrow(threads: number, timeForAction: number, endTime: number, batchId: string, port = 0): Promise<boolean> {
+        return await this.launchScript("grow", threads, timeForAction, endTime, batchId, port);
     }
 
-    async launchScript(type: "hack" | "weaken" | "grow", threads: number, timeForAction: number, endTime: number, batchId: string, port: number) {
-        if (threads === 0) return;
+    async launchScript(type: "hack" | "weaken" | "grow", threads: number, timeForAction: number, endTime: number, batchId: string, port: number): Promise<boolean> {
+        if (threads === 0) return true;
 
         const doAttackArgs: DoAttackParams = {
             target: this.targetServerName, expectedEndTime: endTime, timeForAction: timeForAction, portToUse: port, batchId: batchId
         };
 
-        // this.ns.print(`Launching ${type} with ${threads} threads, to take ${timeForAction.toFixed(2)}`);
-        this.ns.exec(`${baseDir}${type}.js`, this.sourceHostName, threads, ...Object.values(doAttackArgs));
+        // this.ns.print(`Launching ${type} with ${threads} threads, to take ${timeForAction.toFixed(2)} - args are ${Object.values(doAttackArgs)}`);
+        const pid = this.ns.exec(`${baseDir}${type}.js`, this.sourceHostName, threads, ...Object.values(doAttackArgs));
+        return (pid!=0);
     }
 
     // -------
