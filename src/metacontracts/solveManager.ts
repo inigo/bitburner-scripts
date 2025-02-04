@@ -6,11 +6,11 @@ import {
     generatePrompt,
     getClaudeResponse, SolveStatus
 } from "@/metacontracts/libFunctionWriter";
-import {extractFunction, listFunctionNames} from "@/metacontracts/libFunctionHelper";
+import {extractFunction, listFunctionNames, safeStringify} from "@/metacontracts/libFunctionHelper";
 
 const CONTRACT_PORT = 19;
 const SCRIPT_MAX_DURATION_MS = 60_000;
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 8;
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
@@ -39,14 +39,18 @@ async function solveContract(ns: NS, contract: ContractInfo) {
     let solveStatus: SolveStatus = "Pending";
 
     const startTimeMs = new Date().getTime();
-    const pid = ns.run(filename, 1, JSON.stringify(contract.data));
+    const pid = ns.run(filename, 1, safeStringify(contract.data));
 
     ns.print(`Calling script - will loop for up to ${SCRIPT_MAX_DURATION_MS / 1000} seconds`);
     while (new Date().getTime() - startTimeMs < SCRIPT_MAX_DURATION_MS) {
+        const isStillRunning = ns.isRunning(pid);
         const emptyPort = "NULL PORT DATA";
         const portContents = ns.readPort(CONTRACT_PORT);
         if (portContents!=emptyPort) {
             answer = portContents;
+            break;
+        } else if (!isStillRunning) {
+            solveStatus = "Crashed";
             break;
         }
         await ns.asleep(100);
@@ -57,7 +61,7 @@ async function solveContract(ns: NS, contract: ContractInfo) {
     }
     if (answer == null) {
         ns.toast(`No answer reached for ${contract.filename}`, "error");
-        solveStatus = "NoAnswer";
+        if (solveStatus != "Crashed") solveStatus = "NoAnswer";
     } else {
         ns.print(`Hoping that answer for ${contract.filename} - ${contract.contractType} with data ${contract.data} is ${answer}`);
         const result = ns.codingcontract.attempt(answer, contract.filename, contract.server);
@@ -99,7 +103,7 @@ async function createInitialSolver(ns: NS, contract: ContractInfo) {
     ns.write(filename, preambleCode + wrappedCode);
 }
 
-async function createAdditionalSolver(ns: NS, contract: ContractInfo, previousAttempts: number, previousAnswer: any, solveStatus: "Incorrect" | "NoAnswer") {
+async function createAdditionalSolver(ns: NS, contract: ContractInfo, previousAttempts: number, previousAnswer: any, solveStatus: SolveStatus) {
     const filename = toSolverFileName(contract);
     const functionName = toSolverFunctionName(contract, previousAttempts);
 

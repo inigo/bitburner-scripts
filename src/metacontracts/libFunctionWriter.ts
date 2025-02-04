@@ -1,7 +1,9 @@
 import {ContractInfo} from "@/metacontracts/libContracts";
 import {anthropicApiKey} from "@/metacontracts/apiKey";
+import {safeStringify} from "@/metacontracts/libFunctionHelper";
 
 export function generatePrompt(contract: ContractInfo, functionName: string): string {
+    const stringifiedData = safeStringify(contract.data);
 
     const p = `
 You are tasked with writing a JavaScript function to solve this problem, 
@@ -15,7 +17,7 @@ ${contract.description}
 
 The initial arguments that the function must work for are:
 
-${JSON.stringify(contract.data)}
+${stringifiedData}
 
 The function should have this signature:
 
@@ -31,6 +33,7 @@ Your task is to implement the function that solves this problem. Follow these gu
 6. Prioritize accuracy and readability over extreme optimization, but still aim for efficiency, especially for large inputs.
 7. Use clear and descriptive variable names.
 8. Avoid unnecessary comments, but include a brief comment at the beginning of the function describing your approach.
+9. Make sure not to get stuck in an infinite loop, or to write code that is likely to take longer than 60s.
 
 Write your complete function implementation, including the explanation comment, inside <code> tags. 
 Ensure that your function works correctly for the given initial value and would work for other valid inputs as well.
@@ -76,6 +79,8 @@ function toFailureText(solveStatus: SolveStatus, previousAnswer: any) {
         return "It gave an incorrect answer of "+previousAnswer?.toString()+".";
     } else if (solveStatus == "NoAnswer") {
         return "It did not give a correct answer quickly enough. Please write a version that is more efficient.";
+    } else if (solveStatus == "Crashed") {
+        return "It crashed with an error message. Please try and anticipate what errors may occur, and code defensively.";
     } else {
         return "";
     }
@@ -118,7 +123,7 @@ export function extractCodeBlock(text: string): string {
     return match ? match[1].trim() : '';
 }
 
-export type SolveStatus = 'Pending' | 'NoAnswer' | 'Correct' | 'Incorrect';
+export type SolveStatus = 'Pending' | 'NoAnswer' | 'Correct' | 'Incorrect' | 'Crashed';
 
 
 

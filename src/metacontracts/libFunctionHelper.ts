@@ -32,6 +32,24 @@ export function extractFunction(ns: NS, filename: string, functionName: string):
 }
 
 export function reportSuccess(ns: NS, result: any, port: number): void {
-    ns.toast("Solved with "+JSON.stringify(result));
+    ns.toast("Calculated answer to be "+safeStringify(result));
+
+    if (typeof result === "bigint") {
+        result = result.toString();
+    }
     ns.writePort(port, result);
 }
+
+export function safeStringify(data: any) {
+    // Data is sometimes a bigint, that can't be stringified normally
+    if (typeof data === "bigint") {
+        return data.toString();
+    } else {
+        return JSON.stringify(data, (_, value) =>
+            typeof value === 'bigint'
+                ? { type: 'BigInt', value: value.toString() }
+                : value
+        );
+    }
+}
+
