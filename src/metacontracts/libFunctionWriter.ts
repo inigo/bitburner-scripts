@@ -40,6 +40,49 @@ Do not return any other text apart from the function implementation.
     return p;
 }
 
+export function generateAdditionalPrompt(contract: ContractInfo, functionName: string, previousFunction: string, previousAnswer: any, solveStatus: SolveStatus, previousAttempts: number): string {
+
+    const originalPrompt = generatePrompt(contract, functionName);
+
+    const previousFailureReason = toFailureText(solveStatus, previousAnswer);
+    const retryText = (previousAttempts % 3 == 0) ?
+        "Definitely do not use the same approach as this function. You must try a completely different way of solving the problem." :
+        "Bear in mind that this function was not a success. You may be able to build on it to get a better answer, but it may be a good idea to try a different approach."
+
+    const newPrompt = `
+
+${originalPrompt}
+
+The previous attempt at implementing this function was a failure. 
+
+${previousFailureReason}
+
+The previous function that failed was:
+
+---
+
+${previousFunction}
+
+---
+
+${retryText}
+
+    `;
+    return newPrompt;
+}
+
+function toFailureText(solveStatus: SolveStatus, previousAnswer: any) {
+    if (solveStatus == "Incorrect") {
+        return "It gave an incorrect answer of "+previousAnswer?.toString()+".";
+    } else if (solveStatus == "NoAnswer") {
+        return "It did not give a correct answer quickly enough. Please write a version that is more efficient.";
+    } else {
+        return "";
+    }
+}
+
+
+
 /**
  * Before this will work, you must create a file apiKey.ts containing:
  * `export const anthropicApiKey = "YOUR_CLAUDE_API_KEY";`
@@ -74,6 +117,9 @@ export function extractCodeBlock(text: string): string {
     const match = text.match(/<code>([\s\S]*?)<\/code>/);
     return match ? match[1].trim() : '';
 }
+
+export type SolveStatus = 'Pending' | 'NoAnswer' | 'Correct' | 'Incorrect';
+
 
 
 
